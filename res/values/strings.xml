@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Daytripper</string>
+	<string name="action_search">Search</string>
+	<string name="search_hint">Search</string>
+	<string name="message_ok">OK</string>
+	<string name="message_intro">Ask me about</string>
+	
+	<string-array name="phrase_array">
+	    <item>Yelp</item>
+	    <item>Fandango</item>
+	    <item>Seatgeek</item>
+	</string-array>
+	
+	<string-array name="example_array">
+	    <item>
+	 	\"motels\"\n\"gas station by distance\"\n\"luau in Lahaina, HI by ratings\"
+	    </item>
+	    <item>
+	 	\"top selling movies\"\n\"action movies\"\n\"movies playing in Kahului, HI\"
+	 	</item>
+	    <item>
+	   	\"monster truck\"\n\"Mets vs. Yankees\"\n\"singers like Taylor Swift\"
+		</item>
+	</string-array>
+	<string-array name="logo_array">
+	    <item>yelp_logo_50x25</item>
+	    <item>logo_new</item>
+	    <item>seatgeek_102x31</item>
+	</string-array>
+</resources>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/card_bg">
+
+    <LinearLayout
+        android:id="@+id/images"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentLeft="true" >
+
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="72dip"
+            android:layout_height="72dip"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="photo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/stub" />
+
+        <TextView
+            android:id="@+id/rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dip"
+            android:drawableLeft="@drawable/stars_small_0"
+            android:drawablePadding="4dip"
+            android:alpha="0.87"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/images"
+        android:layout_toRightOf="@id/images"
+        android:gravity="top"
+        android:orientation="vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:textColorLink="#E64A19"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/firstLine"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:textSize="14sp"
+            android:alpha="0.54"/>
+
+        <TextView
+            android:id="@+id/secondLine"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:textSize="14sp"
+            android:alpha="0.54" />
+        
+        <TextView
+            android:id="@+id/phone"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="none"
+            android:singleLine="false"
+            android:textSize="14sp"
+            android:alpha="0.54"
+            android:text="#-###-###-####" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/address"
+        android:layout_alignTop="@id/address"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:textColor="#259B24"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</RelativeLayout>
