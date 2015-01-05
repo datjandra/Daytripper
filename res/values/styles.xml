@@ -1,30 +1,67 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="AppBaseTheme" parent="@android:style/Theme.Holo.Light.DarkActionBar">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
+        <item name="android:actionBarWidgetTheme">@style/Theme.stylingactionbar.widget</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav</item>
+        <item name="android:spinnerDropDownItemStyle">@style/DropDownItem</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItem</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_item_background_stylingactionbar</item>
+     	<item name="android:actionModeBackground">@drawable/cab_background_top_daytripper</item>
+        <item name="android:actionModeCloseButtonStyle">@style/CloseButton</item>
     </style>
 
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <item name="android:actionBarStyle">@style/JalanJalanActionBar</item>
-    </style>
-
-    <style name="JalanJalanActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+    <style name="ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@drawable/gradient_orange</item>
-        <item name="android:titleTextStyle">@style/JalanJalanTitle</item>
+        <item name="android:backgroundStacked">@color/stacked_orange</item>
+        <item name="android:backgroundSplit">@color/sa_orange</item>
+        <item name="android:titleTextStyle">@style/ActionBarTitle</item>
     </style>
     
-    <style name="JalanJalanTitle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+    <style name="ActionBarTitle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
     	<item name="android:textColor">#FFFFFF</item>
+    </style>
+    
+    <style name="ActionBarTabStyle" parent="@android:style/Widget.Holo.ActionBar.TabView">
+      	<item name="android:background">@drawable/tab_indicator_ab_daytripper</item>
+    </style>
+	
+    <style name="PopupMenu" parent="@android:style/Widget.Holo.ListPopupWindow">
+       	<item name="android:popupBackground">@drawable/menu_dropdown_panel_daytripper</item>	
+    </style>
+
+    <style name="DropDownListView" parent="@android:style/Widget.Holo.ListView.DropDown">
+    	<item name="android:listSelector">@drawable/selectable_background_daytripper</item>
+        <item name="android:divider">@color/pressed</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+
+    <style name="Theme.stylingactionbar.widget" parent="@android:style/Theme.Holo">
+        <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView</item>
+        <item name="android:spinnerStyle">@style/DropDownNav</item>
+        <item name="android:textColorHint">@color/hint</item>
+    </style>
+
+    <style name="DropDownNav" parent="@android:style/Widget.Holo.Spinner">
+        <item name="android:background">@drawable/spinner_background_ab_daytripper</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_daytripper</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_daytripper</item>
+    </style>
+
+    <style name="DropDownItem" parent="@android:style/Widget.Holo.Light.DropDownItem.Spinner">
+        <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
+    </style>
+
+    <style name="SpinnerItem" parent="@android:style/Widget.Holo.TextView.SpinnerItem">
+        <item name="android:textAppearance">?android:attr/textAppearanceInverse</item>
+    </style>
+
+    <style name="CloseButton" parent="@android:style/Widget.Holo.ActionButton.CloseMode">
+     	<item name="android:background">@drawable/btn_cab_done_daytripper</item>
     </style>
     
     <style name="TitleBarText">

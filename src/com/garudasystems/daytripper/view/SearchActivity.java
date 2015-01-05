@@ -1,8 +1,11 @@
 package com.garudasystems.daytripper.view;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -51,7 +54,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class SearchActivity extends FragmentActivity 
 		implements ActionBar.TabListener, LocationListener {
 
-	public final static String SEARCH_URL = "http://vocifery.com/api/v0/search/yelp";
+	public final static String SEARCH_URL = "http://vocifery.com/api/v0/query";
+	public final static String ENTITIES_NODE = "entities";
+	public final static String NAME_NODE = "name";
+	public final static String URL_NODE = "url";
+	public final static String LOCATION_NODE = "location";
+	public final static String EXTENDED_ADDRESS_NODE = "extendedAddress";
+	public final static String DETAILS_NODE = "details";
+	public final static String RATING_URL_NODE = "ratingUrl";
+	public final static String REVIEW_COUNT_NODE = "reviewCount";
+	public final static String COORDINATE_NODE = "coordinate";
+	public final static String LONGITUDE_NODE = "longitude";
+	public final static String LATITUDE_NODE = "latitude";
+	public final static String IMAGES_NODE = "imageUrls";
 	
 	private static final String TAG = "SearchActivity";
 	private static final String[] TABS = { "List", "Map" };
@@ -280,8 +295,11 @@ public class SearchActivity extends FragmentActivity
 					builder.include(position);
 				}
 			}
-			LatLngBounds bounds = builder.build();
-			map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 15));
+			
+			if (!resultList.isEmpty()) {
+				LatLngBounds bounds = builder.build();
+				map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 15));
+			}
 		}
 	}
 	
@@ -355,48 +373,70 @@ public class SearchActivity extends FragmentActivity
 		private List<SearchResult> parseJson(String result) throws JSONException {
 			List<SearchResult> resultList = new ArrayList<SearchResult>();
 			JSONObject json = new JSONObject(result);
-			if (!json.has("businesses")) {
+			if (!json.has(ENTITIES_NODE)) {
 				return resultList;
 			}
 			
-			JSONArray businessList = json.getJSONArray("businesses");
-			int numberBusinesses = businessList.length();
-			for (int i=0; i<numberBusinesses; i++) {
-				JSONObject business = businessList.getJSONObject(i);
+			String inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
+			String outputFormat = "EEE, MMM d h:mm a";
+			final SimpleDateFormat inputFormatter = new SimpleDateFormat(inputFormat, Locale.US);
+			final SimpleDateFormat outputFormatter = new SimpleDateFormat(outputFormat, Locale.US);
+			JSONArray entities = json.getJSONArray(ENTITIES_NODE);
+			int numberEntities = entities.length();
+			for (int i=0; i<numberEntities; i++) {
+				JSONObject entity = entities.getJSONObject(i);
 				SearchResult searchResult = new SearchResult();
-				searchResult.setName(business.optString("name"));
-				searchResult.setDisplayPhone(business.optString("display_phone"));
-				searchResult.setReviewCount(business.getInt("review_count"));
-				searchResult.setMobileUrl(business.optString("mobile_url"));
-				searchResult.setImageUrl(business.optString("image_url"));
-				searchResult.setRatingImgUrlSmall(business.optString("rating_img_url_small"));
-				searchResult.setRatingImgUrl(business.optString("rating_img_url"));
-
-				if (!business.has("location")) {
-					continue;
-				}
-				JSONObject location = business.getJSONObject("location");
 				
-				if (!location.has("display_address")) {
-					continue;
+				if (entity.has(NAME_NODE)) {
+					searchResult.setName(entity.optString(NAME_NODE));
 				}
-				JSONArray displayAddress = location.getJSONArray("display_address");
 				
-				int addressLength = displayAddress.length();
-				for (int j=0; j<addressLength; j++) {
-					if (j == 0) {
-						searchResult.setAddressOne(displayAddress.optString(j));
-					} else {
-						searchResult.setAddressTwo(displayAddress.optString(j));
+				if (entity.has(URL_NODE)) {
+					searchResult.setMobileUrl(entity.optString(URL_NODE));
+				}
+				
+				if (entity.has(LOCATION_NODE)) {
+					searchResult.setAddressOne(entity.optString(LOCATION_NODE));
+				}
+				
+				if (entity.has(EXTENDED_ADDRESS_NODE)) {
+					searchResult.setAddressTwo(entity.optString(EXTENDED_ADDRESS_NODE));
+				}
+				
+				if (entity.has(DETAILS_NODE)) {
+					String details = entity.optString(DETAILS_NODE);
+					try {
+						searchResult.setDetails(outputFormatter.format(inputFormatter.parse(details)));
+					} catch (ParseException e) {
+						searchResult.setDetails(details);
 					}
 				}
 				
-				if (!location.has("coordinate")) {
-					continue;
+				if (entity.has(RATING_URL_NODE)) {
+					searchResult.setRatingImgUrl(entity.optString(RATING_URL_NODE));
 				}
-				JSONObject coordinate = location.getJSONObject("coordinate");
-				searchResult.setLatitude(coordinate.getString("latitude"));
-				searchResult.setLongitude(coordinate.getString("longitude"));
+				
+				if (entity.has(REVIEW_COUNT_NODE)) {
+					searchResult.setReviewCount(entity.optInt(REVIEW_COUNT_NODE));
+				}
+				
+				if (entity.has(COORDINATE_NODE)) {
+					JSONObject coordinate = entity.getJSONObject(COORDINATE_NODE);
+					searchResult.setLatitude(coordinate.optDouble(LATITUDE_NODE));
+					searchResult.setLongitude(coordinate.optDouble(LONGITUDE_NODE));
+				}
+				
+				if (entity.has(IMAGES_NODE)) {
+					JSONArray images = entity.getJSONArray(IMAGES_NODE);
+					int numberImages = images.length();
+					for (int j=0; j<numberImages; j++) {
+						if (j == 0) {
+							searchResult.setImageOneUrl(images.optString(j));
+						} else {
+							searchResult.setImageTwoUrl(images.optString(j));
+						}
+					}
+				}
 				resultList.add(searchResult);
 			}
 			return resultList;

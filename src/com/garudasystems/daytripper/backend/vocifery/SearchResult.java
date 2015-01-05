@@ -7,12 +7,13 @@ public class SearchResult implements Parcelable {
 
 	private String name;
 	private String mobileUrl;
-	private String imageUrl;
+	private String imageOneUrl;
+	private String imageTwoUrl;
 	private String ratingImgUrl;
 	private String ratingImgUrlSmall;
 	private String addressOne;
 	private String addressTwo;
-	private String displayPhone;
+	private String details;
 	private String price;
 	private String deal;
 	private Integer reviewCount;
@@ -31,22 +32,23 @@ public class SearchResult implements Parcelable {
 	
 	public SearchResult() {}
 	
-	public SearchResult(String name, String addressOne, String addressTwo, String phone) {
+	public SearchResult(String name, String addressOne, String addressTwo, String details) {
 		this.name = name;
 		this.addressOne = addressOne;
 		this.addressTwo = addressTwo;
-		this.displayPhone = phone;
+		this.details = details;
 	}
 	
 	private SearchResult(Parcel parcel) {
 		name = parcel.readString();
 		mobileUrl = parcel.readString();
-		imageUrl = parcel.readString();
+		imageOneUrl = parcel.readString();
+		imageTwoUrl = parcel.readString();
 		ratingImgUrl = parcel.readString();
 		ratingImgUrlSmall = parcel.readString();
 		addressOne = parcel.readString();
 		addressTwo = parcel.readString();
-		displayPhone = parcel.readString();
+		details = parcel.readString();
 		price = parcel.readString();
 		deal = parcel.readString();
 		reviewCount = parcel.readInt();
@@ -78,12 +80,12 @@ public class SearchResult implements Parcelable {
 		this.addressTwo = addressTwo;
 	}
 	
-	public String getDisplayPhone() {
-		return displayPhone;
+	public String getDetails() {
+		return details;
 	}
 	
-	public void setDisplayPhone(String displayPhone) {
-		this.displayPhone = displayPhone;
+	public void setDetails(String details) {
+		this.details = details;
 	}
 
 	public String getPrice() {
@@ -118,14 +120,22 @@ public class SearchResult implements Parcelable {
 		this.mobileUrl = mobileUrl;
 	}
 
-	public String getImageUrl() {
-		return imageUrl;
+	public String getImageOneUrl() {
+		return imageOneUrl;
 	}
 
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+	public void setImageOneUrl(String imageOneUrl) {
+		this.imageOneUrl = imageOneUrl;
 	}
 
+	public String getImageTwoUrl() {
+		return imageTwoUrl;
+	}
+	
+	public void setImageTwoUrl(String imageTwoUrl) {
+		this.imageTwoUrl = imageTwoUrl;
+	}
+	
 	public String getRatingImgUrlSmall() {
 		return ratingImgUrlSmall;
 	}
@@ -146,20 +156,16 @@ public class SearchResult implements Parcelable {
 		return latitude;
 	}
 
-	public void setLatitude(String latitudeStr) {
-		try {
-			latitude = Double.valueOf(latitudeStr);
-		} catch (Exception e) {}
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
 	}
 
 	public Double getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(String longitudeStr) {
-		try {
-			longitude = Double.valueOf(longitudeStr);
-		} catch (Exception e) {}	
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;	
 	}
 
 	@Override
@@ -171,12 +177,13 @@ public class SearchResult implements Parcelable {
 	public void writeToParcel(Parcel parcel, int flags) {
 		parcel.writeString(name);
 		parcel.writeString(mobileUrl);
-		parcel.writeString(imageUrl);
+		parcel.writeString(imageOneUrl);
+		parcel.writeString(imageTwoUrl);
 		parcel.writeString(ratingImgUrl);
 		parcel.writeString(ratingImgUrlSmall);
 		parcel.writeString(addressOne);
 		parcel.writeString(addressTwo);
-		parcel.writeString(displayPhone);
+		parcel.writeString(details);
 		parcel.writeString(price);
 		parcel.writeString(deal);
 		parcel.writeInt(reviewCount);

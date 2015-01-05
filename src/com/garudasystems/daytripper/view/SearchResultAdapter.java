@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.garudasystems.daytripper.R;
@@ -28,7 +29,8 @@ public class SearchResultAdapter extends ArrayAdapter<SearchResult> {
 		TextView firstLine;
 		TextView secondLine;
 		TextView phone;
-		ImageView photo;
+		ImageView photoOne;
+		ImageView photoTwo;
 		Drawable ratingImage;
 	}
 	
@@ -48,7 +50,8 @@ public class SearchResultAdapter extends ArrayAdapter<SearchResult> {
 			holder.name = (TextView) row.findViewById(R.id.name);
 			holder.name.setClickable(true);
 			holder.name.setMovementMethod(LinkMovementMethod.getInstance());
-			holder.photo = (ImageView) row.findViewById(R.id.photo);
+			holder.photoOne = (ImageView) row.findViewById(R.id.photo_one);
+			holder.photoTwo = (ImageView) row.findViewById(R.id.photo_two);
 			holder.reviews = (TextView) row.findViewById(R.id.rating);
 			holder.price = (TextView) row.findViewById(R.id.price);
 			holder.firstLine = (TextView) row.findViewById(R.id.firstLine);
@@ -60,14 +63,34 @@ public class SearchResultAdapter extends ArrayAdapter<SearchResult> {
 		}
 		
 		SearchResult result = getItem(position);
-		imageLoader.displayImage(result.getImageUrl(), holder.photo);
-		imageLoader.displayCompoundDrawable(result.getRatingImgUrl(), holder.reviews);
+		String imageOneUrl = result.getImageOneUrl();
+		if (imageOneUrl != null && !imageOneUrl.equals("null")) {
+			imageLoader.displayImage(imageOneUrl, holder.photoOne);
+		} else {
+			holder.photoOne.setVisibility(View.GONE);
+		}
+		
+		String imageTwoUrl = result.getImageTwoUrl();
+		if (imageTwoUrl != null && !imageTwoUrl.equals("null")) {
+			imageLoader.displayImage(imageTwoUrl, holder.photoTwo);
+		} else {
+			holder.photoTwo.setVisibility(View.GONE);
+		}
+		
 		holder.name.setText(Html.fromHtml("<a href='" + result.getMobileUrl() + "'>" + result.getName() + "</a>"));
-		holder.reviews.setText("(" + result.getReviewCount().toString() + ")");
 		holder.price.setText(result.getDeal());
 		holder.firstLine.setText(result.getAddressOne());
 		holder.secondLine.setText(result.getAddressTwo());
-		holder.phone.setText(result.getDisplayPhone());
+		holder.phone.setText(result.getDetails());
+		
+		String ratingImageUrl = result.getRatingImgUrl();
+		Integer reviewCount = result.getReviewCount();
+		if (ratingImageUrl == null || ratingImageUrl.equals("null") || reviewCount == null || reviewCount.intValue() == 0) {
+			holder.reviews.setVisibility(View.GONE);
+		} else {
+			imageLoader.displayCompoundDrawable(ratingImageUrl, holder.reviews);
+			holder.reviews.setText("(" + result.getReviewCount().toString() + ")");
+		}
 		return row;
 	}
 	

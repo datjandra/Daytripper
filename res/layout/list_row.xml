@@ -12,15 +12,32 @@
         android:orientation="vertical"
         android:layout_alignParentLeft="true" >
 
-        <ImageView
-            android:id="@+id/photo"
+        <LinearLayout
+            android:id="@+id/imageContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            
+            <ImageView
+            android:id="@+id/photo_one"
             android:layout_width="72dip"
             android:layout_height="72dip"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="left"
             android:contentDescription="photo"
             android:scaleType="fitCenter"
             android:src="@drawable/stub" />
-
+            
+            <ImageView
+            android:id="@+id/photo_two"
+            android:layout_width="72dip"
+            android:layout_height="72dip"
+            android:layout_marginLeft="4dip"
+            android:layout_gravity="right"
+            android:contentDescription="photo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/stub" />
+        </LinearLayout>
+        
         <TextView
             android:id="@+id/rating"
             android:layout_width="wrap_content"
