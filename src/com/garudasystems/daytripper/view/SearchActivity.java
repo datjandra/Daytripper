@@ -1,6 +1,5 @@
 package com.garudasystems.daytripper.view;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import java.util.Locale;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -29,9 +27,8 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -39,11 +36,15 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.Window;
 import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.garudasystems.daytripper.R;
-import com.garudasystems.daytripper.backend.vocifery.SearchResult;
+import com.garudasystems.daytripper.backend.vocifery.QueryResponse;
+import com.garudasystems.daytripper.backend.vocifery.Result;
+import com.garudasystems.daytripper.components.ShowListFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -55,6 +56,10 @@ public class SearchActivity extends FragmentActivity
 		implements ActionBar.TabListener, LocationListener {
 
 	public final static String SEARCH_URL = "http://vocifery.com/api/v0/query";
+	public final static String RESOURCE_NODE = "resource";
+	public final static String PAGE_NODE = "page";
+	public final static String COUNT_NODE = "count";
+	public final static String TOTAL_NODE = "total";
 	public final static String ENTITIES_NODE = "entities";
 	public final static String NAME_NODE = "name";
 	public final static String URL_NODE = "url";
@@ -80,31 +85,88 @@ public class SearchActivity extends FragmentActivity
 	private long minTime = 5000;
 	// default minimum distance between old and new readings.
 	private float minDistance = 1000.0f;
+	private String cachedQuery = null;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_show);
-        
-        initTabs();
+       
+        adapter = new SearchActivityTabAdapter(getSupportFragmentManager());
+        final ActionBar actionBar = getActionBar();
+	    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+	    
+	    viewPager = (ViewPager) findViewById(R.id.container);
+	    viewPager.setAdapter(adapter);
+	    viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+	    });
+	    viewPager.requestTransparentRegion(viewPager);
+	    
+	    for (String tabName : TABS) {
+            actionBar.addTab(actionBar
+            	.newTab()
+            	.setText(tabName)
+            	.setTabListener(this));
+        }
+	    
         initLocationManager();
         handleIntent(getIntent());
     }
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.activity_main_actions, menu);
-
-		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView = (SearchView) menu.findItem(R.id.action_search)
-				.getActionView();
-		searchView.setSearchableInfo(searchManager
-				.getSearchableInfo(getComponentName()));
-		searchView.setIconifiedByDefault(false);
-		return super.onCreateOptionsMenu(menu);
+		
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+			SearchView searchView = (SearchView) menu.findItem(R.id.action_search)
+					.getActionView();
+			searchView.setSearchableInfo(searchManager
+					.getSearchableInfo(getComponentName()));
+			searchView.setIconifiedByDefault(false);
+			searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener( ) {
+		    	@Override
+		        public boolean onQueryTextChange(String text) {
+		    		return true;
+		    	}
+		    	
+		    	@Override
+		        public boolean onQueryTextSubmit(String query) {
+		    		Log.i(TAG, String.format("onQueryTextSubmit - %s", query));
+		    		String showListFragmentTag = getFragmentTag(R.id.container, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
+					if (showListFragmentTag != null) {
+						Fragment fragment = getFragmentByTag(showListFragmentTag);
+						if (fragment != null) {
+							((ShowListFragment) fragment).reset();
+						}
+					}
+		    		toggleProgressBar(true);
+		    		return false;
+		        }
+		    });
+		}
+		return true;
 	}
 
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+        	case R.id.action_search:
+        		onSearchRequested();
+                return true;
+                
+        	default:
+            	return false;
+        }
+    }
+	
 	@Override
 	public void onLocationChanged(Location updatedLocation) {
 		if (location == null) {
@@ -148,7 +210,16 @@ public class SearchActivity extends FragmentActivity
 	@Override
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
-		
+	}
+	
+	public void refresh(int page, int count) {
+		String locationString = null;
+		if (location != null) {
+			locationString = location.getLatitude() + ", "
+					+ location.getLongitude();
+		}
+		Log.i(TAG, "refresh - sending query " + cachedQuery + " with location " + locationString);
+		new ParseCommandTask().execute(cachedQuery, locationString, Integer.toString(page), Integer.toString(count));
 	}
 	
 	@Override
@@ -191,36 +262,8 @@ public class SearchActivity extends FragmentActivity
         handleIntent(intent);
     }
 	
-	private void initTabs() {
-		final ActionBar actionBar = getActionBar();
-	    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-	    
-	    adapter = new SearchActivityTabAdapter(getSupportFragmentManager());
-	    viewPager = (ViewPager) findViewById(R.id.container);
-	    viewPager.setAdapter(adapter);
-	    viewPager.requestTransparentRegion(viewPager);
-	    
-	    for (String tabName : TABS) {
-            actionBar.addTab(actionBar
-            	.newTab()
-            	.setText(tabName)
-            	.setTabListener(this));
-        }
-	    
-	    viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
- 
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-            }
- 
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-            }
-        });
+	private void toggleProgressBar(final boolean flag) {
+		this.setProgressBarIndeterminateVisibility(flag);
 	}
 	
 	private void initLocationManager() {
@@ -239,14 +282,6 @@ public class SearchActivity extends FragmentActivity
 		}
 	}
 	
-	private boolean isConnected() {
-		Context context = getApplicationContext();
-	    ConnectivityManager connectivityManager 
-	          = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-	    final NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-	    return (activeNetworkInfo == null || !activeNetworkInfo.isConnectedOrConnecting());
-	}
-	
 	private long age(Location updatedLocation) {
 		return System.currentTimeMillis() - updatedLocation.getTime();
 	}
@@ -254,17 +289,12 @@ public class SearchActivity extends FragmentActivity
 	private void handleIntent(Intent intent) {
 		try {
 			if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-				/*
-				if (!isConnected()) {
-			    	Toast.makeText(getApplicationContext(), "Network not available", Toast.LENGTH_SHORT).show();
-					return;
-				}
-				*/
-				
 				String query = intent.getStringExtra(SearchManager.QUERY);
 				if (query == null || query.isEmpty()) {
+					Log.i(TAG, "query is null");
 					return;
 				}
+				cachedQuery = query;
 
 				String locationString = null;
 				if (location != null) {
@@ -281,12 +311,12 @@ public class SearchActivity extends FragmentActivity
 		}
 	}
 	
-	private void refreshMap(List<SearchResult> resultList, SupportMapFragment supportMapFragment) {
+	private void refreshMap(List<Result> resultList, SupportMapFragment supportMapFragment) {
 		GoogleMap map = supportMapFragment.getMap();
 		if (map != null) {
 			map.setMyLocationEnabled(true);		
 			LatLngBounds.Builder builder = new LatLngBounds.Builder();
-			for (SearchResult result : resultList) {
+			for (Result result : resultList) {
 				Double latitude = result.getLatitude();
 				Double longitude = result.getLongitude();
 				if (latitude != null && longitude != null) {
@@ -308,17 +338,32 @@ public class SearchActivity extends FragmentActivity
 		return fragment;
 	}
 	
+	private void showToast(final String text, final int length) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Toast.makeText(getApplicationContext(), text, length).show();
+			}
+		});
+	}
+	
 	private static String getFragmentTag(int viewId, int index) {
 	     return "android:switcher:" + viewId + ":" + index;
 	}
 	
-	private class ParseCommandTask extends AsyncTask<String, Void, List<SearchResult>> {
+	private class ParseCommandTask extends AsyncTask<String, Void, QueryResponse> {
 
 		@Override
-		protected List<SearchResult> doInBackground(String... params) {
-			List<SearchResult> resultList = null;
+		protected QueryResponse doInBackground(String... params) {
+			QueryResponse queryResponse = null;
 			String query = params[0];
 			String latLong = params[1];
+			
+			String pageStr = null;
+			String countStr = null;
+			if (params.length >= 4) {
+				pageStr = params[2];
+				countStr = params[3];
+			}
 			
 			HttpClient httpClient = new DefaultHttpClient();
 			HttpPost post = new HttpPost(SEARCH_URL);
@@ -329,27 +374,29 @@ public class SearchActivity extends FragmentActivity
 		        if (latLong != null && !latLong.isEmpty()) {
 		        	nameValuePairs.add(new BasicNameValuePair("ll", latLong));
 		        }
+		        
+		        if (pageStr != null && countStr != null) {
+		        	nameValuePairs.add(new BasicNameValuePair("page", pageStr));
+		        	nameValuePairs.add(new BasicNameValuePair("count", countStr));
+		        }
 		        post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 				
 		        Log.d(TAG, EntityUtils.toString(post.getEntity()));
 		        HttpResponse response = httpClient.execute(post);
 		        jsonResponse = EntityUtils.toString(response.getEntity());
-		        Log.d(TAG, jsonResponse);
-				resultList = parseJson(jsonResponse);
-			} catch (HttpResponseException e) {
-				Log.e(TAG, "doInBackground - " + e);
-			} catch (IOException e) {
-				Log.e(TAG, "doInBackground - " + e);
-			} catch (JSONException e) {
-				Log.e(TAG, "doInBackground - " + e);
+		        queryResponse = parseJson(jsonResponse);
+		        Log.d(TAG, String.format("Response length=%d", jsonResponse.length()));
+			} catch (Exception e) {
+				Log.d(TAG, e.getMessage());
 			} 
-			return resultList;
+			return queryResponse;
 		}
 		
 		@Override
-		protected void onPostExecute(List<SearchResult> resultList) {
-			if (resultList == null || resultList.isEmpty()) {
-				Toast.makeText(getApplicationContext(), "No results found", Toast.LENGTH_SHORT).show();
+		protected void onPostExecute(QueryResponse queryResponse) {
+			toggleProgressBar(false);
+			if (queryResponse == null || queryResponse.getTotal() == null) {
+				showToast("No results found", Toast.LENGTH_SHORT);
 				return;
 			}
 			
@@ -357,7 +404,7 @@ public class SearchActivity extends FragmentActivity
 			if (showListFragmentTag != null) {
 				Fragment fragment = getFragmentByTag(showListFragmentTag);
 				if (fragment != null) {
-					((ShowListFragment) fragment).refresh(resultList);
+					((ShowListFragment) fragment).refreshList(queryResponse);
 				}
 			}
 		
@@ -365,16 +412,34 @@ public class SearchActivity extends FragmentActivity
 			if (supportMapFragmentTag != null) {
 				Fragment fragment = getFragmentByTag(supportMapFragmentTag);
 				if (fragment != null) {
-					refreshMap(resultList, (SupportMapFragment) fragment);
+					refreshMap(queryResponse.getResultList(), (SupportMapFragment) fragment);
 				}
 			}
 		}
 		
-		private List<SearchResult> parseJson(String result) throws JSONException {
-			List<SearchResult> resultList = new ArrayList<SearchResult>();
-			JSONObject json = new JSONObject(result);
+		private QueryResponse parseJson(String jsonResponse) throws JSONException {
+			JSONObject json = new JSONObject(jsonResponse);
+			QueryResponse response = new QueryResponse();
+			if (json.has(RESOURCE_NODE)) {
+				response.setSource(json.getString(RESOURCE_NODE));
+			}
+				
+			if (json.has(PAGE_NODE)) {
+				response.setPage(json.getInt(PAGE_NODE));
+			}
+			
+			if (json.has(COUNT_NODE)) {
+				response.setChunk(json.getInt(COUNT_NODE));
+			}
+			
+			if (json.has(TOTAL_NODE)) {
+				response.setTotal(json.getInt(TOTAL_NODE));
+			}
+			
+			List<Result> resultList = new ArrayList<Result>();
 			if (!json.has(ENTITIES_NODE)) {
-				return resultList;
+				response.setResultList(resultList);
+				return response;
 			}
 			
 			String inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
@@ -385,45 +450,45 @@ public class SearchActivity extends FragmentActivity
 			int numberEntities = entities.length();
 			for (int i=0; i<numberEntities; i++) {
 				JSONObject entity = entities.getJSONObject(i);
-				SearchResult searchResult = new SearchResult();
+				Result result = new Result();
 				
 				if (entity.has(NAME_NODE)) {
-					searchResult.setName(entity.optString(NAME_NODE));
+					result.setName(entity.optString(NAME_NODE));
 				}
 				
 				if (entity.has(URL_NODE)) {
-					searchResult.setMobileUrl(entity.optString(URL_NODE));
+					result.setMobileUrl(entity.optString(URL_NODE));
 				}
 				
 				if (entity.has(LOCATION_NODE)) {
-					searchResult.setAddressOne(entity.optString(LOCATION_NODE));
+					result.setAddressOne(entity.optString(LOCATION_NODE));
 				}
 				
 				if (entity.has(EXTENDED_ADDRESS_NODE)) {
-					searchResult.setAddressTwo(entity.optString(EXTENDED_ADDRESS_NODE));
+					result.setAddressTwo(entity.optString(EXTENDED_ADDRESS_NODE));
 				}
 				
 				if (entity.has(DETAILS_NODE)) {
 					String details = entity.optString(DETAILS_NODE);
 					try {
-						searchResult.setDetails(outputFormatter.format(inputFormatter.parse(details)));
+						result.setDetails(outputFormatter.format(inputFormatter.parse(details)));
 					} catch (ParseException e) {
-						searchResult.setDetails(details);
+						result.setDetails(details);
 					}
 				}
 				
 				if (entity.has(RATING_URL_NODE)) {
-					searchResult.setRatingImgUrl(entity.optString(RATING_URL_NODE));
+					result.setRatingImgUrl(entity.optString(RATING_URL_NODE));
 				}
 				
 				if (entity.has(REVIEW_COUNT_NODE)) {
-					searchResult.setReviewCount(entity.optInt(REVIEW_COUNT_NODE));
+					result.setReviewCount(entity.optInt(REVIEW_COUNT_NODE));
 				}
 				
 				if (entity.has(COORDINATE_NODE)) {
 					JSONObject coordinate = entity.getJSONObject(COORDINATE_NODE);
-					searchResult.setLatitude(coordinate.optDouble(LATITUDE_NODE));
-					searchResult.setLongitude(coordinate.optDouble(LONGITUDE_NODE));
+					result.setLatitude(coordinate.optDouble(LATITUDE_NODE));
+					result.setLongitude(coordinate.optDouble(LONGITUDE_NODE));
 				}
 				
 				if (entity.has(IMAGES_NODE)) {
@@ -431,17 +496,16 @@ public class SearchActivity extends FragmentActivity
 					int numberImages = images.length();
 					for (int j=0; j<numberImages; j++) {
 						if (j == 0) {
-							searchResult.setImageOneUrl(images.optString(j));
+							result.setImageOneUrl(images.optString(j));
 						} else {
-							searchResult.setImageTwoUrl(images.optString(j));
+							result.setImageTwoUrl(images.optString(j));
 						}
 					}
 				}
-				resultList.add(searchResult);
+				resultList.add(result);
 			}
-			return resultList;
+			response.setResultList(resultList);
+			return response;
 		}
 	}
-
-	
 }

@@ -17,7 +17,7 @@ import com.garudasystems.daytripper.backend.vocifery.Example;
 public class ExampleAdapter extends ArrayAdapter<Example> {
 
 	static class ExampleHolder {
-		TextView phrase;
+		TextView instruction;
 		TextView example;
 		ImageView logo;
 	}
@@ -34,8 +34,9 @@ public class ExampleAdapter extends ArrayAdapter<Example> {
 		if (row == null) {
 			row = LayoutInflater.from(getContext()).inflate(R.layout.intro_row, parent, false);
 			holder = new ExampleHolder();
-			holder.logo = (ImageView) row.findViewById(R.id.logo);
+			holder.instruction = (TextView) row.findViewById(R.id.instruction);
 			holder.example = (TextView) row.findViewById(R.id.example);
+			holder.logo = (ImageView) row.findViewById(R.id.logo);
 			row.setTag(holder);
 		} else {
 			holder = (ExampleHolder) row.getTag();
@@ -44,6 +45,7 @@ public class ExampleAdapter extends ArrayAdapter<Example> {
 		Example example = getItem(position);
 		Drawable logo = stringToDrawable(example.getLogo(), row.getContext());
 		holder.logo.setImageDrawable(logo);
+		holder.instruction.setText(example.getInstruction());
 		holder.example.setText(example.getExample());
 		return row;
 	}

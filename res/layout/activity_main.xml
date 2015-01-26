@@ -12,7 +12,7 @@
         android:gravity="center"
         android:text="@string/message_intro"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textSize="24sp" />
+        android:textSize="16sp" />
 
     <ListView
         android:id="@+id/examples"

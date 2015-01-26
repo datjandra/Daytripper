@@ -3,7 +3,7 @@
 	<string name="action_search">Search</string>
 	<string name="search_hint">Search</string>
 	<string name="message_ok">OK</string>
-	<string name="message_intro">Ask me about</string>
+	<string name="message_intro">Ask me to recommend a business or event</string>
 	
 	<string-array name="phrase_array">
 	    <item>Yelp</item>
@@ -11,20 +11,28 @@
 	    <item>Seatgeek</item>
 	</string-array>
 	
+	<string-array name="instruction_array">
+		<item>Events near phone\'s location</item>
+		<item>Events in location</item>
+		<item>Recommend events in postal code</item>
+		<item>Business near phone\'s location</item>
+		<item>Business in location sorted by distance</item>
+		<item>Business in location sorted by ratings</item>    
+	</string-array>
 	<string-array name="example_array">
-	    <item>
-	 	\"motels\"\n\"gas station by distance\"\n\"luau in Lahaina, HI by ratings\"
-	    </item>
-	    <item>
-	 	\"top selling movies\"\n\"action movies\"\n\"movies playing in Kahului, HI\"
-	 	</item>
-	    <item>
-	   	\"monster truck\"\n\"Mets vs. Yankees\"\n\"singers like Taylor Swift\"
-		</item>
+	    <item>\"events\"</item>
+	    <item>\"rodeo in San Antonio, TX\"</item>
+	    <item>\"singers like Taylor Swift near 37115\"</item>
+	    <item>\"seafood\"</item>
+	    <item>\"ceviche in Los Angeles, CA by distance\"</item>
+	    <item>\"resorts in Wailea, HI by ratings\"</item>
 	</string-array>
 	<string-array name="logo_array">
-	    <item>yelp_logo_50x25</item>
-	    <item>logo_new</item>
-	    <item>seatgeek_102x31</item>
+	    <item>events</item>
+	    <item>rodeo</item>
+	    <item>swift</item>
+	    <item>seafood</item>
+	    <item>ceviche</item>
+	    <item>resorts</item>
 	</string-array>
 </resources>

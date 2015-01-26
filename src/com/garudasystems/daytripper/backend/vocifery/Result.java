@@ -3,7 +3,7 @@ package com.garudasystems.daytripper.backend.vocifery;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class SearchResult implements Parcelable {
+public class Result implements Parcelable {
 
 	private String name;
 	private String mobileUrl;
@@ -20,26 +20,26 @@ public class SearchResult implements Parcelable {
 	private Double latitude;
 	private Double longitude;
 	
-	public static final Parcelable.Creator<SearchResult> CREATOR = new Parcelable.Creator<SearchResult>() {
-		public SearchResult createFromParcel(Parcel in) {
-			return new SearchResult(in);
+	public static final Parcelable.Creator<Result> CREATOR = new Parcelable.Creator<Result>() {
+		public Result createFromParcel(Parcel in) {
+			return new Result(in);
 		}
 
-		public SearchResult[] newArray(int size) {
-			return new SearchResult[size];
+		public Result[] newArray(int size) {
+			return new Result[size];
 		}
 	};
 	
-	public SearchResult() {}
+	public Result() {}
 	
-	public SearchResult(String name, String addressOne, String addressTwo, String details) {
+	public Result(String name, String addressOne, String addressTwo, String details) {
 		this.name = name;
 		this.addressOne = addressOne;
 		this.addressTwo = addressTwo;
 		this.details = details;
 	}
 	
-	private SearchResult(Parcel parcel) {
+	private Result(Parcel parcel) {
 		name = parcel.readString();
 		mobileUrl = parcel.readString();
 		imageOneUrl = parcel.readString();

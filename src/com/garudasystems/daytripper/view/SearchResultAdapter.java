@@ -11,13 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.garudasystems.daytripper.R;
-import com.garudasystems.daytripper.backend.vocifery.SearchResult;
+import com.garudasystems.daytripper.backend.vocifery.Result;
 
-public class SearchResultAdapter extends ArrayAdapter<SearchResult> {
+public class SearchResultAdapter extends ArrayAdapter<Result> {
 
 	private static final String TAG = "SearchResultAdapter";
 	private ImageLoader imageLoader = null;
@@ -34,7 +33,7 @@ public class SearchResultAdapter extends ArrayAdapter<SearchResult> {
 		Drawable ratingImage;
 	}
 	
-	public SearchResultAdapter(Context context, List<SearchResult> results) {
+	public SearchResultAdapter(Context context, List<Result> results) {
 		super(context, R.layout.list_row, results);
 		imageLoader = new ImageLoader(context);
 	}
@@ -62,7 +61,7 @@ public class SearchResultAdapter extends ArrayAdapter<SearchResult> {
 			holder = (ViewHolder) row.getTag();
 		}
 		
-		SearchResult result = getItem(position);
+		Result result = getItem(position);
 		String imageOneUrl = result.getImageOneUrl();
 		if (imageOneUrl != null && !imageOneUrl.equals("null")) {
 			imageLoader.displayImage(imageOneUrl, holder.photoOne);

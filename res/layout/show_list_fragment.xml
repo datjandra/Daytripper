@@ -7,12 +7,35 @@
     <ListView
         android:id="@+id/list"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:divider="@android:color/transparent"
         android:dividerHeight="8dp" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ProgressBar
+            android:id="@+id/activityIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateOnly="true"
+            android:keepScreenOn="true"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/attribution_logo"
+            android:layout_width="96dp"
+            android:layout_height="48dp"
+            android:contentDescription="logo"
+            android:scaleType="fitCenter"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
 </LinearLayout>
