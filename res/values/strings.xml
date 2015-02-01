@@ -5,16 +5,20 @@
 	<string name="message_ok">OK</string>
 	<string name="message_intro">Ask me to recommend a business or event</string>
 	
-	<string-array name="phrase_array">
+	<string-array name="vendor_array">
 	    <item>Yelp</item>
-	    <item>Fandango</item>
 	    <item>Seatgeek</item>
+	</string-array>
+	
+	<string-array name="logo_array">
+	    <item>yelp_logo_50x25</item>
+	    <item>seatgeek_102x31</item>
 	</string-array>
 	
 	<string-array name="instruction_array">
 		<item>Events near phone\'s location</item>
 		<item>Events in location</item>
-		<item>Recommend events in postal code</item>
+		<item>Artists similar to a popular artist near postal code</item>
 		<item>Business near phone\'s location</item>
 		<item>Business in location sorted by distance</item>
 		<item>Business in location sorted by ratings</item>    
@@ -27,7 +31,7 @@
 	    <item>\"ceviche in Los Angeles, CA by distance\"</item>
 	    <item>\"resorts in Wailea, HI by ratings\"</item>
 	</string-array>
-	<string-array name="logo_array">
+	<string-array name="image_array">
 	    <item>events</item>
 	    <item>rodeo</item>
 	    <item>swift</item>

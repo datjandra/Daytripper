@@ -18,9 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ActionBar;
-import android.app.ActionBar.Tab;
-import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -32,12 +29,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.Window;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -45,6 +43,7 @@ import com.garudasystems.daytripper.R;
 import com.garudasystems.daytripper.backend.vocifery.QueryResponse;
 import com.garudasystems.daytripper.backend.vocifery.Result;
 import com.garudasystems.daytripper.components.ShowListFragment;
+import com.garudasystems.daytripper.components.ViewPagerFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -52,8 +51,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class SearchActivity extends FragmentActivity 
-		implements ActionBar.TabListener, LocationListener {
+public class SearchActivity extends FragmentActivity implements LocationListener {
 
 	public final static String SEARCH_URL = "http://vocifery.com/api/v0/query";
 	public final static String RESOURCE_NODE = "resource";
@@ -74,11 +72,6 @@ public class SearchActivity extends FragmentActivity
 	public final static String IMAGES_NODE = "imageUrls";
 	
 	private static final String TAG = "SearchActivity";
-	private static final String[] TABS = { "List", "Map" };
-	
-	private ViewPager viewPager;
-	private SearchActivityTabAdapter adapter;
-	
 	private LocationManager locationManager;
 	private Location location;
 	// default minimum time between new readings
@@ -86,32 +79,18 @@ public class SearchActivity extends FragmentActivity
 	// default minimum distance between old and new readings.
 	private float minDistance = 1000.0f;
 	private String cachedQuery = null;
+	private ProgressBar progressBar;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_show);
        
-        adapter = new SearchActivityTabAdapter(getSupportFragmentManager());
-        final ActionBar actionBar = getActionBar();
-	    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-	    
-	    viewPager = (ViewPager) findViewById(R.id.container);
-	    viewPager.setAdapter(adapter);
-	    viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-	    });
-	    viewPager.requestTransparentRegion(viewPager);
-	    
-	    for (String tabName : TABS) {
-            actionBar.addTab(actionBar
-            	.newTab()
-            	.setText(tabName)
-            	.setTabListener(this));
+        if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            ViewPagerFragment fragment = new ViewPagerFragment();
+            transaction.replace(R.id.sample_content_fragment, fragment);
+            transaction.commit();
         }
 	    
         initLocationManager();
@@ -125,9 +104,11 @@ public class SearchActivity extends FragmentActivity
 		inflater.inflate(R.menu.activity_main_actions, menu);
 		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			LinearLayout customLayout = (LinearLayout) menu.findItem(R.id.custom).getActionView();
+		    progressBar = (ProgressBar) customLayout.findViewById(R.id.progress_bar);
+		    
+		    SearchView searchView = (SearchView) customLayout.findViewById(R.id.search_view);
 			SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-			SearchView searchView = (SearchView) menu.findItem(R.id.action_search)
-					.getActionView();
 			searchView.setSearchableInfo(searchManager
 					.getSearchableInfo(getComponentName()));
 			searchView.setIconifiedByDefault(false);
@@ -140,32 +121,20 @@ public class SearchActivity extends FragmentActivity
 		    	@Override
 		        public boolean onQueryTextSubmit(String query) {
 		    		Log.i(TAG, String.format("onQueryTextSubmit - %s", query));
-		    		String showListFragmentTag = getFragmentTag(R.id.container, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
+		    		String showListFragmentTag = getFragmentTag(R.id.viewpager, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
 					if (showListFragmentTag != null) {
 						Fragment fragment = getFragmentByTag(showListFragmentTag);
 						if (fragment != null) {
 							((ShowListFragment) fragment).reset();
 						}
 					}
-		    		toggleProgressBar(true);
+		    		progressBar.setVisibility(View.VISIBLE);
 		    		return false;
 		        }
 		    });
 		}
 		return true;
 	}
-
-	@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-        	case R.id.action_search:
-        		onSearchRequested();
-                return true;
-                
-        	default:
-            	return false;
-        }
-    }
 	
 	@Override
 	public void onLocationChanged(Location updatedLocation) {
@@ -194,22 +163,6 @@ public class SearchActivity extends FragmentActivity
 	public void onStatusChanged(String provider, int status, Bundle bundle) {
 		// TODO Auto-generated method stub
 
-	}
-	
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		viewPager.setCurrentItem(tab.getPosition());
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
 	}
 	
 	public void refresh(int page, int count) {
@@ -261,10 +214,6 @@ public class SearchActivity extends FragmentActivity
 		}
         handleIntent(intent);
     }
-	
-	private void toggleProgressBar(final boolean flag) {
-		this.setProgressBarIndeterminateVisibility(flag);
-	}
 	
 	private void initLocationManager() {
 		if (locationManager == null) {
@@ -394,13 +343,13 @@ public class SearchActivity extends FragmentActivity
 		
 		@Override
 		protected void onPostExecute(QueryResponse queryResponse) {
-			toggleProgressBar(false);
+			progressBar.setVisibility(View.INVISIBLE);
 			if (queryResponse == null || queryResponse.getTotal() == null) {
 				showToast("No results found", Toast.LENGTH_SHORT);
 				return;
 			}
 			
-			String showListFragmentTag = getFragmentTag(R.id.container, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
+			String showListFragmentTag = getFragmentTag(R.id.viewpager, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
 			if (showListFragmentTag != null) {
 				Fragment fragment = getFragmentByTag(showListFragmentTag);
 				if (fragment != null) {
@@ -408,7 +357,7 @@ public class SearchActivity extends FragmentActivity
 				}
 			}
 		
-			String supportMapFragmentTag = getFragmentTag(R.id.container, SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
+			String supportMapFragmentTag = getFragmentTag(R.id.viewpager, SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
 			if (supportMapFragmentTag != null) {
 				Fragment fragment = getFragmentByTag(supportMapFragmentTag);
 				if (fragment != null) {

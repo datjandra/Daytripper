@@ -24,7 +24,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/examples"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

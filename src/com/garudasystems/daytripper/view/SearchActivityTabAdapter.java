@@ -40,6 +40,18 @@ public class SearchActivityTabAdapter extends FragmentPagerAdapter {
 		return 2;
 	}
 	
+	@Override
+	public String getPageTitle(int tabIndex) {
+		switch (tabIndex) {
+			case LIST_FRAGMENT_INDEX:
+				return "List";
+
+			case MAP_FRAGMENT_INDEX:
+				return "Map";
+		}
+		return null;
+	}
+	
 	public String getFragmentTag(Integer index) {
 		return sparseArray.get(index);
 	}

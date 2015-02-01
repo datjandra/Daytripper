@@ -21,9 +21,9 @@
     <application
         android:name="com.garudasystems.daytripper.view.Daytripper"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme">
+        android:theme="@style/CustomActionBar" >
         <meta-data
             android:name="android.app.default_searchable"
             android:value="com.garudasystems.daytripper.view.SearchActivity" />

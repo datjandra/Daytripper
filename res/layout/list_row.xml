@@ -44,7 +44,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="4dip"
-            android:drawableLeft="@drawable/stars_small_0"
             android:drawablePadding="4dip"
             android:alpha="0.87"
             android:textSize="12sp"/>
@@ -67,7 +66,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="none"
             android:singleLine="false"
-            android:textColorLink="#E64A19"
+            android:textColorLink="@color/accent"
             android:textSize="16sp"/>
 
         <TextView
@@ -113,7 +112,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:textColor="#259B24"
             android:textSize="12sp" />
     </LinearLayout>
 
