@@ -10,7 +10,7 @@
         android:focusable="false"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1"
-        android:iconifiedByDefault="false" >
+        android:iconifiedByDefault="false">
     </SearchView>
 
     <ProgressBar

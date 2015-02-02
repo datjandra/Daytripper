@@ -4,6 +4,7 @@
 	<color name="primary_dark">#f57c00</color>
 	<color name="primary_light">#ffe0b2</color>
 	<color name="accent">#4caf50</color>
-	<color name="text_primary">#000000</color>
-    <color name="text_secondary">#333</color>    
+	<color name="text_primary">#212121</color>
+    <color name="text_secondary">#727272</color> 
+    <color name="divider_default">#b6b6b6</color> 
 </resources>

@@ -2,6 +2,7 @@
 <resources>
 
     <style name="CustomActionBarStyle" parent="android:style/Widget.Holo.ActionBar">
+        <item name="android:background">@color/primary</item>
         <item name="android:titleTextStyle">@style/NoTitleText</item>
         <item name="android:subtitleTextStyle">@style/NoTitleText</item>
     </style>

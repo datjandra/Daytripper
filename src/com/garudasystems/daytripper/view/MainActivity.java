@@ -3,6 +3,7 @@ package com.garudasystems.daytripper.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -41,6 +42,10 @@ public class MainActivity extends Activity {
         ExampleAdapter adapter = new ExampleAdapter(this, exampleList);
         ListView listView = (ListView) findViewById(R.id.examples);
         listView.setAdapter(adapter);
+        
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
     }
 	
 	@Override

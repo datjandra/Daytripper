@@ -7,22 +7,25 @@
     <TextView
         android:id="@+id/heading"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
         android:layout_weight="0.1"
-        android:padding="16dp"
+        android:background="@color/primary_light"
+        android:gravity="center"
         android:text="@string/message_intro"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/primary_dark"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:textSize="16sp" />
 
     <ListView
         android:id="@+id/examples"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="0.9"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="8dp" >
+        android:divider="@color/divider_default"
+        android:dividerHeight="1dp" >
     </ListView>
 
 </LinearLayout>

@@ -8,8 +8,7 @@
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="1"
-        android:background="@android:color/background_light" >
+        android:layout_weight="1" >
 
         <android.support.v4.view.PagerTabStrip
             android:id="@+id/pager_title_strip"
@@ -17,7 +16,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="top"
             android:paddingBottom="8dp"
-            android:paddingTop="8dp" />
+            android:paddingTop="8dp"
+            android:background="@color/primary"
+            android:textColor="@color/primary_light" />
     </android.support.v4.view.ViewPager>
 
 </LinearLayout>
