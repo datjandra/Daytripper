@@ -3,11 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:orientation="horizontal">
+    android:paddingTop="8dp" >
 
     <LinearLayout
         android:id="@+id/example_images"
@@ -29,8 +29,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/example_images"
         android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/example_images"
         android:orientation="vertical" >
 
         <TextView
@@ -38,23 +38,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="0.54"
+            android:gravity="left"
             android:singleLine="false"
             android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/primary_dark"
-            android:gravity="left" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/example"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:alpha="0.54"
+            android:gravity="left"
             android:singleLine="false"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
-            android:gravity="left" />
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
     </LinearLayout>
 
 </RelativeLayout>

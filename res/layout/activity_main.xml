@@ -2,28 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primary"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/heading"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.1"
-        android:background="@color/primary_light"
-        android:gravity="center"
-        android:text="@string/message_intro"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@color/primary_dark"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:textSize="16sp" />
+        android:background="@android:color/transparent"
+        android:orientation="horizontal" >
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@android:color/background_light" />
+
+        <TextView
+            android:id="@+id/heading"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="3"
+            android:background="@android:color/background_light"
+            android:gravity="center"
+            android:text="@string/message_intro"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/primary"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@android:color/background_light" />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/examples"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:layout_weight="0.9"
+        android:background="@android:color/background_light"
         android:divider="@color/divider_default"
         android:dividerHeight="1dp" >
     </ListView>

@@ -3,7 +3,7 @@
 	<string name="action_search">Search</string>
 	<string name="search_hint">Search</string>
 	<string name="message_ok">OK</string>
-	<string name="message_intro">Ask me to recommend a business or event</string>
+	<string name="message_intro">Ask me to find businesses or events</string>
 	
 	<string-array name="vendor_array">
 	    <item>Yelp</item>
