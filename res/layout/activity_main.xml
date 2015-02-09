@@ -15,6 +15,7 @@
             android:layout_width="0dp"
             android:layout_height="2dp"
             android:layout_gravity="center_vertical"
+            android:layout_marginLeft="8dp"
             android:layout_weight="1"
             android:background="@android:color/background_light" />
 
@@ -22,19 +23,21 @@
             android:id="@+id/heading"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:padding="8dp"
             android:layout_weight="3"
             android:background="@android:color/background_light"
             android:gravity="center"
             android:text="@string/message_intro"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/primary"
+            android:textColor="@color/primary_dark"
             android:textSize="16sp" />
 
         <View
             android:layout_width="0dp"
             android:layout_height="2dp"
+            android:layout_marginRight="8dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:background="@android:color/background_light" />
@@ -44,7 +47,7 @@
         android:id="@+id/examples"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.9"
+        android:layout_weight="1"
         android:background="@android:color/background_light"
         android:divider="@color/divider_default"
         android:dividerHeight="1dp" >

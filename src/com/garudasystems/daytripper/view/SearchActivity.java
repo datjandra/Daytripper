@@ -28,6 +28,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -52,7 +53,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class SearchActivity extends FragmentActivity implements LocationListener {
+public class SearchActivity extends FragmentActivity implements LocationListener, TextToSpeech.OnInitListener {
 
 	public final static String SEARCH_URL = "http://vocifery.com/api/v0/query";
 	public final static String RESOURCE_NODE = "resource";
@@ -73,6 +74,7 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 	public final static String IMAGES_NODE = "imageUrls";
 	
 	private static final String TAG = "SearchActivity";
+	
 	private LocationManager locationManager;
 	private Location location;
 	// default minimum time between new readings
@@ -81,11 +83,13 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 	private float minDistance = 1000.0f;
 	private String cachedQuery = null;
 	private ProgressBar progressBar;
+	private TextToSpeech tts;
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show);
+        tts = new TextToSpeech(this, this);
        
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -97,8 +101,8 @@ public class SearchActivity extends FragmentActivity implements LocationListener
             transaction.replace(R.id.sample_content_fragment, fragment);
             transaction.commit();
         }
-	    
-        initLocationManager();
+        
+        requestLocationUpdates();
         handleIntent(getIntent());
     }
 	
@@ -126,6 +130,7 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 		    	@Override
 		        public boolean onQueryTextSubmit(String query) {
 		    		Log.i(TAG, String.format("onQueryTextSubmit - %s", query));
+		    		requestLocationUpdates();
 		    		String showListFragmentTag = getFragmentTag(R.id.viewpager, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
 					if (showListFragmentTag != null) {
 						Fragment fragment = getFragmentByTag(showListFragmentTag);
@@ -153,22 +158,13 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 	}
 
 	@Override
-	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onProviderDisabled(String provider) {}
 
 	@Override
-	public void onProviderEnabled(String provider) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onProviderEnabled(String provider) {}
 
 	@Override
-	public void onStatusChanged(String provider, int status, Bundle bundle) {
-		// TODO Auto-generated method stub
-
-	}
+	public void onStatusChanged(String provider, int status, Bundle bundle) {}
 	
 	public void refresh(int page, int count) {
 		String locationString = null;
@@ -182,7 +178,50 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 	
 	@Override
 	protected void onResume() {
+		requestLocationUpdates();
 		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		if (locationManager != null) {
+			locationManager.removeUpdates(this);
+		}
+		super.onPause();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+		super.onDestroy();
+	}
+	
+	@Override
+	public void onInit(int status) {
+		if (status == TextToSpeech.SUCCESS) {
+			int result = tts.setLanguage(Locale.US);
+			if (result == TextToSpeech.LANG_MISSING_DATA ||
+					result == TextToSpeech.LANG_NOT_SUPPORTED) {
+				Log.e(TAG, "Language is not available.");
+			}
+		} else {
+			Log.e(TAG, "Could not initialize TextToSpeech.");
+		}
+	}
+	
+	@Override
+    protected void onNewIntent(Intent intent) {
+        if (locationManager == null) {
+			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		}
+        setIntent(intent);
+        handleIntent(intent);
+    }
+	
+	private void requestLocationUpdates() {
 		if (locationManager == null) {
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		}
@@ -199,39 +238,6 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
 			} catch (Exception ex) {
 				Log.e(TAG, "onCreate - " + ex);
-			}
-		}
-	}
-	
-	@Override
-	protected void onPause() {
-		if (locationManager != null) {
-			locationManager.removeUpdates(this);
-		}
-		super.onPause();
-	}
-	
-	@Override
-    protected void onNewIntent(Intent intent) {
-        setIntent(intent);
-        if (locationManager == null) {
-			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		}
-        handleIntent(intent);
-    }
-	
-	private void initLocationManager() {
-		if (locationManager == null) {
-			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		}
-		
-		try {
-			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, this);
-		} catch (Exception e) {
-			try {
-				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
-			} catch (Exception ex) {
-				Log.e(TAG, "initLocationManager - " + ex);
 			}
 		}
 	}
@@ -254,7 +260,8 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 				if (location != null) {
 					locationString = location.getLatitude() + ", "
 							+ location.getLongitude();
-				}
+				} 
+				
 				Log.i(TAG, "handleIntent - sending query " + query + " with location " + locationString);
 				new ParseCommandTask().execute(query, locationString);
 			}
@@ -298,6 +305,18 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 				Toast.makeText(getApplicationContext(), text, length).show();
 			}
 		});
+	}
+	
+	private void say(final String text) {
+		try {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if (tts != null) {
+						tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+					}
+				}
+			});
+		} catch (Exception e) {}
 	}
 	
 	private static String getFragmentTag(int viewId, int index) {
@@ -350,8 +369,15 @@ public class SearchActivity extends FragmentActivity implements LocationListener
 		protected void onPostExecute(QueryResponse queryResponse) {
 			progressBar.setVisibility(View.INVISIBLE);
 			if (queryResponse == null || queryResponse.getTotal() == null) {
-				showToast("No results found", Toast.LENGTH_SHORT);
+				String message = "Sorry I didn't find anything";
+				say(message);
+				showToast(message, Toast.LENGTH_LONG);
 				return;
+			}
+			
+			if (queryResponse != null && queryResponse.getTotal() != null) {
+				String message = String.format(Locale.getDefault(), "I found %d listings from %s", queryResponse.getTotal(), queryResponse.getSource());
+				say(message);
 			}
 			
 			String showListFragmentTag = getFragmentTag(R.id.viewpager, SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
