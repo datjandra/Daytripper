@@ -2,16 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/custom"
-        android:actionLayout="@layout/actionbar_custom"
-        android:showAsAction="always"
-        android:title="Custom"/>
-    <!--
-    <item
-        android:id="@+id/action_search"
-        android:actionViewClass="android.widget.SearchView"
-        android:showAsAction="always"
-        android:title="@string/action_search"/>
-    -->
+        android:id="@+id/help_menu"
+        android:showAsAction="always|withText"
+        android:title="Help"/>
 
 </menu>

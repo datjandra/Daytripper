@@ -1,24 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent" >
-
-    <SearchView
-        android:id="@+id/search_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:focusable="false"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
-        android:iconifiedByDefault="false">
-    </SearchView>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal" >
 
     <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"  
-        android:layout_gravity="center_vertical"      
-        style="@android:style/Widget.Holo.ProgressBar.Small"
+        android:id="@+id/main_progress"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateDrawable="@drawable/progress_spin"
+        android:indeterminateOnly="true"
         android:visibility="invisible" />
 
-</LinearLayout>
+</RelativeLayout>

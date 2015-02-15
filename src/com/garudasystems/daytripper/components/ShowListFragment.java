@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,7 +26,6 @@ import com.garudasystems.daytripper.R;
 import com.garudasystems.daytripper.backend.vocifery.QueryResponse;
 import com.garudasystems.daytripper.backend.vocifery.Result;
 import com.garudasystems.daytripper.util.ImageLoader;
-import com.garudasystems.daytripper.view.SearchActivity;
 
 public class ShowListFragment extends Fragment implements
 		AbsListView.OnScrollListener {
@@ -40,7 +40,7 @@ public class ShowListFragment extends Fragment implements
 	private int total;
 	private int chunkSize;
 	private int previousLastItem = 0;
-	private SearchActivity searchActivity;
+	private Refreshable refreshable;
 	private Map<String, String> sourceLogos;
 	private ImageLoader imageLoader;
 	
@@ -78,9 +78,13 @@ public class ShowListFragment extends Fragment implements
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		allItems = new ArrayList<Result>();
-		this.searchActivity = (SearchActivity) getActivity();
-		adapter = new SearchResultAdapter(getActivity());
+		Activity activity = getActivity();
+		adapter = new SearchResultAdapter(activity);
 		listView.setAdapter(adapter);
+		
+		if (activity instanceof Refreshable) {
+			this.setRefreshable((Refreshable) activity);
+		}
 	}
 	
 	@Override
@@ -89,7 +93,11 @@ public class ShowListFragment extends Fragment implements
 		super.onDestroy();
 	}
 
-	public void refreshList(QueryResponse queryResponse) {
+	public void setRefreshable(Refreshable refreshable) {
+		this.refreshable = refreshable;
+	}
+	
+	public void refreshList(QueryResponse queryResponse, boolean reload) {
 		if (queryResponse != null && queryResponse.getTotal() > 0) {
 			this.source = queryResponse.getSource();
 			this.currentPage = queryResponse.getPage();
@@ -100,12 +108,17 @@ public class ShowListFragment extends Fragment implements
 				String uri = "@drawable/" + sourceLogos.get(source);
 				int imageResource = getResources().getIdentifier(uri,
 						"drawable", getActivity().getPackageName());
-				attributionLogo.setImageResource(imageResource);
+				if (imageResource > 0) {
+					attributionLogo.setImageResource(imageResource);
+				}
 			}
 		}
 
 		List<Result> resultList = queryResponse.getResultList();
 		if (allItems != null && resultList != null && !resultList.isEmpty()) {
+			if (reload) {
+				allItems.clear();
+			}
 			allItems.addAll(resultList);
 			adapter.notifyDataSetChanged();
 		}
@@ -128,12 +141,15 @@ public class ShowListFragment extends Fragment implements
 		if (lastItem == totalItemCount) {
 			if (previousLastItem != lastItem) {
 				if ((total - totalItemCount) > 0) {
+					currentPage = Math.max(currentPage, 1);
 					Log.d(TAG,
 							String.format("Loading page %d", currentPage + 1));
 					if (progressBar != null) {
 						progressBar.setVisibility(View.VISIBLE);
 					}
-					searchActivity.refresh(currentPage + 1, chunkSize);
+					if (refreshable != null) {
+						refreshable.refresh(currentPage + 1, chunkSize);
+					}
 				}
 				previousLastItem = lastItem;
 			}

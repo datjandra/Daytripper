@@ -1,42 +1,136 @@
 <resources>
+
     <string name="app_name">Daytripper</string>
-	<string name="action_search">Search</string>
-	<string name="search_hint">Search</string>
-	<string name="message_ok">OK</string>
-	<string name="message_intro">Ask me to find businesses or events</string>
-	
-	<string-array name="vendor_array">
-	    <item>Yelp</item>
-	    <item>Seatgeek</item>
-	</string-array>
-	
-	<string-array name="logo_array">
-	    <item>yelp_logo_50x25</item>
-	    <item>seatgeek_102x31</item>
-	</string-array>
-	
-	<string-array name="instruction_array">
-		<item>Events near phone\'s location</item>
-		<item>Events in location</item>
-		<item>Artists similar to a popular artist near postal code</item>
-		<item>Business near phone\'s location</item>
-		<item>Business in location sorted by distance</item>
-		<item>Business in location sorted by ratings</item>    
-	</string-array>
-	<string-array name="example_array">
-	    <item>\"events\"</item>
-	    <item>\"rodeo in San Antonio, TX\"</item>
-	    <item>\"singers like Taylor Swift near 37115\"</item>
-	    <item>\"seafood\"</item>
-	    <item>\"ceviche in Los Angeles, CA by distance\"</item>
-	    <item>\"resorts in Wailea, HI by ratings\"</item>
-	</string-array>
-	<string-array name="image_array">
-	    <item>events</item>
-	    <item>rodeo</item>
-	    <item>swift</item>
-	    <item>seafood</item>
-	    <item>ceviche</item>
-	    <item>resorts</item>
-	</string-array>
+    <string name="action_search">Search</string>
+    <string name="search_hint">Search</string>
+    <string name="message_ok">OK</string>
+    <string name="message_intro">Search places or events</string>
+    <string name="search_instructions">Example searches: \"events\", \"Japanese\", \"buffet in Las Vegas, NV\"</string>
+
+    <string-array name="vendor_array">
+        <item>Yelp</item>
+        <item>Seatgeek</item>
+    </string-array>
+    <string-array name="logo_array">
+        <item>yelp_logo_50x25</item>
+        <item>seatgeek_102x31</item>
+    </string-array>
+
+    <string name="seatgeek_instruction">I know about several events from Seatgeek. Click to see all searchable items.</string>
+
+    <string-array name="seatgeek_examples">
+        <item>event</item>
+        <item>recommendation</item>
+        <item>performer</item>
+        <item>venue</item>
+        <item>singer</item>
+        <item>sports</item>
+        <item>baseball</item>
+        <item>mlb</item>
+        <item>ncaa baseball</item>
+        <item>minor league baseball</item>
+        <item>football</item>
+        <item>nfl</item>
+        <item>ncaa football</item>
+        <item>basketball</item>
+        <item>nba</item>
+        <item>ncaa basketball</item>
+        <item>ncaa womens basketball</item>
+        <item>wnba</item>
+        <item>nba dleague</item>
+        <item>hockey</item>
+        <item>nhl</item>
+        <item>ncaa hockey</item>
+        <item>minor league hockey</item>
+        <item>soccer</item>
+        <item>mls</item>
+        <item>ncaa soccer</item>
+        <item>european soccer</item>
+        <item>international soccer</item>
+        <item>world cup</item>
+        <item>auto racing</item>
+        <item>nascar</item>
+        <item>nascar sprintcup</item>
+        <item>nascar nationwide</item>
+        <item>indycar</item>
+        <item>f1</item>
+        <item>monster truck</item>
+        <item>motocross</item>
+        <item>golf</item>
+        <item>pga</item>
+        <item>lpga</item>
+        <item>fighting</item>
+        <item>boxing</item>
+        <item>mma</item>
+        <item>wrestling</item>
+        <item>wwe</item>
+        <item>tennis</item>
+        <item>animal sports</item>
+        <item>horse racing</item>
+        <item>rodeo</item>
+        <item>extreme sports</item>
+        <item>olympic sports</item>
+        <item>concert</item>
+        <item>music festival</item>
+        <item>theater</item>
+        <item>classical</item>
+        <item>classical opera</item>
+        <item>classical vocal</item>
+        <item>classical orchestral instrumental</item>
+        <item>cirque du soleil</item>
+        <item>broadway tickets national</item>
+        <item>comedy</item>
+        <item>family</item>
+        <item>dance performance tour</item>
+        <item>film</item>
+        <item>literary</item>
+    </string-array>
+
+    <string name="yelp_instruction">I can support almost every type of Yelp search. Click to see example searches.</string>
+
+    <string-array name="yelp_examples">
+        <item>restaurants</item>
+        <item>vegetarian</item>
+        <item>sushi</item>
+        <item>martial arts</item>
+        <item>roof repair</item>
+        <item>grocery stores</item>
+        <item>shopping</item>
+    </string-array>
+
+    <string name="filter_instruction">
+        I can filter searches by location. 
+        If no location is specified then the phone\'s location will be used. 
+        Please use grammatically correct phrases, e.g. type \"restaurants in New York\", not \"restaurants New York\". 
+        For best results, please enter city and state, e.g. type "\"buffet in Las Vegas, NV\"", not \"buffet in Las Vegas\".
+        Click to see example searches.
+  	</string>
+
+    <string-array name="filter_examples">
+        <item>\"events in New York, NY\"</item>
+        <item>\"poke in Hawaii\"</item>
+    </string-array>
+
+    <string name="similarity_instruction">
+        I can recommend performers. 
+        Ask me to find performers similar to a particular performer within a postal code. 
+        Click to see example searches.
+  	</string>
+
+    <string-array name="similarity_examples">
+        <item>\"singers like Taylor Swift near 37115\"</item>
+        <item>\"singers like Bruno Mars\"</item>
+    </string-array>
+
+    <string name="sort_instruction">
+        I can sort Yelp searches by ratings or distance. 
+        Please use grammatically correct phrases, e.g. type \"restaurants by distance\", not \"restaurants distance\". 
+        Click to see example searches.
+ 	</string>
+
+    <string-array name="sort_examples">
+        <item>\"vegetarian by distance\"</item>
+        <item>\"hair salons in Austin, TX by ratings\"</item>
+    </string-array>
+
 </resources>
