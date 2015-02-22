@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.mapquest.android.maps.MapView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/mapquest"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:apiKey="Fmjtd%7Cluu821u8ll%2C8a%3Do5-94bnlz"
+        android:clickable="true"
+        android:enabled="true" />
+
+</LinearLayout>

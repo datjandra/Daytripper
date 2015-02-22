@@ -6,7 +6,11 @@
     <string name="message_ok">OK</string>
     <string name="message_intro">Search places or events</string>
     <string name="search_instructions">Example searches: \"events\", \"Japanese\", \"buffet in Las Vegas, NV\"</string>
-
+	<string name="success_message" formatted="false">I found %d listings from %s</string>
+    <string name="error_message">Sorry, I did not find anything</string>
+    <string name="location_error_message">I cannot get a fix on your location</string>
+    <string name="request_denied_message">I\'m still working on your last request</string>
+    
     <string-array name="vendor_array">
         <item>Yelp</item>
         <item>Seatgeek</item>

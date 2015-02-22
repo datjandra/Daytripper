@@ -45,16 +45,13 @@ public class ShowListFragment extends Fragment implements
 	private ImageLoader imageLoader;
 	
 	public static final String TAG = "ShowListFragment";
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		imageLoader = new ImageLoader(getActivity());
 		imageLoader.addImageCache(getFragmentManager());
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+		
 		sourceLogos = new HashMap<String, String>();
 		final String[] vendors = getResources().getStringArray(
 				R.array.vendor_array);
@@ -63,7 +60,11 @@ public class ShowListFragment extends Fragment implements
 		for (int i = 0; i < vendors.length; i++) {
 			sourceLogos.put(vendors[i], logos[i]);
 		}
+	}
 
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.show_list_fragment,
 				container, false);
 		listView = (ListView) rootView.findViewById(R.id.list);
