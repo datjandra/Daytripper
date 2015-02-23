@@ -20,7 +20,7 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/card_bg"
+            android:background="@drawable/dropshadow_bg"
             android:queryHint="@string/message_intro"
             android:focusable="false"
             android:iconifiedByDefault="false" />
@@ -42,13 +42,15 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/main_content"
+        android:layout_below="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/header"
+        android:visibility="invisible"
         android:orientation="vertical" >
 
         <FrameLayout
-            android:id="@+id/sample_content_fragment"
+            android:id="@+id/content_fragment"
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:layout_weight="2" />

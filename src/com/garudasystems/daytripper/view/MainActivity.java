@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -79,6 +80,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	private RetainableFragment retainableFragment;
 	private QueryResponse cachedResponse;
 	private AnnotationView annotationView;
+	private LinearLayout mainContent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +95,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         		
 		tts = new TextToSpeech(this, this);
         mainProgressBar = (ProgressBar) findViewById(R.id.main_progress);
+        mainContent = (LinearLayout) findViewById(R.id.main_content);
 		
 		searchView = (SearchView) findViewById(R.id.search_view);
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -126,7 +129,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			FragmentManager fm = getSupportFragmentManager();
 			FragmentTransaction transaction = fm.beginTransaction();
 			ViewPagerFragment fragment = new ViewPagerFragment();
-			transaction.replace(R.id.sample_content_fragment, fragment);
+			transaction.replace(R.id.content_fragment, fragment);
 			transaction.commit();
 		} else {
 			cachedResponse = savedInstanceState.getParcelable(QueryResponse.class.getName());
@@ -228,7 +231,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	}
 	
 	@Override
-	public void receivedResponse(QueryResponse queryResponse) {
+	public void receivedResponse(QueryResponse queryResponse, boolean responseMessage) {
 		if (mainProgressBar.isShown()) {
 			mainProgressBar.setVisibility(View.INVISIBLE);
 		}
@@ -241,6 +244,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			showToast(message, Toast.LENGTH_SHORT);
 			return;
 		}
+		
+		if (!mainContent.isShown()) {
+			mainContent.setVisibility(View.VISIBLE);
+		}
 
 		boolean reload = false;
 		Integer page = queryResponse.getPage();
@@ -249,8 +256,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			String template = getMessage(R.string.success_message);
 			String message = String.format(Locale.getDefault(), template,
 					queryResponse.getTotal(), queryResponse.getSource());
-			say(message);
-			showToast(message, Toast.LENGTH_SHORT);
+			if (responseMessage) {
+				say(message);
+				showToast(message, Toast.LENGTH_SHORT);
+			}
 		}
 
 		String showListFragmentTag = getFragmentTag(R.id.viewpager,
@@ -309,7 +318,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		}
 		
 		if (cachedResponse != null) {
-			receivedResponse(cachedResponse);
+			// receivedResponse(cachedResponse, false);
 		}
 	}
 
@@ -547,10 +556,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		final Context context = this;
 		final MapView mapView = showMapFragment.getMapView();
 		if (mapView != null) {
-			if (annotationView == null) {
-				annotationView = new AnnotationView(mapView);
-			}
-			
+			annotationView = new AnnotationView(mapView);
 			float density = mapView.getContext().getResources().getDisplayMetrics().density;
 			annotationView.setBubbleRadius((int)(12*density+0.5f));
 			annotationView.tryToKeepBubbleOnScreen(true);

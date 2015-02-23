@@ -91,6 +91,7 @@ public class ShowListFragment extends Fragment implements
 	@Override
 	public void onDestroy() {
 		imageLoader.clearCache();
+		this.refreshable = null;
 		super.onDestroy();
 	}
 

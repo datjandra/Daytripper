@@ -176,7 +176,7 @@ public class RetainableFragment extends Fragment {
     	@Override
     	protected synchronized void onPostExecute(QueryResponse response) {
     		if (refreshable != null) {
-    			refreshable.receivedResponse(response);
+    			refreshable.receivedResponse(response, true);
     		}
     	}
 

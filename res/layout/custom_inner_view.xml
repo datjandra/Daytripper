@@ -11,8 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
-        android:ellipsize="none"
-        android:singleLine="false"
+        android:maxWidth="256dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:textSize="14sp" />
 
     <TextView
@@ -21,8 +22,8 @@
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"
         android:layout_below="@+id/bubble_title"
-       	android:ellipsize="none"
-        android:singleLine="false"
+       	android:ellipsize="end"
+        android:singleLine="true"
         android:layout_marginTop="4dp"
         android:textSize="14sp" />
 
