@@ -1,6 +1,5 @@
 package com.garudasystems.daytripper.view;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +10,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,7 +22,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,27 +32,18 @@ import android.view.WindowManager;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.garudasystems.daytripper.R;
 import com.garudasystems.daytripper.backend.vocifery.QueryResponse;
-import com.garudasystems.daytripper.backend.vocifery.Result;
 import com.garudasystems.daytripper.components.Refreshable;
 import com.garudasystems.daytripper.components.RetainableFragment;
 import com.garudasystems.daytripper.components.ShowListFragment;
 import com.garudasystems.daytripper.components.ShowMapFragment;
 import com.garudasystems.daytripper.components.SimplerExpandableListAdapter;
 import com.garudasystems.daytripper.components.ViewPagerFragment;
-import com.mapquest.android.maps.AnnotationView;
-import com.mapquest.android.maps.DefaultItemizedOverlay;
-import com.mapquest.android.maps.GeoPoint;
-import com.mapquest.android.maps.ItemizedOverlay;
-import com.mapquest.android.maps.MapController;
-import com.mapquest.android.maps.MapView;
-import com.mapquest.android.maps.OverlayItem;
 
 public class MainActivity extends FragmentActivity implements LocationListener,
 		Refreshable, TextToSpeech.OnInitListener {
@@ -79,7 +67,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	private SearchView searchView;
 	private RetainableFragment retainableFragment;
 	private QueryResponse cachedResponse;
-	private AnnotationView annotationView;
 	private LinearLayout mainContent;
 	
 	@Override
@@ -108,8 +95,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			}
 
 			@Override
-			public boolean onQueryTextSubmit(String query) {
-				mainProgressBar.setVisibility(View.VISIBLE);				
+			public boolean onQueryTextSubmit(String query) {				
 				String showListFragmentTag = getFragmentTag(R.id.viewpager, 
 						SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
 				if (showListFragmentTag != null) {
@@ -232,10 +218,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	
 	@Override
 	public void receivedResponse(QueryResponse queryResponse, boolean responseMessage) {
-		if (mainProgressBar.isShown()) {
-			mainProgressBar.setVisibility(View.INVISIBLE);
-		}
-
 		if (queryResponse == null || queryResponse.getSource() == null
 				|| queryResponse.getTotal() == null
 				|| queryResponse.getTotal() <= 0) {
@@ -244,11 +226,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			showToast(message, Toast.LENGTH_SHORT);
 			return;
 		}
-		
-		if (!mainContent.isShown()) {
-			mainContent.setVisibility(View.VISIBLE);
-		}
 
+		cachedResponse = queryResponse;
 		boolean reload = false;
 		Integer page = queryResponse.getPage();
 		if (page != null && page <= 1) {
@@ -277,15 +256,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		if (supportMapFragmentTag != null) {
 			Fragment fragment = getFragmentByTag(supportMapFragmentTag);
 			if (fragment != null) {
-				updateMap(queryResponse.getResultList(),
-						(ShowMapFragment) fragment, reload);
+				((ShowMapFragment) fragment).updateMap(queryResponse.getResultList(), reload);
 			}
 		}
-		
-		if (cachedResponse == null || cachedResponse != queryResponse) {
-			cachedResponse = queryResponse;
-		}
-		lockOrientation(true);
 	}
 	
 	@Override
@@ -297,11 +270,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 	    super.onSaveInstanceState(savedState);
-	    savedState.putParcelable(QueryResponse.class.getName(), cachedResponse);
+	    if (cachedResponse != null) {
+	    	savedState.putParcelable(QueryResponse.class.getName(), cachedResponse);
+	    }
 	}
 	
 	@Override
 	protected void onResume() {
+		Log.i(TAG, "onResume()");
 		super.onResume();
 		final LocationListener listener = this;
 		if (locationManager != null && location != null) {
@@ -316,15 +292,16 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 				}, MEASURE_TIME, TimeUnit.MILLISECONDS);
 			}
 		}
-		
 		if (cachedResponse != null) {
-			// receivedResponse(cachedResponse, false);
+			receivedResponse(cachedResponse, false);
 		}
 	}
 
 	@Override
 	protected void onPause() {
+		Log.i(TAG, "onPause()");
 		super.onPause();
+		searchView.clearFocus();
 		if (locationManager != null) {
 			locationManager.removeUpdates(this);
 		}
@@ -343,6 +320,28 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	protected void onNewIntent(Intent intent) {
 		setIntent(intent);
 		handleIntent(intent);
+	}
+	
+	@Override
+	public void startProgress() {
+		cachedResponse = null;
+		lockOrientation(true);
+		mainProgressBar.setVisibility(View.VISIBLE);
+	}
+	
+	@Override
+	public void stopProgress() {
+		lockOrientation(false);
+		mainProgressBar.setVisibility(View.INVISIBLE);
+		if (!mainContent.isShown()) {
+			mainContent.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	@Override
+	public void cancel() {
+		lockOrientation(false);
+		cachedResponse = null;
 	}
 	
 	private int getCurentOrientation() {
@@ -456,7 +455,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 				Log.i(TAG, "handleIntent - sending query " + query
 						+ " with location " + locationString);
 				startWork(query, locationString, 0, 0);
-				lockOrientation(false);
 			}
 		} finally {
 			searchView.clearFocus();
@@ -495,92 +493,5 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	
 	private static String getFragmentTag(int viewId, int index) {
 		return "android:switcher:" + viewId + ":" + index;
-	}
-
-	private static void addPointsToMap(Context context, List<Result> resultList, MapView mapView, 
-			final AnnotationView annotation, final TextView bubbleTitle, final TextView bubbleSnippet) {
-		int minLat = Integer.MAX_VALUE;
-		int maxLat = Integer.MIN_VALUE;
-		int minLon = Integer.MAX_VALUE;
-		int maxLon = Integer.MIN_VALUE;
-		
-		Drawable icon = context.getResources().getDrawable(R.drawable.location_marker);
-		final DefaultItemizedOverlay overlays = new DefaultItemizedOverlay(icon);
-		
-		for (Result result : resultList) {
-			Double latitude = result.getLatitude();
-			Double longitude = result.getLongitude();
-			if (latitude == null || longitude == null) {
-				continue;
-			}
-			
-			GeoPoint geoPoint = new GeoPoint(latitude, longitude);
-			int lat = geoPoint.getLatitudeE6();
-			int lon = geoPoint.getLongitudeE6();
-			
-			maxLat = Math.max(lat, maxLat);
-			minLat = Math.min(lat, minLat);
-			maxLon = Math.max(lon, maxLon);
-			minLon = Math.min(lon, minLon);
-			
-			OverlayItem item = new OverlayItem(geoPoint, result.getName(), result.getDetails());
-			overlays.addItem(item);
-		}
-		
-		overlays.setTapListener(new ItemizedOverlay.OverlayTapListener() {
-			@Override
-			public void onTap(GeoPoint pt, MapView mapView) {
-				int lastTouchedIndex = overlays.getLastFocusedIndex();
-				if (lastTouchedIndex > -1) {
-					mapView.getController().animateTo(pt);
-					OverlayItem tapped = overlays.getItem(lastTouchedIndex);
-					bubbleTitle.setText(tapped.getTitle());
-					bubbleSnippet.setText(tapped.getSnippet());
-					annotation.showAnnotationView(tapped);
-				}
-			}
-		});
-		
-		mapView.getOverlays().add(overlays);
-		mapView.invalidate();
-		mapView.setBuiltInZoomControls(true);
-		
-		double fitFactor = 1.5;
-		MapController mapController = mapView.getController();
-		mapController.zoomToSpan((int) (Math.abs(maxLat - minLat) * fitFactor), (int)(Math.abs(maxLon - minLon) * fitFactor));
-		mapController.animateTo(new GeoPoint( (maxLat + minLat)/2, (maxLon + minLon)/2 )); 
-	}
-	
-	private void updateMap(List<Result> resultList,
-			ShowMapFragment showMapFragment, boolean reload) {
-		final Context context = this;
-		final MapView mapView = showMapFragment.getMapView();
-		if (mapView != null) {
-			annotationView = new AnnotationView(mapView);
-			float density = mapView.getContext().getResources().getDisplayMetrics().density;
-			annotationView.setBubbleRadius((int)(12*density+0.5f));
-			annotationView.tryToKeepBubbleOnScreen(true);
-			
-			LayoutInflater li = (LayoutInflater) mapView.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			RelativeLayout innerView = (RelativeLayout) li.inflate(R.layout.custom_inner_view, annotationView, false);
-			annotationView.setInnerView(innerView);
-	
-			annotationView.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					((AnnotationView) view).hide();
-				}
-			});
-				
-			if (reload) {
-				annotationView.hide();
-				mapView.getOverlays().clear();
-				mapView.invalidate();
-			}
-			
-			TextView bubbleTitle = (TextView) innerView.findViewById(R.id.bubble_title);
-			TextView bubbleSnippet = (TextView) innerView.findViewById(R.id.bubble_snippet);
-			addPointsToMap(context, resultList, mapView, annotationView, bubbleTitle, bubbleSnippet);
-		}
 	}
 }

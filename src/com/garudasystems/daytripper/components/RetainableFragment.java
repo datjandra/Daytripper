@@ -114,8 +114,8 @@ public class RetainableFragment extends Fragment {
     	public final static String LATITUDE_NODE = "latitude";
     	public final static String IMAGES_NODE = "imageUrls";
 
-    	private static final int CONNECTION_TIMEOUT = 7000;
-    	private static final int SOCKET_TIMEOUT = 7000;
+    	private static final int CONNECTION_TIMEOUT = 20000;
+    	private static final int SOCKET_TIMEOUT = 20000;
 
     	private Refreshable refreshable;
 
@@ -127,6 +127,13 @@ public class RetainableFragment extends Fragment {
     		this.refreshable = refreshable;
     	}
 
+    	@Override
+    	protected void onPreExecute() {
+    		if (refreshable != null) {
+    			refreshable.startProgress();
+    		}
+    	}
+    	
     	@Override
     	protected QueryResponse doInBackground(String... params) {
     		QueryResponse queryResponse = null;
@@ -174,8 +181,17 @@ public class RetainableFragment extends Fragment {
     	}
 
     	@Override
-    	protected synchronized void onPostExecute(QueryResponse response) {
+    	protected void onCancelled(QueryResponse response) {
     		if (refreshable != null) {
+    			refreshable.stopProgress();
+    			refreshable.cancel();
+    		}
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(QueryResponse response) {
+    		if (refreshable != null) {
+    			refreshable.stopProgress();
     			refreshable.receivedResponse(response, true);
     		}
     	}

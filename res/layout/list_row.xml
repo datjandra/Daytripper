@@ -109,7 +109,6 @@
             android:alpha="0.54"
             android:ellipsize="none"
             android:singleLine="false"
-            android:text="#-###-###-####"
             android:textSize="14sp" />
     </LinearLayout>
 
