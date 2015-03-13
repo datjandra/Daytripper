@@ -1,9 +1,11 @@
-package com.garudasystems.daytripper.components;
+package com.garudasystems.daytripper.components.map;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -29,7 +31,17 @@ public class ShowMapFragment extends Fragment {
 
 	private MapView mapView = null;
 	private AnnotationView annotationView;
+	private TextView bubbleTitle;
+	private TextView bubbleSnippet; 
+	private ArrayList<Result> allItems;
+	
+	public static final String RESULT_LIST = ShowMapFragment.class.getName() + "." + Result.class.getName();
 
+	@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -37,16 +49,28 @@ public class ShowMapFragment extends Fragment {
 				false);
 		mapView = (MapView) rootView.findViewById(R.id.mapquest);
 		annotationView = new AnnotationView(mapView);
+		/*
 		float density = mapView.getContext().getResources().getDisplayMetrics().density;
 		annotationView.setBubbleRadius((int) (12 * density + 0.5f));
+		*/
 		annotationView.tryToKeepBubbleOnScreen(true);
-
 		annotationView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				((AnnotationView) view).hide();
 			}
 		});
+		
+		LayoutInflater li = (LayoutInflater) mapView.getContext()
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		RelativeLayout innerView = (RelativeLayout) li.inflate(
+				R.layout.custom_inner_view, annotationView, false);
+		annotationView.setInnerView(innerView);
+		
+		bubbleTitle = (TextView) innerView
+				.findViewById(R.id.bubble_title);
+		bubbleSnippet = (TextView) innerView
+				.findViewById(R.id.bubble_snippet);
 		return rootView;
 	}
 
@@ -59,44 +83,35 @@ public class ShowMapFragment extends Fragment {
 		}
 	}
 
+	@Override
+	public void onSaveInstanceState(Bundle savedState) {
+	    super.onSaveInstanceState(savedState);
+	}
+	
 	public MapView getMapView() {
 		return mapView;
 	}
 	
 	public void updateMap(List<Result> resultList, boolean reload) {
-		final Context context = this.getActivity();
 		if (reload) {
 			annotationView.hide();
 			mapView.getOverlays().clear();
 			mapView.invalidate();
 		}
-
-		LayoutInflater li = (LayoutInflater) mapView.getContext()
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		RelativeLayout innerView = (RelativeLayout) li.inflate(
-				R.layout.custom_inner_view, annotationView, false);
-		annotationView.setInnerView(innerView);
-		
-		TextView bubbleTitle = (TextView) innerView
-				.findViewById(R.id.bubble_title);
-		TextView bubbleSnippet = (TextView) innerView
-				.findViewById(R.id.bubble_snippet);
-		addPointsToMap(context, resultList, mapView, annotationView,
-				bubbleTitle, bubbleSnippet);
+		addPointsToMap(resultList);
 	}
 	
-	private static void addPointsToMap(Context context,
-			List<Result> resultList, MapView mapView,
-			final AnnotationView annotation, final TextView bubbleTitle,
-			final TextView bubbleSnippet) {
+	private void addPointsToMap(List<Result> resultList) {
 		int minLat = Integer.MAX_VALUE;
 		int maxLat = Integer.MIN_VALUE;
 		int minLon = Integer.MAX_VALUE;
 		int maxLon = Integer.MIN_VALUE;
 
-		Drawable icon = context.getResources().getDrawable(
+		StateListDrawable listDrawable = 
+				(StateListDrawable) getActivity().getResources().getDrawable(R.drawable.marker_icon);
+		Drawable icon = getActivity().getResources().getDrawable(
 				R.drawable.default_marker);
-		final DefaultItemizedOverlay overlays = new DefaultItemizedOverlay(icon);
+		final DefaultItemizedOverlay overlays = new DefaultItemizedOverlay(listDrawable);
 
 		for (Result result : resultList) {
 			Double latitude = result.getLatitude();
@@ -128,7 +143,7 @@ public class ShowMapFragment extends Fragment {
 					OverlayItem tapped = overlays.getItem(lastTouchedIndex);
 					bubbleTitle.setText(tapped.getTitle());
 					bubbleSnippet.setText(tapped.getSnippet());
-					annotation.showAnnotationView(tapped);
+					annotationView.showAnnotationView(tapped);
 				}
 			}
 		});

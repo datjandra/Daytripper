@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 
 import com.garudasystems.daytripper.components.ShowListFragment;
-import com.garudasystems.daytripper.components.ShowMapFragment;
+import com.garudasystems.daytripper.components.map.ShowMapFragment;
 
 public class SearchActivityTabAdapter extends FragmentPagerAdapter {
 

@@ -1,5 +1,8 @@
 package com.garudasystems.daytripper.view;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -13,7 +16,9 @@ import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -28,8 +33,10 @@ import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ExpandableListView;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -41,14 +48,15 @@ import com.garudasystems.daytripper.backend.vocifery.QueryResponse;
 import com.garudasystems.daytripper.components.Refreshable;
 import com.garudasystems.daytripper.components.RetainableFragment;
 import com.garudasystems.daytripper.components.ShowListFragment;
-import com.garudasystems.daytripper.components.ShowMapFragment;
-import com.garudasystems.daytripper.components.SimplerExpandableListAdapter;
 import com.garudasystems.daytripper.components.ViewPagerFragment;
+import com.garudasystems.daytripper.components.map.ShowMapFragment;
 
 public class MainActivity extends FragmentActivity implements LocationListener,
 		Refreshable, TextToSpeech.OnInitListener {
 
 	private static final String TAG = "MainActivity";
+	private static final String CACHED_QUERY_STATE = "CachedQuery";
+	
 	private static final long MEASURE_TIME = 1000 * 60;
 	private static final long POLLING_FREQ = 1000 * 20;
 	private static final long ONE_MIN = 1000 * 60;
@@ -65,9 +73,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	private TextToSpeech tts;
 	private ProgressBar mainProgressBar;
 	private SearchView searchView;
-	private RetainableFragment retainableFragment;
-	private QueryResponse cachedResponse;
+	// private RetainableFragment retainableFragment;
+	// private QueryResponse cachedResponse;
 	private LinearLayout mainContent;
+	private LinearLayout teaserContent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +92,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		tts = new TextToSpeech(this, this);
         mainProgressBar = (ProgressBar) findViewById(R.id.main_progress);
         mainContent = (LinearLayout) findViewById(R.id.main_content);
+        teaserContent = (LinearLayout) findViewById(R.id.teaser_content);
 		
 		searchView = (SearchView) findViewById(R.id.search_view);
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -95,7 +105,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			}
 
 			@Override
-			public boolean onQueryTextSubmit(String query) {				
+			public boolean onQueryTextSubmit(String query) {	
+				/*
 				String showListFragmentTag = getFragmentTag(R.id.viewpager, 
 						SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
 				if (showListFragmentTag != null) {
@@ -104,6 +115,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 						((ShowListFragment) fragment).reset();
 					}
 				}
+				*/
 				return false;
 			}
 		});
@@ -118,7 +130,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			transaction.replace(R.id.content_fragment, fragment);
 			transaction.commit();
 		} else {
-			cachedResponse = savedInstanceState.getParcelable(QueryResponse.class.getName());
+			String value = savedInstanceState.getString(CACHED_QUERY_STATE);
+			if (value != null && !value.isEmpty()) {
+				cachedQuery = value;
+			}
+			if (cachedQuery != null && !cachedQuery.isEmpty() && !mainContent.isShown()) {
+				if (teaserContent.isShown()) {
+					teaserContent.setVisibility(View.GONE);
+				}
+				mainContent.setVisibility(View.VISIBLE);
+			}
+			// cachedResponse = savedInstanceState.getParcelable(QueryResponse.class.getName());
 		}
 	}
 	
@@ -132,8 +154,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.help_menu) {
-			final Context context = this;
-			final Dialog dialog = new Dialog(context);
+			final Dialog dialog = new Dialog(this);
+			dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 			dialog.setContentView(R.layout.help_content);
 			
 			TextView helpClose = (TextView) dialog.findViewById(R.id.help_close);
@@ -144,25 +166,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 				}
 			});
 			
-			String[] titles = {
-				getResources().getString(R.string.seatgeek_instruction),
-				getResources().getString(R.string.yelp_instruction),
-				getResources().getString(R.string.filter_instruction),
-				getResources().getString(R.string.sort_instruction),
-				getResources().getString(R.string.similarity_instruction),
-			};
-			
-			String[][] contents = {
-				getResources().getStringArray(R.array.seatgeek_examples),
-				getResources().getStringArray(R.array.yelp_examples),
-				getResources().getStringArray(R.array.filter_examples),
-				getResources().getStringArray(R.array.sort_examples),
-				getResources().getStringArray(R.array.similarity_examples)
-			};
-			
-			SimplerExpandableListAdapter expandableAdapter = new SimplerExpandableListAdapter(context, titles, contents);
-			ExpandableListView helpContent = (ExpandableListView) dialog.findViewById(R.id.help_content);
-			helpContent.setAdapter(expandableAdapter);
+			WebView webView = (WebView) dialog.findViewById(R.id.html_help);
+			/*
+			webView.setWebViewClient(new WebViewClient() {
+			    @Override
+			    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			    	view.loadUrl(url);
+			        return false;
+			    }
+			});
+			*/
+			webView.loadData(readTextFromResource(R.raw.help), "text/html", null);
 			dialog.show();
 			return true;
 		}
@@ -194,10 +208,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void onInit(int status) {
 		if (status == TextToSpeech.SUCCESS) {
-			int result = tts.setLanguage(Locale.US);
+			int result = tts.setLanguage(Locale.UK);
 			if (result == TextToSpeech.LANG_MISSING_DATA
 					|| result == TextToSpeech.LANG_NOT_SUPPORTED) {
-				Log.e(TAG, "Language is not available.");
+				result = tts.setLanguage(Locale.US);
+				if (result == TextToSpeech.LANG_MISSING_DATA
+						|| result == TextToSpeech.LANG_NOT_SUPPORTED) {
+					Log.e(TAG, "Language is not available.");
+				}
 			}
 		} else {
 			Log.e(TAG, "Could not initialize TextToSpeech.");
@@ -218,46 +236,49 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	
 	@Override
 	public void receivedResponse(QueryResponse queryResponse, boolean responseMessage) {
-		if (queryResponse == null || queryResponse.getSource() == null
-				|| queryResponse.getTotal() == null
-				|| queryResponse.getTotal() <= 0) {
-			String message = getMessage(R.string.error_message);
-			say(message);
-			showToast(message, Toast.LENGTH_SHORT);
-			return;
-		}
-
-		cachedResponse = queryResponse;
-		boolean reload = false;
-		Integer page = queryResponse.getPage();
-		if (page != null && page <= 1) {
-			reload = true;
-			String template = getMessage(R.string.success_message);
-			String message = String.format(Locale.getDefault(), template,
-					queryResponse.getTotal(), queryResponse.getSource());
-			if (responseMessage) {
+		try {
+			if (queryResponse == null || queryResponse.getSource() == null
+					|| queryResponse.getTotal() == null
+					|| queryResponse.getTotal() <= 0) {
+				String message = getMessage(R.string.error_message);
 				say(message);
 				showToast(message, Toast.LENGTH_SHORT);
+				return;
 			}
-		}
-
-		String showListFragmentTag = getFragmentTag(R.id.viewpager,
-				SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
-		if (showListFragmentTag != null) {
-			Fragment fragment = getFragmentByTag(showListFragmentTag);
-			if (fragment != null) {
-				((ShowListFragment) fragment)
-						.refreshList(queryResponse, reload);
+			
+			// cachedResponse = queryResponse;
+			boolean reload = false;
+			Integer page = queryResponse.getPage();
+			if (page != null && page <= 1) {
+				reload = true;
+				String template = getMessage(R.string.success_message);
+				String message = String.format(Locale.getDefault(), template,
+						queryResponse.getTotal(), queryResponse.getSource());
+				if (responseMessage) {
+					say(message);
+					showToast(message, Toast.LENGTH_SHORT);
+				}
 			}
-		}
-
-		String supportMapFragmentTag = getFragmentTag(R.id.viewpager,
-				SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
-		if (supportMapFragmentTag != null) {
-			Fragment fragment = getFragmentByTag(supportMapFragmentTag);
-			if (fragment != null) {
-				((ShowMapFragment) fragment).updateMap(queryResponse.getResultList(), reload);
+			String showListFragmentTag = getFragmentTag(R.id.viewpager,
+					SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
+			if (showListFragmentTag != null) {
+				Fragment fragment = getFragmentByTag(showListFragmentTag);
+				if (fragment != null) {
+					((ShowListFragment) fragment).refreshList(queryResponse,
+							reload);
+				}
 			}
+			String supportMapFragmentTag = getFragmentTag(R.id.viewpager,
+					SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
+			if (supportMapFragmentTag != null) {
+				Fragment fragment = getFragmentByTag(supportMapFragmentTag);
+				if (fragment != null) {
+					((ShowMapFragment) fragment).updateMap(
+							queryResponse.getResultList(), reload);
+				}
+			}
+		} finally {
+			lockOrientation(false);
 		}
 	}
 	
@@ -270,9 +291,14 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 	    super.onSaveInstanceState(savedState);
+	    if (cachedQuery != null) {
+	    	savedState.putString(CACHED_QUERY_STATE, cachedQuery);
+	    }
+	    /*
 	    if (cachedResponse != null) {
 	    	savedState.putParcelable(QueryResponse.class.getName(), cachedResponse);
 	    }
+	    */
 	}
 	
 	@Override
@@ -292,9 +318,19 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 				}, MEASURE_TIME, TimeUnit.MILLISECONDS);
 			}
 		}
+		
+		if (cachedQuery != null && !cachedQuery.isEmpty() && !mainContent.isShown()) {
+			if (teaserContent.isShown()) {
+				teaserContent.setVisibility(View.GONE);
+			}
+			mainContent.setVisibility(View.VISIBLE);
+		}
+		
+		/*
 		if (cachedResponse != null) {
 			receivedResponse(cachedResponse, false);
 		}
+		*/
 	}
 
 	@Override
@@ -309,6 +345,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
 	@Override
 	protected void onDestroy() {
+		Log.i(TAG, "onDestroy()");
 		super.onDestroy();
 		if (tts != null) {
 			tts.stop();
@@ -324,15 +361,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	
 	@Override
 	public void startProgress() {
-		cachedResponse = null;
+		// cachedResponse = null;
 		lockOrientation(true);
 		mainProgressBar.setVisibility(View.VISIBLE);
 	}
 	
 	@Override
 	public void stopProgress() {
-		lockOrientation(false);
 		mainProgressBar.setVisibility(View.INVISIBLE);
+		if (teaserContent.isShown()) {
+			teaserContent.setVisibility(View.GONE);
+		}
 		if (!mainContent.isShown()) {
 			mainContent.setVisibility(View.VISIBLE);
 		}
@@ -341,7 +380,23 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void cancel() {
 		lockOrientation(false);
-		cachedResponse = null;
+	}
+	
+	private String readTextFromResource(int resourceID) {
+		InputStream raw = getResources().openRawResource(resourceID);
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		int i;
+		try {
+			i = raw.read();
+			while (i != -1) {
+				stream.write(i);
+				i = raw.read();
+			}
+			raw.close();
+		} catch (IOException e) {
+			Log.i(TAG, "readTextFromResource - " + e.getMessage());
+		}
+		return stream.toString();
 	}
 	
 	private int getCurentOrientation() {
@@ -377,14 +432,19 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	    }
 	}
 	
-	private void startWork(String query, String locationString, int page, int count) {
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		retainableFragment = (RetainableFragment) fragmentManager.findFragmentByTag(RetainableFragment.TAG);
-		if (retainableFragment == null) {
-			retainableFragment = new RetainableFragment();
-			fragmentManager.beginTransaction().add(retainableFragment, RetainableFragment.TAG).commit();
-		}
-		retainableFragment.startWork(this, query, locationString, page, count);
+	private void startWork(final String query, final String locationString, final int page, final int count) {
+		final Refreshable refreshable = this;
+		new Handler().post(new Runnable() {
+			public void run() {
+				FragmentManager fragmentManager = getSupportFragmentManager();
+				RetainableFragment retainableFragment = (RetainableFragment) fragmentManager.findFragmentByTag(RetainableFragment.TAG);
+				if (retainableFragment == null) {
+					retainableFragment = new RetainableFragment();
+					fragmentManager.beginTransaction().add(retainableFragment, RetainableFragment.TAG).commit();
+				}
+				retainableFragment.startWork(refreshable, query, locationString, page, count);
+			}
+		});
 	}
 	
 	private void initLocationManager() {

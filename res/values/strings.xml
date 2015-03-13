@@ -4,7 +4,7 @@
     <string name="action_search">Search</string>
     <string name="search_hint">Search</string>
     <string name="message_ok">OK</string>
-    <string name="message_intro">Search places or events</string>
+    <string name="message_intro">Find places, events or meetups</string>
     <string name="search_instructions">Example searches: \"events\", \"Japanese\", \"buffet in Las Vegas, NV\"</string>
 	<string name="success_message" formatted="false">I found %d listings from %s</string>
     <string name="error_message">Sorry, I did not find anything</string>
@@ -14,10 +14,12 @@
     <string-array name="vendor_array">
         <item>Yelp</item>
         <item>Seatgeek</item>
+        <item>Meetup</item>
     </string-array>
     <string-array name="logo_array">
         <item>yelp_logo_50x25</item>
         <item>seatgeek_102x31</item>
+        <item>ic_meetuplogo</item>
     </string-array>
 
     <string name="seatgeek_instruction">I know about several events from Seatgeek. Click to see all searchable items.</string>

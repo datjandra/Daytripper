@@ -20,10 +20,10 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/dropshadow_bg"
-            android:queryHint="@string/message_intro"
+            android:background="@drawable/card_bg"
             android:focusable="false"
-            android:iconifiedByDefault="false" />
+            android:iconifiedByDefault="false"
+            android:queryHint="@string/message_intro" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,12 +42,49 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/main_content"
+        android:id="@+id/teaser_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@+id/header"
+        android:clickable="false"
+        android:orientation="vertical"
+        android:visibility="visible" >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:drawableLeft="@drawable/ic_restaurants"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Local Businesses" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:drawableLeft="@drawable/ic_concerts"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Events" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3"
+            android:drawableLeft="@drawable/ic_meetups"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="Meetups" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:orientation="vertical" >
+        android:layout_below="@+id/header"
+        android:orientation="vertical"
+        android:visibility="invisible" >
 
         <FrameLayout
             android:id="@+id/content_fragment"

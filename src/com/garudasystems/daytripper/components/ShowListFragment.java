@@ -8,6 +8,7 @@ import java.util.Map;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -19,7 +20,6 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.garudasystems.daytripper.R;
@@ -31,9 +31,8 @@ public class ShowListFragment extends Fragment implements
 		AbsListView.OnScrollListener {
 
 	private ListView listView;
-	private ProgressBar progressBar;
 	private ImageView attributionLogo;
-	private List<Result> allItems;
+	private ArrayList<Result> allItems;
 	private SearchResultAdapter adapter;
 	private String source;
 	private int currentPage;
@@ -43,7 +42,14 @@ public class ShowListFragment extends Fragment implements
 	private Refreshable refreshable;
 	private Map<String, String> sourceLogos;
 	private ImageLoader imageLoader;
+	private Parcelable listInstanceState;
 	
+	public static final String RESULT_LIST_STATE = ShowListFragment.class.getName() + "." + Result.class.getName();
+	public static final String LIST_INSTANCE_STATE = "ListInstanceState";
+	public static final String CURRENT_PAGE_STATE = "CurrentPageState";
+	public static final String CHUNK_SIZE_STATE = "ChunkSizeState";
+	public static final String TOTAL_STATE = "TotalState";
+	public static final String PREVIOUS_LAST_ITEM_STATE = "PreviousLastItemState";
 	public static final String TAG = "ShowListFragment";
 	
 	@Override
@@ -60,6 +66,19 @@ public class ShowListFragment extends Fragment implements
 		for (int i = 0; i < vendors.length; i++) {
 			sourceLogos.put(vendors[i], logos[i]);
 		}
+		
+		if (savedInstanceState != null) {
+			ArrayList<Result> resultList = savedInstanceState.getParcelableArrayList(RESULT_LIST_STATE);
+			if (resultList != null) {
+				allItems = resultList;
+			}
+			
+			listInstanceState = savedInstanceState.getParcelable(LIST_INSTANCE_STATE);
+			chunkSize = savedInstanceState.getInt(CHUNK_SIZE_STATE, 0);
+			currentPage = savedInstanceState.getInt(CURRENT_PAGE_STATE, 0);
+			total = savedInstanceState.getInt(TOTAL_STATE, 0);
+			previousLastItem = savedInstanceState.getInt(PREVIOUS_LAST_ITEM_STATE, 0);
+		}
 	}
 
 	@Override
@@ -69,7 +88,6 @@ public class ShowListFragment extends Fragment implements
 				container, false);
 		listView = (ListView) rootView.findViewById(R.id.list);
 		listView.setOnScrollListener(this);
-		progressBar = (ProgressBar) rootView.findViewById(R.id.fetch_progress);
 		attributionLogo = (ImageView) rootView
 				.findViewById(R.id.attribution_logo);
 		return rootView;
@@ -78,10 +96,17 @@ public class ShowListFragment extends Fragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		allItems = new ArrayList<Result>();
+		if (allItems == null) {
+			allItems = new ArrayList<Result>();
+		}
+		
 		Activity activity = getActivity();
 		adapter = new SearchResultAdapter(activity);
 		listView.setAdapter(adapter);
+		
+		if (listInstanceState != null) {
+			listView.onRestoreInstanceState(listInstanceState);
+		}
 		
 		if (activity instanceof Refreshable) {
 			this.setRefreshable((Refreshable) activity);
@@ -93,6 +118,17 @@ public class ShowListFragment extends Fragment implements
 		imageLoader.clearCache();
 		this.refreshable = null;
 		super.onDestroy();
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedState) {
+	    super.onSaveInstanceState(savedState);
+	    savedState.putInt(CURRENT_PAGE_STATE, currentPage);
+	    savedState.putInt(CHUNK_SIZE_STATE, chunkSize);
+	    savedState.putInt(PREVIOUS_LAST_ITEM_STATE, previousLastItem);
+	    savedState.putInt(TOTAL_STATE, total);
+	    savedState.putParcelableArrayList(RESULT_LIST_STATE, allItems);
+	    savedState.putParcelable(LIST_INSTANCE_STATE, listView.onSaveInstanceState());
 	}
 
 	public void setRefreshable(Refreshable refreshable) {
@@ -124,10 +160,6 @@ public class ShowListFragment extends Fragment implements
 			allItems.addAll(resultList);
 			adapter.notifyDataSetChanged();
 		}
-
-		if (progressBar != null) {
-			progressBar.setVisibility(View.INVISIBLE);
-		}
 	}
 
 	/*
@@ -146,9 +178,6 @@ public class ShowListFragment extends Fragment implements
 					currentPage = Math.max(currentPage, 1);
 					Log.d(TAG,
 							String.format("Loading page %d", currentPage + 1));
-					if (progressBar != null) {
-						progressBar.setVisibility(View.VISIBLE);
-					}
 					if (refreshable != null) {
 						refreshable.refresh(currentPage + 1, chunkSize);
 					}
@@ -167,10 +196,11 @@ public class ShowListFragment extends Fragment implements
 		this.total = 0;
 		this.chunkSize = 0;
 		this.previousLastItem = 0;
-		attributionLogo.setImageDrawable(null);
-		allItems = new ArrayList<Result>();
-		adapter = new SearchResultAdapter(getActivity());
-		listView.setAdapter(adapter);
+		this.listInstanceState = null;
+		this.attributionLogo.setImageDrawable(null);
+		this.allItems = new ArrayList<Result>();
+		this.adapter = new SearchResultAdapter(getActivity());
+		this.listView.setAdapter(adapter);
 	}
 	
 	private class ViewHolder {
