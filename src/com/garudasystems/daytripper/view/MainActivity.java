@@ -1,8 +1,9 @@
 package com.garudasystems.daytripper.view;
 
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,6 @@ import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
@@ -36,7 +36,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -74,7 +74,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	private ProgressBar mainProgressBar;
 	private SearchView searchView;
 	// private RetainableFragment retainableFragment;
-	// private QueryResponse cachedResponse;
 	private LinearLayout mainContent;
 	private LinearLayout teaserContent;
 	
@@ -93,6 +92,19 @@ public class MainActivity extends FragmentActivity implements LocationListener,
         mainProgressBar = (ProgressBar) findViewById(R.id.main_progress);
         mainContent = (LinearLayout) findViewById(R.id.main_content);
         teaserContent = (LinearLayout) findViewById(R.id.teaser_content);
+        
+        int orientation = getCurrentOrientation();
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || 
+        		orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE) {
+        	ImageView imageView = (ImageView) teaserContent.findViewById(R.id.img_restaurants);
+        	imageView.setImageDrawable(null);
+        	
+        	imageView = (ImageView) teaserContent.findViewById(R.id.img_concerts);
+        	imageView.setImageDrawable(null);
+        	
+        	imageView = (ImageView) teaserContent.findViewById(R.id.img_meetups);
+        	imageView.setImageDrawable(null);
+        }
 		
 		searchView = (SearchView) findViewById(R.id.search_view);
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
@@ -135,12 +147,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 				cachedQuery = value;
 			}
 			if (cachedQuery != null && !cachedQuery.isEmpty() && !mainContent.isShown()) {
-				if (teaserContent.isShown()) {
-					teaserContent.setVisibility(View.GONE);
-				}
+				teaserContent.setVisibility(View.GONE);
 				mainContent.setVisibility(View.VISIBLE);
 			}
-			// cachedResponse = savedInstanceState.getParcelable(QueryResponse.class.getName());
 		}
 	}
 	
@@ -167,15 +176,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 			});
 			
 			WebView webView = (WebView) dialog.findViewById(R.id.html_help);
-			/*
-			webView.setWebViewClient(new WebViewClient() {
-			    @Override
-			    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			    	view.loadUrl(url);
-			        return false;
-			    }
-			});
-			*/
 			webView.loadData(readTextFromResource(R.raw.help), "text/html", null);
 			dialog.show();
 			return true;
@@ -246,7 +246,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 				return;
 			}
 			
-			// cachedResponse = queryResponse;
 			boolean reload = false;
 			Integer page = queryResponse.getPage();
 			if (page != null && page <= 1) {
@@ -294,11 +293,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	    if (cachedQuery != null) {
 	    	savedState.putString(CACHED_QUERY_STATE, cachedQuery);
 	    }
-	    /*
-	    if (cachedResponse != null) {
-	    	savedState.putParcelable(QueryResponse.class.getName(), cachedResponse);
-	    }
-	    */
 	}
 	
 	@Override
@@ -320,17 +314,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		}
 		
 		if (cachedQuery != null && !cachedQuery.isEmpty() && !mainContent.isShown()) {
-			if (teaserContent.isShown()) {
-				teaserContent.setVisibility(View.GONE);
-			}
+			teaserContent.setVisibility(View.GONE);
 			mainContent.setVisibility(View.VISIBLE);
 		}
-		
-		/*
-		if (cachedResponse != null) {
-			receivedResponse(cachedResponse, false);
-		}
-		*/
 	}
 
 	@Override
@@ -361,7 +347,6 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	
 	@Override
 	public void startProgress() {
-		// cachedResponse = null;
 		lockOrientation(true);
 		mainProgressBar.setVisibility(View.VISIBLE);
 	}
@@ -369,9 +354,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void stopProgress() {
 		mainProgressBar.setVisibility(View.INVISIBLE);
-		if (teaserContent.isShown()) {
-			teaserContent.setVisibility(View.GONE);
-		}
+		teaserContent.setVisibility(View.GONE);
 		if (!mainContent.isShown()) {
 			mainContent.setVisibility(View.VISIBLE);
 		}
@@ -384,22 +367,25 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	
 	private String readTextFromResource(int resourceID) {
 		InputStream raw = getResources().openRawResource(resourceID);
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		int i;
+		StringBuilder contentBuilder = new StringBuilder();
+		BufferedReader br = new BufferedReader(new InputStreamReader(raw));
 		try {
-			i = raw.read();
-			while (i != -1) {
-				stream.write(i);
-				i = raw.read();
+			String line;
+			while ((line = br.readLine()) != null) {
+				contentBuilder.append(line);
 			}
-			raw.close();
+			br.close();
 		} catch (IOException e) {
 			Log.i(TAG, "readTextFromResource - " + e.getMessage());
+		}  finally {
+			try {
+				br.close();
+			} catch (Exception e) {}
 		}
-		return stream.toString();
+		return contentBuilder.toString();
 	}
 	
-	private int getCurentOrientation() {
+	private int getCurrentOrientation() {
 	    Display d = ((WindowManager) getSystemService(WINDOW_SERVICE))
 	            .getDefaultDisplay();
 	    DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -408,25 +394,25 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	    int screenHeight = displaymetrics.heightPixels;
 	    boolean isWide = screenWidth >= screenHeight;
 	    switch (d.getRotation()) {
-	    case Surface.ROTATION_0:
-	        return isWide ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-	                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-	    case Surface.ROTATION_90:
-	        return isWide ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-	                : ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-	    case Surface.ROTATION_180:
-	        return isWide ? ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-	                : ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-	    case Surface.ROTATION_270:
-	        return isWide ? ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
-	                : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+		    case Surface.ROTATION_0:
+		    	return isWide ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+		    			: ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+		    case Surface.ROTATION_90:
+		    	return isWide ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+		    			: ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+		    case Surface.ROTATION_180:
+		    	return isWide ? ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+		    			: ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+		    case Surface.ROTATION_270:
+		    	return isWide ? ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+		    			: ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
 	    }
 	    return -1;
 	}
 
 	private void lockOrientation(boolean lock) {
 	    if (lock) {
-	        setRequestedOrientation(getCurentOrientation());
+	        setRequestedOrientation(getCurrentOrientation());
 	    } else {
 	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 	    }

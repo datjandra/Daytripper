@@ -50,6 +50,7 @@ public class ShowListFragment extends Fragment implements
 	public static final String CHUNK_SIZE_STATE = "ChunkSizeState";
 	public static final String TOTAL_STATE = "TotalState";
 	public static final String PREVIOUS_LAST_ITEM_STATE = "PreviousLastItemState";
+	public static final String SOURCE_STATE = "SourceState";
 	public static final String TAG = "ShowListFragment";
 	
 	@Override
@@ -78,6 +79,7 @@ public class ShowListFragment extends Fragment implements
 			currentPage = savedInstanceState.getInt(CURRENT_PAGE_STATE, 0);
 			total = savedInstanceState.getInt(TOTAL_STATE, 0);
 			previousLastItem = savedInstanceState.getInt(PREVIOUS_LAST_ITEM_STATE, 0);
+			source = savedInstanceState.getString(SOURCE_STATE);
 		}
 	}
 
@@ -108,6 +110,15 @@ public class ShowListFragment extends Fragment implements
 			listView.onRestoreInstanceState(listInstanceState);
 		}
 		
+		if (source != null && sourceLogos.containsKey(source)) {
+			String uri = "@drawable/" + sourceLogos.get(source);
+			int imageResource = getResources().getIdentifier(uri,
+					"drawable", getActivity().getPackageName());
+			if (imageResource > 0) {
+				attributionLogo.setImageResource(imageResource);
+			}
+		}
+		
 		if (activity instanceof Refreshable) {
 			this.setRefreshable((Refreshable) activity);
 		}
@@ -127,6 +138,7 @@ public class ShowListFragment extends Fragment implements
 	    savedState.putInt(CHUNK_SIZE_STATE, chunkSize);
 	    savedState.putInt(PREVIOUS_LAST_ITEM_STATE, previousLastItem);
 	    savedState.putInt(TOTAL_STATE, total);
+	    savedState.putString(SOURCE_STATE, source);
 	    savedState.putParcelableArrayList(RESULT_LIST_STATE, allItems);
 	    savedState.putParcelable(LIST_INSTANCE_STATE, listView.onSaveInstanceState());
 	}

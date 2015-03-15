@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -35,11 +34,18 @@ public class ShowMapFragment extends Fragment {
 	private TextView bubbleSnippet; 
 	private ArrayList<Result> allItems;
 	
+	public static final String ITEM_STATE = "ItemState";
 	public static final String RESULT_LIST = ShowMapFragment.class.getName() + "." + Result.class.getName();
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+			ArrayList<Result> resultList = savedInstanceState.getParcelableArrayList(ITEM_STATE);
+			if (resultList != null) {
+				allItems = resultList;
+			}
+        }
     }
 	
 	@Override
@@ -86,6 +92,15 @@ public class ShowMapFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 	    super.onSaveInstanceState(savedState);
+	    savedState.putParcelableArrayList(ITEM_STATE, allItems);
+	}
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		if (allItems != null) {
+			addPointsToMap(allItems);
+		}
 	}
 	
 	public MapView getMapView() {
@@ -97,7 +112,13 @@ public class ShowMapFragment extends Fragment {
 			annotationView.hide();
 			mapView.getOverlays().clear();
 			mapView.invalidate();
+			allItems = null;
 		}
+		
+		if (allItems == null) {
+			allItems = new ArrayList<Result>();
+		}
+		allItems.addAll(resultList);
 		addPointsToMap(resultList);
 	}
 	
@@ -106,17 +127,18 @@ public class ShowMapFragment extends Fragment {
 		int maxLat = Integer.MIN_VALUE;
 		int minLon = Integer.MAX_VALUE;
 		int maxLon = Integer.MIN_VALUE;
-
+		
 		StateListDrawable listDrawable = 
 				(StateListDrawable) getActivity().getResources().getDrawable(R.drawable.marker_icon);
-		Drawable icon = getActivity().getResources().getDrawable(
-				R.drawable.default_marker);
 		final DefaultItemizedOverlay overlays = new DefaultItemizedOverlay(listDrawable);
 
 		for (Result result : resultList) {
 			Double latitude = result.getLatitude();
 			Double longitude = result.getLongitude();
-			if (latitude == null || longitude == null) {
+			if (latitude == null || 
+					latitude == 0 || 
+					longitude == null || 
+					longitude == 0) {
 				continue;
 			}
 

@@ -47,35 +47,83 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/header"
         android:clickable="false"
+        android:visibility="visible"
         android:orientation="vertical"
-        android:visibility="visible" >
+        android:padding="16dp" >
 
-        <TextView
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:drawableLeft="@drawable/ic_restaurants"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="Local Businesses" />
+            android:background="@color/primary_dark"
+            android:layout_weight="0.3" >
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:drawableLeft="@drawable/ic_concerts"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="Events" />
+            <ImageView
+                android:id="@+id/img_restaurants"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_restaurants" />
 
-        <TextView
-            android:layout_width="match_parent"
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:text="Local Businesses"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="16dp" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:drawableLeft="@drawable/ic_meetups"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="Meetups" />
+            android:background="@color/primary_dark"
+            android:layout_weight="0.3" >
+
+            <ImageView
+                android:id="@+id/img_concerts"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_concerts" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:text="Events"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="16dp" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:background="@color/primary_dark"
+            android:layout_weight="0.3" >
+
+            <ImageView
+                android:id="@+id/img_meetups"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_meetups" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:text="Meetups"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -84,7 +132,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/header"
         android:orientation="vertical"
-        android:visibility="invisible" >
+        android:visibility="gone" >
 
         <FrameLayout
             android:id="@+id/content_fragment"
