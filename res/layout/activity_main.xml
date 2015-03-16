@@ -69,6 +69,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center"
+                android:textAppearance="@android:style/TextAppearance.Large"
                 android:text="Local Businesses"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
@@ -95,6 +96,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center"
+                android:textAppearance="@android:style/TextAppearance.Large"
                 android:text="Events"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
@@ -121,6 +123,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center"
+                android:textAppearance="@android:style/TextAppearance.Large"
                 android:text="Meetups"
                 android:textColor="@android:color/white" />
         </RelativeLayout>

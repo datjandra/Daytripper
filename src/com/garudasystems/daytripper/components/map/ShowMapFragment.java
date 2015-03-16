@@ -43,7 +43,8 @@ public class ShowMapFragment extends Fragment {
         if (savedInstanceState != null) {
 			ArrayList<Result> resultList = savedInstanceState.getParcelableArrayList(ITEM_STATE);
 			if (resultList != null) {
-				allItems = resultList;
+				allItems = new ArrayList<Result>();
+				allItems.addAll(resultList);
 			}
         }
     }

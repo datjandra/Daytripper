@@ -71,7 +71,10 @@ public class ShowListFragment extends Fragment implements
 		if (savedInstanceState != null) {
 			ArrayList<Result> resultList = savedInstanceState.getParcelableArrayList(RESULT_LIST_STATE);
 			if (resultList != null) {
-				allItems = resultList;
+				if (allItems == null) {
+					allItems = new ArrayList<Result>();
+				}
+				allItems.addAll(resultList);
 			}
 			
 			listInstanceState = savedInstanceState.getParcelable(LIST_INSTANCE_STATE);
@@ -80,6 +83,8 @@ public class ShowListFragment extends Fragment implements
 			total = savedInstanceState.getInt(TOTAL_STATE, 0);
 			previousLastItem = savedInstanceState.getInt(PREVIOUS_LAST_ITEM_STATE, 0);
 			source = savedInstanceState.getString(SOURCE_STATE);
+		} else {
+			allItems = new ArrayList<Result>();
 		}
 	}
 
@@ -98,10 +103,6 @@ public class ShowListFragment extends Fragment implements
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (allItems == null) {
-			allItems = new ArrayList<Result>();
-		}
-		
 		Activity activity = getActivity();
 		adapter = new SearchResultAdapter(activity);
 		listView.setAdapter(adapter);
@@ -165,9 +166,10 @@ public class ShowListFragment extends Fragment implements
 		}
 
 		List<Result> resultList = queryResponse.getResultList();
-		if (allItems != null && resultList != null && !resultList.isEmpty()) {
+		if (resultList != null && !resultList.isEmpty()) {
 			if (reload) {
 				allItems.clear();
+				this.previousLastItem = 0;
 			}
 			allItems.addAll(resultList);
 			adapter.notifyDataSetChanged();

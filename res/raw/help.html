@@ -1,25 +1,20 @@
 <html>
    <body>
-      <h3>Yelp</h3>
-      <div>
-         Almost every type of Yelp search is supported. See the following examples.
-         <ul>
-            <li>restaurants</li>
-            <li>vegetarian</li>
-            <li>sushi</li>
-            <li>martial arts</li>
-            <li>roof repair</li>
-            <li>grocery stores</li>
-            <li>shopping</li>
-         </ul>
-      </div>
+   	  <div>
+   	  Daytripper is an app for finding local businesses, ticketed events, and meetups.
+   	  This app is primarily designed for people who have little proficiency with computers.
+   	  All input comes from voice and text.
+   	  To use this app, just type your query in the search box.
+   	  Or if the device supports voice search, click the microphone icon and speak your query.
+   	  Please continue reading below for query details with examples.
+   	  </div>
       <h3>Seatgeek</h3>
       <div>
-         To find events from Seatgeek, include the following keywords in a query.
+         Seatgeek queries may be used to find ticketed events such as sports, concerts or theater events.
+         Include the following keywords in a query to trigger a Seatgeek search.
          <ul>
             <li>event</li>
             <li>performer</li>
-            <li>venue</li>
             <li>singer</li>
             <li>sports</li>
             <li>baseball</li>
@@ -85,34 +80,71 @@
       </div>
       <h3>Meetup</h3>
       <div>
-         For Meetup queries, include keywords "meetup events" or "meetup groups" in the query. See these examples. 
+      	 Meetup queries may be used to find Meetup groups, or events organized by Meetup groups,
+         Include keywords "meetup groups" in the query for groups.
+         Include keywords "meetup events" in the query for events. 
+         Groups search returns a list of groups filtered by keywords.
+      	 Events search returns a list of events filtered by group topic.
+         See the following query examples. 
          <ul>
-            <li>business meetup events</li>
-            <li>technology meetup groups in San Francisco, CA US</li>
-            <li>beer meetup events in Dublin, IE</li>
+            <li>"programming meetup groups"</li>
+            <li>"machine learning meetup events in Mountain View, CA US"</li>
+            <li>"music meetup groups in Dublin, IE"</li>
+         </ul>
+      </div>
+      <h3>Yelp</h3>
+      <div>
+      	 Yelp queries may be used to find local businesses.
+      	 Enter name or type of business to trigger a Yelp query.
+         See the following query examples.
+         <ul>
+            <li>"restaurants"</li>
+            <li>"vegetarian"</li>
+            <li>"sushi"</li>
+            <li>"martial arts"</li>
+            <li>"roof repair"</li>
+            <li>"grocery stores"</li>
+            <li>"shopping"</li>
+            <li>"casinos in Reno, NV"</li>
+            <li>"Harrah's in Reno, NV"</li>
+            <li>"shops in New York, NY by ratings"</li>
          </ul>
       </div>
       <h3>Filtering</h3>
       <div>
-         Queries may be filtered by location.
+         Queries should be filtered by location.
          If no location is specified then the phone's location is used as default.
          Please use grammatically correct phrases, e.g. enter "restaurants in New York", not "restaurants New York". 
-         For best results, please enter city, state or province (if applicable), and country, e.g. enter "buffet in Las Vegas, NV US", not "buffet in Las Vegas".
-         To specify US states, use 2-letter state codes (a list could be found at this link <a href="http://en.wikipedia.org/wiki/ISO_3166-2:US">http://en.wikipedia.org/wiki/ISO_3166-2:US</a>).
-         To specify Canada provinces, use 2-letter province codes (a list could be found at this link <a href="http://en.wikipedia.org/wiki/ISO_3166-2:CA">http://en.wikipedia.org/wiki/ISO_3166-2:CA</a>). 
-         To specify countries, try using 2-letter country code first in the query. 
+         For best results, please enter city, state or province (if applicable), and country.
+         If a country is not entered then country "US" will be used as default.
+    	 Yelp queries in US should not include a country (city and state only).	
+         For US states, use 2-letter state codes (a list could be found at this link <a href="http://en.wikipedia.org/wiki/ISO_3166-2:US">http://en.wikipedia.org/wiki/ISO_3166-2:US</a>).
+         For Canada provinces, use 2-letter province codes (a list could be found at this link <a href="http://en.wikipedia.org/wiki/ISO_3166-2:CA">http://en.wikipedia.org/wiki/ISO_3166-2:CA</a>). 
+         For countries, try using 2-letter country code first in the query. 
          If no results are found then try another query using the full country name. 
          A list of country codes could be found at this link <a href="http://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">http://en.wikipedia.org/wiki/ISO_3166-1#Current_codes</a>.
       </div>
-      <h4>Similarity Filtering (Seatgeek Only)</h4>
+      <h4>Similarity Search (Seatgeek Only)</h4>
       <div>
-         A Seatgeek search can find performers similar to a particular performer. 
-         For this search a postal code must be used as location filter rather than city, state/province, and country..
+         A Seatgeek search may be used to find singers similar to a particular singer. 
+         For this type of search, a postal code must be used as location filter rather than city, state/province, and country.
+         If no postal code is specified then the phone's location will be used.
+         A couple query examples are shown below.
+         <ul>
+         	<li>"singers like Taylor Swift in 37115"</li>
+         	<li>"singers like Neil Diamond"</li>
+         </ul>
       </div>
-      <h3>Sorting (Yelp Only)</h3>
+      <h4>Sorting (Yelp Only)</h4>
       <div>
-         Yelp searches may be sorted by ratings or distance.
+         Yelp queries may be sorted by Yelp's proprietary ratings, or by distance.
+         Results sorted by distance are listed according to proximity with phone's location.
          Please use grammatically correct phrases, e.g. enter "restaurants by distance", not "restaurants distance". 
+         A couple examples are shown below.
+         <ul>
+         	<li>"gas stations by distance"</li>
+         	<li>"pubs in London, GB by ratings"</li>
+         </ul>
       </div>
    </body>
 </html>

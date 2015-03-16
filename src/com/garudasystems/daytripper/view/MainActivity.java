@@ -76,11 +76,13 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	// private RetainableFragment retainableFragment;
 	private LinearLayout mainContent;
 	private LinearLayout teaserContent;
+	private Dialog helpDialog;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		createHelpDialog();
 		
 		final ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -163,21 +165,9 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.help_menu) {
-			final Dialog dialog = new Dialog(this);
-			dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-			dialog.setContentView(R.layout.help_content);
-			
-			TextView helpClose = (TextView) dialog.findViewById(R.id.help_close);
-			helpClose.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					dialog.dismiss();
-				}
-			});
-			
-			WebView webView = (WebView) dialog.findViewById(R.id.html_help);
+			WebView webView = (WebView) helpDialog.findViewById(R.id.html_help);
 			webView.loadData(readTextFromResource(R.raw.help), "text/html", null);
-			dialog.show();
+			helpDialog.show();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -327,6 +317,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		if (locationManager != null) {
 			locationManager.removeUpdates(this);
 		}
+		
+		if (helpDialog.isShowing()) {
+			helpDialog.dismiss();
+		}
 	}
 
 	@Override
@@ -363,6 +357,20 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void cancel() {
 		lockOrientation(false);
+	}
+	
+	private void createHelpDialog() {
+		helpDialog = new Dialog(this);
+		helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+		helpDialog.setContentView(R.layout.help_content);
+		
+		TextView helpClose = (TextView) helpDialog.findViewById(R.id.help_close);
+		helpClose.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				helpDialog.dismiss();
+			}
+		});
 	}
 	
 	private String readTextFromResource(int resourceID) {
