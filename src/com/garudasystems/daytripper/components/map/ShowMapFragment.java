@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -129,9 +129,8 @@ public class ShowMapFragment extends Fragment {
 		int minLon = Integer.MAX_VALUE;
 		int maxLon = Integer.MIN_VALUE;
 		
-		StateListDrawable listDrawable = 
-				(StateListDrawable) getActivity().getResources().getDrawable(R.drawable.marker_icon);
-		final DefaultItemizedOverlay overlays = new DefaultItemizedOverlay(listDrawable);
+		Drawable defaultMarker = getActivity().getResources().getDrawable(R.drawable.default_marker);
+		final DefaultItemizedOverlay overlays = new DefaultItemizedOverlay(defaultMarker);
 
 		for (Result result : resultList) {
 			Double latitude = result.getLatitude();

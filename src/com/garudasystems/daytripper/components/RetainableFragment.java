@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -93,10 +94,9 @@ public class RetainableFragment extends Fragment {
 		}
 	}
 	
-    
     private final static class ParseCommandTask extends AsyncTask<String, Void, QueryResponse> {
 
-    	public final static String SEARCH_URL = "http://vocifery.com/api/v0/query";
+    	public final static String SEARCH_URL = "http://vocifery.com/api/v0/entity/search";
     	public final static String RESOURCE_NODE = "resource";
     	public final static String PAGE_NODE = "page";
     	public final static String COUNT_NODE = "count";
@@ -104,8 +104,8 @@ public class RetainableFragment extends Fragment {
     	public final static String ENTITIES_NODE = "entities";
     	public final static String NAME_NODE = "name";
     	public final static String URL_NODE = "url";
-    	public final static String LOCATION_NODE = "location";
-    	public final static String EXTENDED_ADDRESS_NODE = "extendedAddress";
+    	public final static String DESC_NODE = "descriptor";
+    	public final static String EXTENDED_DESC_NODE = "extendedDescriptor";
     	public final static String DETAILS_NODE = "details";
     	public final static String RATING_URL_NODE = "ratingUrl";
     	public final static String REVIEW_COUNT_NODE = "reviewCount";
@@ -113,6 +113,7 @@ public class RetainableFragment extends Fragment {
     	public final static String LONGITUDE_NODE = "longitude";
     	public final static String LATITUDE_NODE = "latitude";
     	public final static String IMAGES_NODE = "imageUrls";
+    	public final static String UTCDATE_NODE = "utcDate";
 
     	private static final int CONNECTION_TIMEOUT = 20000;
     	private static final int SOCKET_TIMEOUT = 20000;
@@ -222,11 +223,12 @@ public class RetainableFragment extends Fragment {
     		}
 
     		String inputFormat = "yyyy-MM-dd'T'HH:mm:ss";
-    		String outputFormat = "EEE, MMM d h:mm a";
-    		final SimpleDateFormat inputFormatter = new SimpleDateFormat(
-    				inputFormat, Locale.US);
+    		String outputFormat = "EEE, MMM d h:mm a z";
+    		final SimpleDateFormat inputFormatter = new SimpleDateFormat(inputFormat);
+    		inputFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+    		
     		final SimpleDateFormat outputFormatter = new SimpleDateFormat(
-    				outputFormat, Locale.US);
+    				outputFormat, Locale.getDefault());
     		JSONArray entities = json.getJSONArray(ENTITIES_NODE);
     		int numberEntities = entities.length();
     		for (int i = 0; i < numberEntities; i++) {
@@ -241,22 +243,21 @@ public class RetainableFragment extends Fragment {
     				result.setMobileUrl(entity.optString(URL_NODE));
     			}
 
-    			if (entity.has(LOCATION_NODE)) {
-    				result.setAddressOne(entity.optString(LOCATION_NODE));
+    			if (!entity.isNull(DESC_NODE)) {
+    				result.setAddressOne(entity.optString(DESC_NODE));
     			}
 
-    			if (entity.has(EXTENDED_ADDRESS_NODE)) {
-    				result.setAddressTwo(entity.optString(EXTENDED_ADDRESS_NODE));
+    			if (!entity.isNull(EXTENDED_DESC_NODE)) {
+    				result.setAddressTwo(entity.optString(EXTENDED_DESC_NODE));
     			}
-
-    			if (entity.has(DETAILS_NODE)) {
-    				String details = entity.optString(DETAILS_NODE);
+    			
+    			if (!entity.isNull(DETAILS_NODE)) {
+    				result.setDetails(entity.optString(DETAILS_NODE));
+    			} else if (!entity.isNull(UTCDATE_NODE)) {
     				try {
     					result.setDetails(outputFormatter.format(inputFormatter
-    							.parse(details)));
-    				} catch (ParseException e) {
-    					result.setDetails(details);
-    				}
+    							.parse(entity.getString(UTCDATE_NODE))));
+    				} catch (ParseException e) {}
     			}
 
     			if (entity.has(RATING_URL_NODE)) {
@@ -290,5 +291,4 @@ public class RetainableFragment extends Fragment {
     		return response;
     	}
     }
-
 }
