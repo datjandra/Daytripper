@@ -5,11 +5,14 @@
     <string name="search_hint">Search</string>
     <string name="message_ok">OK</string>
     <string name="message_intro">Find places, events or meetups</string>
-    <string name="search_instructions">Example searches: \"events\", \"Japanese\", \"buffet in Las Vegas, NV\"</string>
+    <string name="search_instructions">Examples: \"restaurants in Las Vegas, NV\", \"sports\", \"business meetup events\"</string>
 	<string name="success_message" formatted="false">I found %d listings from %s</string>
     <string name="error_message">Sorry, I did not find anything</string>
     <string name="location_error_message">I cannot get a fix on your location</string>
     <string name="request_denied_message">I\'m still working on your last request</string>
+    <string name="heading_local">Local Businesses</string>
+    <string name="heading_events">Events</string>
+    <string name="heading_meetups">Meetups</string>
     
     <string-array name="vendor_array">
         <item>Yelp</item>

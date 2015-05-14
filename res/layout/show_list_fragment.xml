@@ -28,18 +28,6 @@
             android:layout_centerInParent="true"
             android:contentDescription="logo"
             android:scaleType="fitCenter" />
-
-        <ProgressBar
-            android:id="@+id/fetch_progress"
-            android:layout_width="24dp"
-        	android:layout_height="24dp"
-            android:indeterminateOnly="true"
-            android:keepScreenOn="true"
-            android:indeterminateDrawable="@drawable/progress_spin"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="16dp"
-            android:visibility="invisible" />
     </RelativeLayout>
 
 </LinearLayout>

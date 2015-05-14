@@ -8,7 +8,6 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/primary"
         android:orientation="vertical" >
 
         <SearchView
@@ -20,10 +19,10 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/card_bg"
             android:focusable="false"
             android:iconifiedByDefault="false"
-            android:queryHint="@string/message_intro" />
+            android:queryHint="@string/message_intro"
+            android:background="@android:color/background_light" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,7 +36,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/search_instructions"
-                android:textColor="@android:color/white" />
+                android:textAppearance="@android:style/TextAppearance.Medium"
+                android:textColor="@color/text_primary" />
         </LinearLayout>
     </LinearLayout>
 
@@ -70,7 +70,7 @@
                 android:layout_height="fill_parent"
                 android:gravity="center"
                 android:textAppearance="@android:style/TextAppearance.Large"
-                android:text="Local Businesses"
+                android:text="@string/heading_local"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
 
@@ -97,7 +97,7 @@
                 android:layout_height="fill_parent"
                 android:gravity="center"
                 android:textAppearance="@android:style/TextAppearance.Large"
-                android:text="Events"
+                android:text="@string/heading_events"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
 
@@ -124,7 +124,7 @@
                 android:layout_height="fill_parent"
                 android:gravity="center"
                 android:textAppearance="@android:style/TextAppearance.Large"
-                android:text="Meetups"
+                android:text="@string/heading_meetups"
                 android:textColor="@android:color/white" />
         </RelativeLayout>
     </LinearLayout>
