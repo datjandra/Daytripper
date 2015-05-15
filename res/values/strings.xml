@@ -13,16 +13,23 @@
     <string name="heading_local">Local Businesses</string>
     <string name="heading_events">Events</string>
     <string name="heading_meetups">Meetups</string>
+    <string name="uber_no_response">Sorry, an Uber request could not be made at this time.</string>
+    <string name="uber_request_sent">Uber request has been sent.</string>
+    <string name="uber_request_lookup">Here is the status of your Uber request.</string>
+    <string name="uber_request_cancel">Cancellation message has been sent.</string>
+    <string name="uber_status_message">Vehicle %%s %%s (license %%s) has an eta of %%d minutes.</string>
     
     <string-array name="vendor_array">
         <item>Yelp</item>
         <item>Seatgeek</item>
         <item>Meetup</item>
+        <item>Uber</item>
     </string-array>
     <string-array name="logo_array">
         <item>yelp_logo_50x25</item>
         <item>seatgeek_102x31</item>
         <item>ic_meetuplogo</item>
+        <item>uber_api</item>
     </string-array>
 
     <string name="seatgeek_instruction">I know about several events from Seatgeek. Click to see all searchable items.</string>

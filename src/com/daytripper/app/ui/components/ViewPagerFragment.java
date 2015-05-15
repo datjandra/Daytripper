@@ -1,4 +1,4 @@
-package com.daytripper.app.components;
+package com.daytripper.app.ui.components;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

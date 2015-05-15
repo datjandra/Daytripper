@@ -1,4 +1,4 @@
-package com.daytripper.app.components;
+package com.daytripper.app.ui.components;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

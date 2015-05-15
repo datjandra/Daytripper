@@ -85,22 +85,28 @@ public abstract class QueryResponseConverter {
 		
 		LocatableItem start = null;
 		if (!json.isNull(CENTER_NODE) && json.has(CENTER_NODE)) {
+			JSONObject center = json.getJSONObject(CENTER_NODE);
+			Double lat = center.optDouble(LATITUDE_NODE);
+			Double lon = center.optDouble(LONGITUDE_NODE);
+			
 			start = new LocatableItem();
 			start.setName("Start");
-			start.setDetails("Route starts here");
-			JSONObject center = json.getJSONObject(CENTER_NODE);
-			start.setLatitude(center.optDouble(LATITUDE_NODE));
-			start.setLongitude(center.optDouble(LONGITUDE_NODE));
+			start.setDetails(String.format(Locale.getDefault(),  "%.3f, %.3f", lat, lon));
+			start.setLatitude(lat);
+			start.setLongitude(lon);
 		}
 		
 		LocatableItem end = null;
 		if (!json.isNull(DESTINATION_NODE) && json.has(DESTINATION_NODE)) {
+			JSONObject destination = json.getJSONObject(DESTINATION_NODE);
+			Double lat = destination.optDouble(LATITUDE_NODE);
+			Double lon = destination.optDouble(LONGITUDE_NODE);
+			
 			end = new LocatableItem();
 			end.setName("End");
-			end.setDetails("Route ends here");
-			JSONObject destination = json.getJSONObject(DESTINATION_NODE);
-			end.setLatitude(destination.optDouble(LATITUDE_NODE));
-			end.setLongitude(destination.optDouble(LONGITUDE_NODE));
+			end.setDetails(String.format(Locale.getDefault(),  "%.3f, %.3f", lat, lon));
+			end.setLatitude(lat);
+			end.setLongitude(lon);
 		}
 		
 		if (start != null && end != null) {
@@ -137,7 +143,6 @@ public abstract class QueryResponseConverter {
 			}
 
 			if (entity.has(URL_NODE)) {
-				// https://m.uber.com/sign-up?client_id=Cshqu6pqTo9hPRF1Q1zwaAzQ8CuyZzBY&product_id=a1111c8c-c720-46c3-8534-2fcdd730040d&pickup_latitude=37.775115&pickup_longitude=-122.417368&dropoff_latitude=37.787131&dropoff_longitude=-122.419109
 				result.setMobileUrl(entity.optString(URL_NODE));
 			}
 

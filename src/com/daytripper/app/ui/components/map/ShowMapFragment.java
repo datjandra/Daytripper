@@ -1,4 +1,4 @@
-package com.daytripper.app.components.map;
+package com.daytripper.app.ui.components.map;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package com.daytripper.app.components;
+package com.daytripper.app.ui.components;
 
 import com.daytripper.app.vocifery.model.QueryResponse;
 

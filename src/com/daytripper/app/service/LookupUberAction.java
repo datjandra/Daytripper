@@ -1,10 +1,8 @@
 package com.daytripper.app.service;
 
-import com.daytripper.app.ui.WebActivity;
-
 import android.content.Intent;
 
-public class LookupUberAction implements Actionable {
+public class LookupUberAction implements Actionable, UberRequestConstants {
 	
 	@Override
 	public String getSource() {
@@ -13,21 +11,29 @@ public class LookupUberAction implements Actionable {
 	
 	@Override
 	public String doActionWithIntent(Intent intent) {
-		return this.getClass().getName();
+		String accessToken = intent.getStringExtra(FIELD_ACCESS_TOKEN);
+		String requestId = intent.getStringExtra(FIELD_REQUEST_ID);
+		
+		UberRequest uberRequest = new UberRequest();
+		uberRequest.setAccessToken(accessToken);
+		uberRequest.setRequestId(requestId);
+		uberRequest.setVerb(VERB_LOOKUP);
+		uberRequest.setObject(OBJECT_UBER);
+		return UberRequestClient.doPost(uberRequest);
 	}
 
 	@Override
 	public String getVerb() {
-		return WebActivity.VERB_LOOKUP;
+		return VERB_LOOKUP;
 	}
 
 	@Override
 	public String getObject() {
-		return WebActivity.OBJECT_UBER;
+		return OBJECT_UBER;
 	}
 	
 	@Override
 	public String getCustomMessage() {
-		return WebActivity.LOOKUP_MESSAGE;
+		return null;
 	}
 }

@@ -1,4 +1,4 @@
-package com.daytripper.app.components;
+package com.daytripper.app.ui.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,10 +7,11 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -23,10 +24,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daytripper.app.R;
-import com.daytripper.app.ui.WebActivity;
+import com.daytripper.app.service.UberRequestConstants;
+import com.daytripper.app.service.UberRequestListener;
 import com.daytripper.app.util.ImageLoader;
 import com.daytripper.app.vocifery.model.Intention;
 import com.daytripper.app.vocifery.model.Locatable;
@@ -35,7 +38,7 @@ import com.daytripper.app.vocifery.model.Result;
 import com.daytripper.app.vocifery.model.Searchable;
 
 public class ShowListFragment extends Fragment implements
-		AbsListView.OnScrollListener {
+		AbsListView.OnScrollListener, UberRequestConstants {
 
 	private ListView listView;
 	private ImageView attributionLogo;
@@ -257,6 +260,28 @@ public class ShowListFragment extends Fragment implements
 		this.listView.setAdapter(adapter);
 	}
 	
+	private void startUberRequest(Locatable start, Locatable end, String productId) {
+		Log.i(TAG, "startUberRequest()");
+		
+		FragmentActivity activity = getActivity();
+		FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+	    ft.addToBackStack(null);
+	    
+	    Bundle args = new Bundle();
+	    args.putString(PARAM_PRODUCT_ID, productId);
+	    args.putString(PARAM_START_LATITUDE, start.getLatitude().toString());
+		args.putString(PARAM_START_LONGITUDE, start.getLongitude().toString());
+		args.putString(PARAM_END_LATITUDE, end.getLatitude().toString());
+		args.putString(PARAM_END_LONGITUDE, end.getLongitude().toString());
+	    
+	    UberOAuthFragment uberFragment = new UberOAuthFragment();
+	    uberFragment.setArguments(args);
+	    if (activity instanceof UberRequestListener) {
+	    	uberFragment.setUberRequestListener((UberRequestListener) activity);
+	    }
+	    uberFragment.show(ft, "dialog");
+	}
+	
 	private class ViewHolder {
 		TextView name;
 		TextView reviews;
@@ -267,6 +292,7 @@ public class ShowListFragment extends Fragment implements
 		ImageView photoOne;
 		ImageView photoTwo;
 		ImageView ratingImage;
+		RelativeLayout itemFooter;
 		Button goButton;
 	}
 	
@@ -318,6 +344,7 @@ public class ShowListFragment extends Fragment implements
 				holder.firstLine = (TextView) row.findViewById(R.id.firstLine);
 				holder.secondLine = (TextView) row.findViewById(R.id.secondLine);
 				holder.phone = (TextView) row.findViewById(R.id.phone);
+				holder.itemFooter = (RelativeLayout) row.findViewById(R.id.item_footer);
 				holder.goButton = (Button) row.findViewById(R.id.go_button);
 				row.setTag(holder);
 			} else {
@@ -348,26 +375,17 @@ public class ShowListFragment extends Fragment implements
 			holder.phone.setText(result.getDetails());
 			
 			if (intent != null && intent.equals(Intention.PRICES.getValue())) {
-				holder.goButton.setVisibility(View.VISIBLE);
+				holder.itemFooter.setVisibility(View.VISIBLE);
 				holder.goButton.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						// start activity
 						Locatable start = route.get(0);
 						Locatable end = route.get(route.size()-1);
-						Intent intent = new Intent(context, WebActivity.class);
-						intent.putExtra(WebActivity.PARAM_PRODUCT_ID, result.getId());
-						intent.putExtra(WebActivity.PARAM_START_LATITUDE, start.getLatitude().toString());
-						intent.putExtra(WebActivity.PARAM_START_LONGITUDE, start.getLongitude().toString());
-						intent.putExtra(WebActivity.PARAM_END_LATITUDE, end.getLatitude().toString());
-						intent.putExtra(WebActivity.PARAM_END_LONGITUDE, end.getLongitude().toString());
-						intent.putExtra(WebActivity.PARAM_VERB, WebActivity.VERB_CALL);
-						intent.putExtra(WebActivity.PARAM_OBJECT, WebActivity.OBJECT_UBER);
-						context.startActivity(intent);
+						startUberRequest(start, end, result.getId());
 					}
 				});
 			} else {
-				holder.goButton.setVisibility(View.GONE);
+				holder.itemFooter.setVisibility(View.GONE);
 			}
 			
 			String ratingImageUrl = result.getRatingImgUrl();

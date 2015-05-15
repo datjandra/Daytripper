@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Dialog;
 import android.app.SearchManager;
@@ -20,6 +21,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
@@ -29,7 +31,6 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.MenuItem;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,11 +46,14 @@ import android.widget.Toast;
 
 import com.daytripper.app.Daytripper;
 import com.daytripper.app.R;
-import com.daytripper.app.components.Refreshable;
-import com.daytripper.app.components.ShowListFragment;
-import com.daytripper.app.components.ViewPagerFragment;
-import com.daytripper.app.components.map.ShowMapFragment;
 import com.daytripper.app.service.ResponderService;
+import com.daytripper.app.service.UberRequestConstants;
+import com.daytripper.app.service.UberRequestListener;
+import com.daytripper.app.ui.components.Refreshable;
+import com.daytripper.app.ui.components.ShowListFragment;
+import com.daytripper.app.ui.components.UberOAuthFragment;
+import com.daytripper.app.ui.components.ViewPagerFragment;
+import com.daytripper.app.ui.components.map.ShowMapFragment;
 import com.daytripper.app.util.QueryResponseConverter;
 import com.daytripper.app.util.ResourceUtils;
 import com.daytripper.app.vocifery.model.Locatable;
@@ -57,13 +61,14 @@ import com.daytripper.app.vocifery.model.QueryResponse;
 import com.mapquest.android.maps.GeoPoint;
 
 public class MainActivity extends AppCompatActivity implements LocationListener,
-		Refreshable, TextToSpeech.OnInitListener {
+		Refreshable, TextToSpeech.OnInitListener, UberRequestListener, UberRequestConstants {
 
 	public static final String ACTION_NOTIFY = "com.daytripper.app.NOTIFY";
 	public static final String ACTION_GET_CONVERSATION = "com.daytripper.app.CONVERSATION"; 
 	
 	private static final String TAG = "MainActivity";
 	private static final String CACHED_QUERY_STATE = "CachedQuery";
+	private static final String UBER_MESSAGE_HACK = "Vehicle %s %s (license %s) has an eta of %d minutes.";
 	
 	private static final long MEASURE_TIME = 1000 * 60;
 	private static final long POLLING_FREQ = 1000 * 20;
@@ -166,19 +171,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         };
         startListening();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		/*
-		if (item.getItemId() == R.id.help_menu) {
-			WebView webView = (WebView) helpDialog.findViewById(R.id.html_help);
-			webView.loadData(ResourceUtils.readTextFromResource(this, R.raw.help), "text/html", null);
-			helpDialog.show();
-			return true;
-		}
-		*/
-		return super.onOptionsItemSelected(item);
 	}
 	
 	@Override
@@ -365,6 +357,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		lockOrientation(false);
 	}
 	
+	@Override
+	public void onNoResponse() {
+		stopProgress();
+		say(getMessage(R.string.uber_no_response));
+	}
+
+	@Override
+	public void onRequestSent() {
+		stopProgress();
+		say(getMessage(R.string.uber_request_sent));
+	}
+	
 	private void createHelpDialog() {
 		helpDialog = new Dialog(this);
 		helpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -534,17 +538,108 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		return getResources().getString(resourceId);
 	}
 	
+	private void showSearchResult(String result) throws JSONException {
+		QueryResponse queryResponse = 
+				QueryResponseConverter.parseJson(result);
+		receivedResponse(queryResponse, true);
+	}
+	
+	private void showUberStatus(String result) throws JSONException {
+		JSONObject json = new JSONObject(result);
+		String requestId = "";
+		if (json.has(FIELD_REQUEST_ID) && !json.isNull(FIELD_REQUEST_ID)) {
+			requestId = json.getString(FIELD_REQUEST_ID);
+		}
+		
+		String status = "";
+		if (json.has(FIELD_STATUS) && !json.isNull(FIELD_STATUS)) {
+			status = json.getString(FIELD_STATUS);
+		}
+		
+		String driverName = "";
+		if (json.has(FIELD_DRIVER_NAME) && !json.isNull(FIELD_DRIVER_NAME)) {
+			driverName = json.getString(FIELD_DRIVER_NAME);
+		}
+		
+		String driverPhoneNumber = "";
+		if (json.has(FIELD_DRIVER_PHONE_NUMBER) && !json.isNull(FIELD_DRIVER_PHONE_NUMBER)) {
+			driverPhoneNumber = json.getString(FIELD_DRIVER_PHONE_NUMBER);
+		}
+		
+		String driverPictureUrl = "";
+		if (json.has(FIELD_DRIVER_PICTURE_URL) && !json.isNull(FIELD_DRIVER_PICTURE_URL)) {
+			driverPictureUrl = json.getString(FIELD_DRIVER_PICTURE_URL);
+		}
+		
+		Integer eta = -1;
+		if (json.has(FIELD_ETA) && !json.isNull(FIELD_ETA)) {
+			eta = json.getInt(FIELD_ETA);
+		}
+		
+		String vehicleMake = "";
+		if (json.has(FIELD_VEHICLE_MAKE) && !json.isNull(FIELD_VEHICLE_MAKE)) {
+			vehicleMake = json.getString(FIELD_VEHICLE_MAKE);
+		}
+		
+		String vehicleModel = "";
+		if (json.has(FIELD_VEHICLE_MODEL) && !json.isNull(FIELD_VEHICLE_MODEL)) {
+			vehicleModel = json.getString(FIELD_VEHICLE_MODEL);
+		}
+		
+		String vehicleLicensePlate = "";
+		if (json.has(FIELD_VEHICLE_LICENSE_PLATE) && !json.isNull(FIELD_VEHICLE_LICENSE_PLATE)) {
+			vehicleLicensePlate = json.getString(FIELD_VEHICLE_LICENSE_PLATE);
+		}
+		
+		String voiceMessage = getMessage(R.string.uber_request_lookup);
+		say(voiceMessage);
+		
+		String detailMessage = String.format(Locale.getDefault(), UBER_MESSAGE_HACK, vehicleMake, vehicleModel, vehicleLicensePlate, eta);
+		String detailTemplate = ResourceUtils.readTextFromResource(this, R.raw.detail_template);
+		String html = String.format(detailTemplate, driverPictureUrl, driverName, driverPhoneNumber, detailMessage);
+		
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+	    ft.addToBackStack(null);
+		
+		UberOAuthFragment uberFragment = new UberOAuthFragment();
+	    uberFragment.setHtmlContent(html);
+	    uberFragment.show(ft, "dialog");
+	}
+	
+	private void showUberCancel(String result) throws JSONException {
+		JSONObject json = new JSONObject(result);
+		String requestId = "-";
+		if (json.has(FIELD_REQUEST_ID) && !json.isNull(FIELD_REQUEST_ID)) {
+			requestId = json.getString(FIELD_REQUEST_ID);
+		}
+		
+		String message = getMessage(R.string.uber_request_cancel);
+		String messageTemplate = ResourceUtils.readTextFromResource(this, R.raw.message_template);
+		String html = String.format(messageTemplate, message, requestId);
+		say(message);
+		
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+	    ft.addToBackStack(null);
+		
+		UberOAuthFragment uberFragment = new UberOAuthFragment();
+	    uberFragment.setHtmlContent(html);
+	    uberFragment.show(ft, "dialog");
+	    
+	}
+	
 	private void processMessage(Intent intent) throws JSONException {
 		try {
 			if (intent == null) {
 				return;
 			}
 			
-			String response = intent
-					.getStringExtra(ResponderService.EXTRA_MESSAGE);
-			QueryResponse queryResponse = QueryResponseConverter
-					.parseJson(response);
-			receivedResponse(queryResponse, true);
+			if (intent.hasExtra(ResponderService.EXTRA_MESSAGE)) {
+				showSearchResult(intent.getStringExtra(ResponderService.EXTRA_MESSAGE));
+			} else if (intent.hasExtra(ResponderService.UBER_STATUS_MESSAGE)) {
+				showUberStatus(intent.getStringExtra(ResponderService.UBER_STATUS_MESSAGE));
+			} else if (intent.hasExtra(ResponderService.UBER_CANCEL_MESSAGE)) {
+				showUberCancel(intent.getStringExtra(ResponderService.UBER_CANCEL_MESSAGE));
+			}
 		} finally {
 			stopProgress();
 		}

@@ -1,36 +1,20 @@
 package com.daytripper.app.ui;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentActivity;
@@ -44,6 +28,7 @@ import android.widget.Button;
 
 import com.daytripper.app.R;
 import com.daytripper.app.service.Actionable;
+import com.daytripper.app.service.UberRequestTask;
 import com.daytripper.app.service.UberRequest;
 import com.daytripper.app.util.ResourceUtils;
 
@@ -66,7 +51,7 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 	public static final String CANCEL_MESSAGE = "Cancellation request has been sent.";
 	public static final String LOOKUP_MESSAGE = "Here is the the Uber cab's status.";
 
-	private static final String TAG = "WebActivity";
+	static final String TAG = "WebActivity";
 	private static final String CLIENT_ID = "Cshqu6pqTo9hPRF1Q1zwaAzQ8CuyZzBY";
 	private static final String UBER_AUTH_URL = "https://login.uber.com/oauth/authorize?response_type=code&scope=request&client_id=" + CLIENT_ID;
 	private static final String DEFAULT_MESSAGE = "Vehicle %s %s (License %s) has an eta of %d minutes.";
@@ -117,7 +102,6 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 			    	uberRequest.setObject(bundle.getString(PARAM_OBJECT));
 			    	uberRequest.setTestMode(bundle.getBoolean("test_mode"));
 			    	uberRequest.setMethod(HttpPost.METHOD_NAME);
-			    	new EntityActionTask(uberRequest).execute();
 			    	return true;
 				}	
 		    	return false;
@@ -145,7 +129,6 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 		    	uberRequest.setObject(bundle.getString(PARAM_OBJECT));
 		    	uberRequest.setTestMode(bundle.getBoolean("test_mode"));
 		    	uberRequest.setMethod(HttpPost.METHOD_NAME);
-		    	new EntityActionTask(uberRequest).execute();
 			}
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, e.getMessage());
@@ -167,7 +150,7 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 		}
 	}
 	
-	private void write(Map<String,String> params) {
+	void write(Map<String,String> params) {
 		SharedPreferences sharedPrefs = getPreferences(Context.MODE_PRIVATE);
 		Set<Entry<String,String>> entries = params.entrySet();
 		SharedPreferences.Editor editor = sharedPrefs.edit();
@@ -188,14 +171,14 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 		return params;
 	}
 	
-	private void showPendingRequest(JSONObject json) throws JSONException {
+	void showPendingRequest(JSONObject json) throws JSONException {
 		Log.i(TAG, "showPendingRequest()");
 		String requestId = json.getString("requestId");
 		String messageTemplate = ResourceUtils.readTextFromResource(this, R.raw.message_template);
 		webView.loadData(String.format(messageTemplate, REQUEST_MESSAGE, requestId), "text/html", "UTF-8");
 	}
 	
-	private void showActiveRequest(JSONObject json) throws JSONException {
+	void showActiveRequest(JSONObject json) throws JSONException {
 		String requestId = "";
 		if (json.has("requestId") && !json.isNull("requestId")) {
 			requestId = json.getString("requestId");
@@ -246,7 +229,7 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 		webView.loadData(String.format(detailTemplate, driverPictureUrl, driverName, driverPhoneNumber, detailMessage), "text/html", "UTF-8");
 	}
 	
-	private void showCancelRequest(JSONObject json) throws JSONException {
+	void showCancelRequest(JSONObject json) throws JSONException {
 		String requestId = "-";
 		if (json.has("requestId") && !json.isNull("requestId")) {
 			requestId = json.getString("requestId");
@@ -256,208 +239,7 @@ public class WebActivity extends FragmentActivity implements OnClickListener {
 		webView.loadData(String.format(messageTemplate, CANCEL_MESSAGE, requestId), "text/html", "UTF-8");
 	}
 	
-	private void showNoResponse() {
+	void showNoResponse() {
 		webView.loadData("<h4>No results found</h4>", "text/html", "UTF-8");
-	}
-	
-	private class EntityActionTask extends AsyncTask<Void, Void, String> {
-		
-		private UberRequest uberRequest;
-		
-		private EntityActionTask(UberRequest uberRequest) {
-			this.uberRequest = uberRequest;
-		}
-		
-    	@Override
-		protected String doInBackground(Void...args) {
-    		String method = uberRequest.getMethod();
-    		if (method != null && method.equalsIgnoreCase(HttpPost.METHOD_NAME)) {
-    			return doPost();
-    		}
-    		return doGet();
-    	}
-    
-    	/*
-    	 * Request Statuses
-    		All possible statues of a Request's life cycle.
-    		Status 	Description
-    		processing 	The Request is matching to the most efficient available driver.
-    		no_drivers_available 	The Request was unfulfilled because no drivers were available.
-    		accepted 	The Request has been accepted by a driver and is "en route" to the start location (i.e. start_latitude and start_longitude).
-    		arriving 	The driver has arrived or will be shortly.
-    		in_progress 	The Request is "en route" from the start location to the end location.
-    		driver_canceled 	The Request has been canceled by the driver.
-    		rider_canceled 	The Request canceled by rider.
-    		completed 	Request has been completed by the driver
-    	 */
-    	@Override
-    	protected void onPostExecute(String jsonResponse) {
-    		Log.i(TAG, "onPostExecute()");
-    		if (jsonResponse == null) {
-        		showNoResponse();	
-    			return;
-    		}
-    		
-    		try {
-    			Map<String,String> params = new HashMap<String,String>();
-				JSONObject json = new JSONObject(jsonResponse);
-				String requestId = null;
-				if (json.has("requestId") && !json.isNull("requestId")) {
-					requestId = json.getString("requestId");
-					params.put("request_id", requestId);
-				}
-				
-				if (json.has("accessToken") && !json.isNull("accessToken")) {
-					params.put("access_token", json.getString("accessToken"));
-				}
-				
-				if (!params.isEmpty()) {
-					write(params);
-				}
-				
-				String action = uberRequest.getVerb();
-				if (!TextUtils.isEmpty(action)) {
-					if (action.equals(VERB_CALL)) {
-						showPendingRequest(json);
-					} else if (action.equals(VERB_LOOKUP)) {
-						showActiveRequest(json);
-					} else if (action.equals(VERB_CANCEL)) {
-						showCancelRequest(json);
-					}
-				}
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
-			}
-    	}
-    	
-    	private String doPost() {
-    		String jsonResponse = null;
-    		try {
-    			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-    			if (!TextUtils.isEmpty(uberRequest.getAccessToken())) {
-    				nameValuePairs.add(new BasicNameValuePair("access_token", uberRequest.getAccessToken()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getCode())) {
-    				nameValuePairs.add(new BasicNameValuePair("code", uberRequest.getCode()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getEndLatitude())) {
-    				nameValuePairs.add(new BasicNameValuePair("end_latitude", uberRequest.getEndLatitude()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getEndLongitude())) {
-    				nameValuePairs.add(new BasicNameValuePair("end_longitude", uberRequest.getEndLongitude()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getProductId())) {
-    				nameValuePairs.add(new BasicNameValuePair("product_id", uberRequest.getProductId()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getRequestId())) {
-    				nameValuePairs.add(new BasicNameValuePair("request_id", uberRequest.getRequestId()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getStartLatitude())) {
-    				nameValuePairs.add(new BasicNameValuePair("start_latitude", uberRequest.getStartLatitude()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getStartLongitude())) {
-    				nameValuePairs.add(new BasicNameValuePair("start_longitude", uberRequest.getStartLongitude()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getSurgeConfirmationId())) {
-    				nameValuePairs.add(new BasicNameValuePair("surge_confirmation_id", uberRequest.getSurgeConfirmationId()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getObject())) {
-    				nameValuePairs.add(new BasicNameValuePair("object", uberRequest.getObject()));
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getVerb())) {
-    				nameValuePairs.add(new BasicNameValuePair("verb", uberRequest.getVerb()));
-    			}
-    			
-    			HttpParams httpParameters = new BasicHttpParams();
-    			HttpConnectionParams.setConnectionTimeout(httpParameters,
-    					Actionable.CONNECTION_TIMEOUT);
-    			HttpConnectionParams.setSoTimeout(httpParameters, Actionable.SOCKET_TIMEOUT);
-    			
-    			HttpClient httpClient = new DefaultHttpClient(httpParameters);
-    			HttpPost post = new HttpPost(Actionable.ENTITY_ACTION_URL);
-        		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-        		HttpResponse response = httpClient.execute(post);
-        		jsonResponse = EntityUtils.toString(response.getEntity());
-    		} catch (Exception e) {
-    			StringWriter sw = new StringWriter();
-    			PrintWriter writer = new PrintWriter(sw);
-    			e.printStackTrace(writer);
-    			Log.e(TAG, sw.toString());
-    		}
-    		return jsonResponse;
-    	}
-    	
-    	private String doGet() {
-    		String jsonResponse = null;
-    		try {
-    			HttpParams httpParameters = new BasicHttpParams();
-    			HttpConnectionParams.setConnectionTimeout(httpParameters,
-    					Actionable.CONNECTION_TIMEOUT);
-    			HttpConnectionParams.setSoTimeout(httpParameters, Actionable.SOCKET_TIMEOUT);
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getAccessToken())) {
-    				httpParameters.setParameter("access_token", uberRequest.getAccessToken());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getCode())) {
-    				httpParameters.setParameter("code", uberRequest.getCode());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getEndLatitude())) {
-    				httpParameters.setParameter("end_latitude", uberRequest.getEndLatitude());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getEndLongitude())) {
-    				httpParameters.setParameter("end_longitude", uberRequest.getEndLongitude());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getProductId())) {
-    				httpParameters.setParameter("product_id", uberRequest.getProductId());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getRequestId())) {
-    				httpParameters.setParameter("request_id", uberRequest.getRequestId());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getStartLatitude())) {
-    				httpParameters.setParameter("start_latitude", uberRequest.getStartLatitude());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getStartLongitude())) {
-    				httpParameters.setParameter("start_longitude", uberRequest.getStartLongitude());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getSurgeConfirmationId())) {
-    				httpParameters.setParameter("surge_confirmation_id", uberRequest.getSurgeConfirmationId());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getObject())) {
-    				httpParameters.setParameter("object", uberRequest.getObject());
-    			}
-    			
-    			if (!TextUtils.isEmpty(uberRequest.getVerb())) {
-    				httpParameters.setParameter("verb", uberRequest.getVerb());
-    			}
-    			
-    			HttpClient httpClient = new DefaultHttpClient(httpParameters);
-    			HttpGet get = new HttpGet(Actionable.ENTITY_ACTION_URL);
-        		get.setParams(httpParameters);	
-        		HttpResponse response = httpClient.execute(get);
-        		jsonResponse = EntityUtils.toString(response.getEntity());
-    		} catch (Exception e) {
-    			Log.e(TAG, e.getMessage());
-    		}
-    		return jsonResponse;
-    	}
 	}
 }
