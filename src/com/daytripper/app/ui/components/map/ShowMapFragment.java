@@ -65,21 +65,12 @@ public class ShowMapFragment extends Fragment {
 		annotationView = new AnnotationView(mapView);
 		annotationView.tryToKeepBubbleOnScreen(true);
 		
-		container.setOnClickListener(new OnClickListener() {
+		annotationView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				annotationView.hide();
 			}
 		});
-		
-		annotationView.setOnFocusChangeListener(new OnFocusChangeListener() {          
-			@Override
-	        public void onFocusChange(View v, boolean hasFocus) {
-	            if (!hasFocus) {
-	            	Log.i(TAG, "onFocusChange()");
-	            }
-	        }
-	    });
 		
 		LayoutInflater li = (LayoutInflater) mapView.getContext()
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

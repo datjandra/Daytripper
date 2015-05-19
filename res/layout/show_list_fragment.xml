@@ -11,15 +11,14 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="8dp" />
+        android:dividerHeight="1sp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:background="@android:color/background_light" >
 
         <ImageView
             android:id="@+id/attribution_logo"
@@ -27,6 +26,7 @@
             android:layout_height="48dp"
             android:layout_centerInParent="true"
             android:contentDescription="logo"
+            android:padding="8dp"
             android:scaleType="fitCenter" />
     </RelativeLayout>
 

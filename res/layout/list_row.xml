@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/card_bg"
-    android:padding="16dp" >
+    android:padding="8dp">
 
     <LinearLayout
         android:id="@+id/container"
@@ -138,7 +137,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="Go" />
+            android:background="@android:color/transparent"
+            android:textColor="@color/accent"
+            android:text="Go >>" />
 
     </RelativeLayout>
 

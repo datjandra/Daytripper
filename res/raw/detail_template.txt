@@ -1,0 +1,6 @@
+Driver: %s
+Phone: %s
+
+Vehicle: %s %s
+License plate: %s
+ETA: %d minutes

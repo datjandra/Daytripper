@@ -14,6 +14,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.location.LocationListener;
@@ -21,11 +22,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -51,7 +52,6 @@ import com.daytripper.app.service.UberRequestConstants;
 import com.daytripper.app.service.UberRequestListener;
 import com.daytripper.app.ui.components.Refreshable;
 import com.daytripper.app.ui.components.ShowListFragment;
-import com.daytripper.app.ui.components.UberOAuthFragment;
 import com.daytripper.app.ui.components.ViewPagerFragment;
 import com.daytripper.app.ui.components.map.ShowMapFragment;
 import com.daytripper.app.util.QueryResponseConverter;
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	
 	private static final String TAG = "MainActivity";
 	private static final String CACHED_QUERY_STATE = "CachedQuery";
-	private static final String UBER_MESSAGE_HACK = "Vehicle %s %s (license %s) has an eta of %d minutes.";
+	private static final String UBER_MESSAGE_HACK = "Estimated time of arrival is %d minutes.";
 	
 	private static final long MEASURE_TIME = 1000 * 60;
 	private static final long POLLING_FREQ = 1000 * 20;
@@ -240,15 +240,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 					say(message);
 					showToast(message, Toast.LENGTH_SHORT);
 				}
-				
-				Intent intent = new Intent(MainActivity.this, WebActivity.class);
-				if (source.equals(ResponderService.CANCEL_UBER_ACTION.getSource())) {
-					startActivity(intent);	            	
-					return;
-				} else if (source.equals(ResponderService.LOOKUP_UBER_ACTION.getSource())) {
-		            startActivity(intent);	            
-					return;
-				}
 			}
 			
 			Integer total = queryResponse.getTotal();
@@ -355,6 +346,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	@Override
 	public void cancel() {
 		lockOrientation(false);
+	}
+	
+	@Override
+	public void sendingRequest() {
+		startProgress();
+	}
+	
+	@Override
+	public void stopRequest() {
+		stopProgress();
 	}
 	
 	@Override
@@ -556,12 +557,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			status = json.getString(FIELD_STATUS);
 		}
 		
-		String driverName = "";
+		String driverName = "-";
 		if (json.has(FIELD_DRIVER_NAME) && !json.isNull(FIELD_DRIVER_NAME)) {
 			driverName = json.getString(FIELD_DRIVER_NAME);
 		}
 		
-		String driverPhoneNumber = "";
+		String driverPhoneNumber = "-";
 		if (json.has(FIELD_DRIVER_PHONE_NUMBER) && !json.isNull(FIELD_DRIVER_PHONE_NUMBER)) {
 			driverPhoneNumber = json.getString(FIELD_DRIVER_PHONE_NUMBER);
 		}
@@ -576,60 +577,62 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			eta = json.getInt(FIELD_ETA);
 		}
 		
-		String vehicleMake = "";
+		String vehicleMake = "-";
 		if (json.has(FIELD_VEHICLE_MAKE) && !json.isNull(FIELD_VEHICLE_MAKE)) {
 			vehicleMake = json.getString(FIELD_VEHICLE_MAKE);
 		}
 		
-		String vehicleModel = "";
+		String vehicleModel = "-";
 		if (json.has(FIELD_VEHICLE_MODEL) && !json.isNull(FIELD_VEHICLE_MODEL)) {
 			vehicleModel = json.getString(FIELD_VEHICLE_MODEL);
 		}
 		
-		String vehicleLicensePlate = "";
+		String vehicleLicensePlate = "-";
 		if (json.has(FIELD_VEHICLE_LICENSE_PLATE) && !json.isNull(FIELD_VEHICLE_LICENSE_PLATE)) {
 			vehicleLicensePlate = json.getString(FIELD_VEHICLE_LICENSE_PLATE);
 		}
 		
-		String voiceMessage = getMessage(R.string.uber_request_lookup);
-		say(voiceMessage);
+		String etaMessage = String.format(Locale.getDefault(), UBER_MESSAGE_HACK, eta);
+		say(etaMessage);
 		
-		String detailMessage = String.format(Locale.getDefault(), UBER_MESSAGE_HACK, vehicleMake, vehicleModel, vehicleLicensePlate, eta);
-		String detailTemplate = ResourceUtils.readTextFromResource(this, R.raw.detail_template);
-		String html = String.format(detailTemplate, driverPictureUrl, driverName, driverPhoneNumber, detailMessage);
+		String messageTemplate = ResourceUtils.readTextFromResource(this, R.raw.detail_template);
+		String message = String.format(Locale.getDefault(), 
+				messageTemplate, 
+				driverName,
+				driverPhoneNumber,
+				vehicleMake,
+				vehicleModel,
+				vehicleLicensePlate,
+				eta);
 		
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-	    ft.addToBackStack(null);
-		
-		UberOAuthFragment uberFragment = new UberOAuthFragment();
-	    uberFragment.setHtmlContent(html);
-	    uberFragment.show(ft, "dialog");
+		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+		builder.setMessage(message);
+		builder.setPositiveButton("OK", null);					
+		builder.show();
 	}
 	
-	private void showUberCancel(String result) throws JSONException {
-		JSONObject json = new JSONObject(result);
-		String requestId = "-";
-		if (json.has(FIELD_REQUEST_ID) && !json.isNull(FIELD_REQUEST_ID)) {
-			requestId = json.getString(FIELD_REQUEST_ID);
-		}
-		
-		String message = getMessage(R.string.uber_request_cancel);
-		String messageTemplate = ResourceUtils.readTextFromResource(this, R.raw.message_template);
-		String html = String.format(messageTemplate, message, requestId);
-		say(message);
-		
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-	    ft.addToBackStack(null);
-		
-		UberOAuthFragment uberFragment = new UberOAuthFragment();
-	    uberFragment.setHtmlContent(html);
-	    uberFragment.show(ft, "dialog");
+	private void showUberCancel() throws JSONException {
+		String cancelMessage = getMessage(R.string.uber_request_cancel);
+		SharedPreferences prefs = getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+		String requestId = prefs.getString(FIELD_REQUEST_ID, null);
+	
+	    StringBuilder messageBuilder = new StringBuilder();
+	    messageBuilder.append(cancelMessage);
+	    messageBuilder.append(System.getProperty("line.separator"));
+	    messageBuilder.append(String.format("Request ID: %s", requestId));
+	    
+	    AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
+		builder.setMessage(messageBuilder.toString());
+		builder.setPositiveButton("OK", null);					
+		builder.show();
+		say(cancelMessage);
 	    
 	}
 	
 	private void processMessage(Intent intent) throws JSONException {
 		try {
 			if (intent == null) {
+				say(getMessage(R.string.error_message));
 				return;
 			}
 			
@@ -638,8 +641,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			} else if (intent.hasExtra(ResponderService.UBER_STATUS_MESSAGE)) {
 				showUberStatus(intent.getStringExtra(ResponderService.UBER_STATUS_MESSAGE));
 			} else if (intent.hasExtra(ResponderService.UBER_CANCEL_MESSAGE)) {
-				showUberCancel(intent.getStringExtra(ResponderService.UBER_CANCEL_MESSAGE));
+				showUberCancel();
 			}
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+			say(getMessage(R.string.system_error_message));
 		} finally {
 			stopProgress();
 		}

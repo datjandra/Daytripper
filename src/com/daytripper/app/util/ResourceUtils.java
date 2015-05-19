@@ -15,6 +15,7 @@ public class ResourceUtils {
 	private ResourceUtils() {}
 	
 	public final static String readTextFromResource(Context context, int resourceID) {
+		String newline = System.getProperty("line.separator") ;
 		InputStream raw = context.getResources().openRawResource(resourceID);
 		StringBuilder contentBuilder = new StringBuilder();
 		BufferedReader br = new BufferedReader(new InputStreamReader(raw));
@@ -22,6 +23,7 @@ public class ResourceUtils {
 			String line;
 			while ((line = br.readLine()) != null) {
 				contentBuilder.append(line);
+				contentBuilder.append(newline);
 			}
 			br.close();
 		} catch (IOException e) {

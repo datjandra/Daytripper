@@ -3,14 +3,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Uber Request</title>
-    <style>
+    <title>Uber Request Details</title>
+    <style type="text/css">
       .content {
-        overflow: hidden; 
-      }
-      
-      .content * {
-        margin: 0;
+      	font-size: 14;
+      	text-align: center;
+      	line-height: normal;
+      	margin: auto; 
+      	height: 20px;
+      	width: 100px;
       }
       
       .text-muted {
@@ -20,9 +21,9 @@
     </style>
   </head>
   <body>
-      <div class="content">
-          <h3>%s</h3>
-          <div class="text-muted">Request ID: %s</div>
-      </div>
+  	<div id="content">
+  		<p>Say or type "show uber" to check ETA. Say or type "cancel uber" to cancel.</p>
+  		<p class="text-muted">Request ID: %s</p>
+  	</div>
   </body>
 </html>

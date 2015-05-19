@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.daytripper.app.Daytripper;
+import com.daytripper.app.R;
 import com.daytripper.app.util.TrieNode;
 
 public class ResponderService extends IntentService implements UberRequestConstants {
@@ -37,6 +38,8 @@ public class ResponderService extends IntentService implements UberRequestConsta
 
 	private static final String TAG = "ResponderService";
 	private static final TrieNode<String,Actionable> ACTIONS = new TrieNode<String,Actionable>();
+	private static final String JSON_MESSAGE = "{ \"mssage\" : \"%s\" }";
+		
 	static {
 		ACTIONS.addPattern(new String[] {"cancel", "uber"}, CANCEL_UBER_ACTION);
 		ACTIONS.addPattern(new String[] {"show", "uber"}, LOOKUP_UBER_ACTION);
@@ -60,15 +63,19 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		
 		String[] pattern = query.split("\\s+");
 		Actionable actionable = ACTIONS.lookup(pattern);
+		
+		Intent broadcastIntent = new Intent();
+		broadcastIntent.setAction(ACTION_RESPONSE);
+        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+		
 		if (actionable == null) {
 			String response = DEFAULT_ACTION.doActionWithIntent(intent);
 			if (!TextUtils.isEmpty(response)) {
-				Intent broadcastIntent = new Intent();
-				broadcastIntent.setAction(ACTION_RESPONSE);
-		        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
 		        broadcastIntent.putExtra(EXTRA_MESSAGE, response);
-				LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-			}	
+			} else {
+				String errorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));
+				broadcastIntent.putExtra(EXTRA_MESSAGE, errorMessage);	
+			}
 		} else {
 			SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
 			intent.putExtra(FIELD_ACCESS_TOKEN, prefs.getString(FIELD_ACCESS_TOKEN, null));
@@ -76,16 +83,16 @@ public class ResponderService extends IntentService implements UberRequestConsta
 			
 			String response = actionable.doActionWithIntent(intent);
 			if (!TextUtils.isEmpty(response)) {
-				Intent broadcastIntent = new Intent();
-				broadcastIntent.setAction(ACTION_RESPONSE);
-		        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
 		        if (actionable.equals(LOOKUP_UBER_ACTION)) {
 		        	broadcastIntent.putExtra(UBER_STATUS_MESSAGE, response);
 				} else if (actionable.equals(CANCEL_UBER_ACTION)) {
 					broadcastIntent.putExtra(UBER_CANCEL_MESSAGE, response);
 				}
-				LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-			}	
+			} else {
+				String uberErrorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));
+				broadcastIntent.putExtra(EXTRA_MESSAGE, uberErrorMessage);
+			}
 		}	
+		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 }

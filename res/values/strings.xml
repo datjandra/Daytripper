@@ -18,6 +18,8 @@
     <string name="uber_request_lookup">Here is the status of your Uber request.</string>
     <string name="uber_request_cancel">Cancellation message has been sent.</string>
     <string name="uber_status_message">Vehicle %%s %%s (license %%s) has an eta of %%d minutes.</string>
+    <string name="uber_dialog_title">Please login and accept request</string>
+    <string name="system_error_message">Sorry, I\'m having issues at the moment</string>
     
     <string-array name="vendor_array">
         <item>Yelp</item>
