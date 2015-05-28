@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,20 +18,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -42,6 +39,7 @@ import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,14 +53,14 @@ import com.daytripper.app.service.UberRequestConstants;
 import com.daytripper.app.service.UberRequestListener;
 import com.daytripper.app.util.ImageLoader;
 import com.daytripper.app.util.ResourceUtils;
-import com.daytripper.app.vocifery.model.Intention;
+import com.daytripper.app.util.StringConstants;
 import com.daytripper.app.vocifery.model.Locatable;
 import com.daytripper.app.vocifery.model.QueryResponse;
 import com.daytripper.app.vocifery.model.Result;
 import com.daytripper.app.vocifery.model.Searchable;
 
 public class ShowListFragment extends Fragment implements
-		AbsListView.OnScrollListener, UberRequestConstants {
+		AbsListView.OnScrollListener, UberRequestConstants, StringConstants {
 
 	private ListView listView;
 	private ImageView attributionLogo;
@@ -73,6 +71,7 @@ public class ShowListFragment extends Fragment implements
 	private int total;
 	private int chunkSize;
 	private int previousLastItem = 0;
+	private int selected;
 	private Refreshable refreshable;
 	private Map<String, String> sourceLogos;
 	private ImageLoader imageLoader;
@@ -117,6 +116,9 @@ public class ShowListFragment extends Fragment implements
 					allItems = new ArrayList<Searchable>();
 				}
 				allItems.addAll(resultList);
+				
+				final Daytripper daytripper = ((Daytripper) getActivity().getApplicationContext());
+				daytripper.setAllItems(allItems);
 			}
 			
 			ArrayList<Locatable> locatablelist = savedInstanceState.getParcelableArrayList(ROUTE_STATE);
@@ -137,6 +139,9 @@ public class ShowListFragment extends Fragment implements
 		} else {
 			allItems = new ArrayList<Searchable>();
 			route = new ArrayList<Locatable>();
+			
+			final Daytripper daytripper = ((Daytripper) getActivity().getApplicationContext());
+			daytripper.setAllItems(allItems);
 		}
 	}
 
@@ -147,6 +152,7 @@ public class ShowListFragment extends Fragment implements
 				container, false);
 		listView = (ListView) rootView.findViewById(R.id.list);
 		listView.setOnScrollListener(this);
+		
 		attributionLogo = (ImageView) rootView
 				.findViewById(R.id.attribution_logo);
 		return rootView;
@@ -181,6 +187,8 @@ public class ShowListFragment extends Fragment implements
 	public void onDestroy() {
 		imageLoader.clearCache();
 		this.refreshable = null;
+		final Daytripper daytripper = ((Daytripper) getActivity().getApplicationContext());
+		daytripper.setAllItems(null);
 		super.onDestroy();
 	}
 	
@@ -286,6 +294,9 @@ public class ShowListFragment extends Fragment implements
 		this.intent = null;
 		this.adapter = new SearchResultAdapter(getActivity(), this.intent, this.route);
 		this.listView.setAdapter(adapter);
+		
+		final Daytripper daytripper = ((Daytripper) getActivity().getApplicationContext());
+		daytripper.setAllItems(allItems);
 	}
 	
 	private Map<String,String> readPrefs() {
@@ -309,7 +320,7 @@ public class ShowListFragment extends Fragment implements
 		
 		final Dialog uberDialog = new Dialog(activity);
 		uberDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		uberDialog.setContentView(R.layout.uber_content);
+		uberDialog.setContentView(R.layout.uber_web_content);
 		uberDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 			@Override
 			public void onDismiss(DialogInterface dialog) {
@@ -428,25 +439,22 @@ public class ShowListFragment extends Fragment implements
 		TextView name;
 		TextView reviews;
 		TextView price;
-		TextView firstLine;
-		TextView secondLine;
-		TextView phone;
+		TextView snippet;
 		ImageView photoOne;
 		ImageView photoTwo;
 		ImageView ratingImage;
+		LinearLayout ratingsContainer;
 		RelativeLayout itemFooter;
 		Button goButton;
 	}
 	
 	private class SearchResultAdapter extends ArrayAdapter<Searchable> {
 		
-		private Context context;
 		private String intent;
 		private List<Locatable> route;
 		
 		public SearchResultAdapter(Context context, String intent, List<Locatable> route) {
 			super(context, R.layout.list_row, allItems);
-			this.context = context;
 			this.intent = intent;
 			this.route = route;
 		}
@@ -483,9 +491,8 @@ public class ShowListFragment extends Fragment implements
 				holder.reviews = (TextView) row.findViewById(R.id.rating_count);
 				holder.ratingImage = (ImageView) row.findViewById(R.id.rating_img);
 				holder.price = (TextView) row.findViewById(R.id.price);
-				holder.firstLine = (TextView) row.findViewById(R.id.firstLine);
-				holder.secondLine = (TextView) row.findViewById(R.id.secondLine);
-				holder.phone = (TextView) row.findViewById(R.id.phone);
+				holder.snippet = (TextView) row.findViewById(R.id.snippet);
+				holder.ratingsContainer = (LinearLayout) row.findViewById(R.id.ratingsContainer);
 				holder.itemFooter = (RelativeLayout) row.findViewById(R.id.item_footer);
 				holder.goButton = (Button) row.findViewById(R.id.go_button);
 				row.setTag(holder);
@@ -510,12 +517,38 @@ public class ShowListFragment extends Fragment implements
 				holder.photoTwo.setVisibility(View.GONE);
 			}
 			
-			holder.name.setText(Html.fromHtml("<a href='" + result.getMobileUrl() + "'>" + result.getName() + "</a>"));
+			holder.name.setText(Html.fromHtml(
+					String.format(Locale.getDefault(), 
+							"%d.  <a href='%s'>%s</a>", 
+							position + 1, result.getMobileUrl(), result.getName())));
 			holder.price.setText(result.getDeal());
-			holder.firstLine.setText(result.getAddressOne());
-			holder.secondLine.setText(result.getAddressTwo());
-			holder.phone.setText(result.getDetails());
 			
+			StringBuilder builder = new StringBuilder();
+			String addressOne = result.getAddressOne();
+			if (!TextUtils.isEmpty(addressOne)) {
+				builder.append(addressOne + NEWLINE);
+			}
+			
+			String addressTwo = result.getAddressTwo();
+			if (!TextUtils.isEmpty(addressTwo)) {
+				builder.append(addressTwo + NEWLINE);
+			}
+			
+			String details = result.getDetails();
+			if (!TextUtils.isEmpty(details)) {
+				builder.append(details + NEWLINE);
+			}
+			
+			String snippet = builder.toString().trim();
+			if (!TextUtils.isEmpty(snippet)) {
+				holder.snippet.setText(builder.toString().trim());
+				holder.snippet.setVisibility(View.VISIBLE);
+			} else {
+				holder.snippet.setVisibility(View.GONE);
+			}
+			
+			
+			/*
 			if (intent != null && intent.equals(Intention.PRICES.getValue())) {
 				holder.itemFooter.setVisibility(View.VISIBLE);
 				holder.goButton.setOnClickListener(new OnClickListener() {
@@ -529,16 +562,19 @@ public class ShowListFragment extends Fragment implements
 			} else {
 				holder.itemFooter.setVisibility(View.GONE);
 			}
+			*/
 			
 			String ratingImageUrl = result.getRatingImgUrl();
 			Integer reviewCount = result.getReviewCount();
-			if (ratingImageUrl == null || ratingImageUrl.equals("null") || reviewCount == null || reviewCount.intValue() == 0) {
+			if (TextUtils.isEmpty(ratingImageUrl) || ratingImageUrl.equals("null") || reviewCount == null || reviewCount.intValue() == 0) {
 				holder.reviews.setVisibility(View.GONE);
 				holder.ratingImage.setVisibility(View.GONE);
+				holder.ratingsContainer.setVisibility(View.GONE);
 			} else {
 				imageLoader.loadImage(ratingImageUrl, holder.ratingImage);
 				holder.ratingImage.setVisibility(View.VISIBLE);
 				holder.reviews.setVisibility(View.VISIBLE);
+				holder.ratingsContainer.setVisibility(View.VISIBLE);
 				holder.reviews.setText("(" + result.getReviewCount().toString() + ")");
 			}
 			return row;

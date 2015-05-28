@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:padding="8dp" >
 
     <LinearLayout
         android:id="@+id/container"
@@ -12,10 +12,11 @@
 
         <LinearLayout
             android:id="@+id/images"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:orientation="vertical" >
+            android:layout_weight="0.3"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical" >
 
             <LinearLayout
                 android:id="@+id/imageContainer"
@@ -30,7 +31,8 @@
                     android:layout_gravity="left"
                     android:contentDescription="photo"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/stub" />
+                    android:src="@drawable/stub"
+                    android:visibility="gone" />
 
                 <ImageView
                     android:id="@+id/photo_two"
@@ -40,15 +42,19 @@
                     android:layout_marginLeft="4dip"
                     android:contentDescription="photo"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/stub" />
+                    android:src="@drawable/stub"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ratingsContainer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="center_horizontal|bottom"
+                android:gravity="center_horizontal"
                 android:layout_marginTop="4dip"
-                android:orientation="horizontal" >
+                android:orientation="horizontal"
+                android:visibility="gone" >
 
                 <ImageView
                     android:id="@+id/rating_img"
@@ -56,7 +62,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left|center_vertical"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/stub" />
+                    android:src="@drawable/stub"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/rating_count"
@@ -65,17 +72,17 @@
                     android:layout_gravity="right|center_vertical"
                     android:layout_marginLeft="4dip"
                     android:alpha="0.87"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/address"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/images"
-            android:layout_toRightOf="@id/images"
-            android:gravity="top"
+            android:layout_weight="0.7"
+            android:layout_gravity="center_vertical"
             android:orientation="vertical"
             android:paddingLeft="8dp"
             android:paddingRight="8dp" >
@@ -90,31 +97,15 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/firstLine"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.54"
-                android:ellipsize="none"
-                android:singleLine="false"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/secondLine"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.54"
-                android:ellipsize="none"
-                android:singleLine="false"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/phone"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0.54"
-                android:ellipsize="none"
-                android:singleLine="false"
-                android:textSize="14sp" />
+        		android:id="@+id/snippet"
+        		android:layout_width="fill_parent"
+        		android:layout_height="wrap_content"
+        		android:alpha="0.54"
+       			android:ellipsize="end"
+       			android:minLines="1"
+        		android:maxLines="3"
+        		android:textSize="14sp"
+        		android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 
@@ -138,9 +129,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
-            android:textColor="@color/accent"
-            android:text="Go >>" />
-
+            android:text="Go >>"
+            android:textColor="@color/accent" />
     </RelativeLayout>
 
 </RelativeLayout>

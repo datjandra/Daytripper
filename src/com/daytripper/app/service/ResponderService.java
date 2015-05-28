@@ -25,6 +25,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 	public static final String CUSTOM_MESSAGE = "com.daytripper.app.extra.CUSTOM_MESSAGE";
 	public static final String UBER_STATUS_MESSAGE = "com.daytripper.app.extra.UBER_STATUS_MESSAGE";
 	public static final String UBER_CANCEL_MESSAGE = "com.daytripper.app.extra.UBER_CANCEL_MESSAGE";
+	public static final String MAP_ZOOM_MESSAGE = "com.daytripper.app.extra.MAP_ZOOM_MESSAGE";
 	
 	public static final String KEY_QUERY = "com.daytripper.app.QUERY";
 	public static final String KEY_lOCATION = "com.daytripper.app.LOCATION";
@@ -33,16 +34,20 @@ public class ResponderService extends IntentService implements UberRequestConsta
 	public static final String KEY_COUNT = "com.daytripper.app.COUNT";
 	
 	public static final Actionable DEFAULT_ACTION = new DefaultAction();
+	public static final Actionable PICKUP_ACTION = new PickUpAction();
 	public static final Actionable CANCEL_UBER_ACTION = new CancelUberAction();
 	public static final Actionable LOOKUP_UBER_ACTION = new LookupUberAction();
+	public static final Actionable MAP_ZOOM_ACTION = new MapZoomAction();
 
 	private static final String TAG = "ResponderService";
 	private static final TrieNode<String,Actionable> ACTIONS = new TrieNode<String,Actionable>();
 	private static final String JSON_MESSAGE = "{ \"mssage\" : \"%s\" }";
 		
 	static {
+		ACTIONS.addPattern(new String[] {"pick", "up"}, PICKUP_ACTION);
 		ACTIONS.addPattern(new String[] {"cancel", "uber"}, CANCEL_UBER_ACTION);
 		ACTIONS.addPattern(new String[] {"show", "uber"}, LOOKUP_UBER_ACTION);
+		ACTIONS.addPattern(new String[] {"zoom", "to"}, MAP_ZOOM_ACTION);
 	}
 	
 	public ResponderService() {
@@ -87,6 +92,10 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		        	broadcastIntent.putExtra(UBER_STATUS_MESSAGE, response);
 				} else if (actionable.equals(CANCEL_UBER_ACTION)) {
 					broadcastIntent.putExtra(UBER_CANCEL_MESSAGE, response);
+				} else if (actionable.equals(MAP_ZOOM_ACTION)) {
+					broadcastIntent.putExtra(MAP_ZOOM_MESSAGE, response);
+				} else if (actionable.equals(PICKUP_ACTION)) {
+					broadcastIntent.putExtra(EXTRA_MESSAGE, response);
 				}
 			} else {
 				String uberErrorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));

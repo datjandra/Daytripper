@@ -90,7 +90,7 @@ public abstract class QueryResponseConverter {
 			Double lon = center.optDouble(LONGITUDE_NODE);
 			
 			start = new LocatableItem();
-			start.setName("Start");
+			start.setName("Pick-up");
 			start.setDetails(String.format(Locale.getDefault(),  "%.3f, %.3f", lat, lon));
 			start.setLatitude(lat);
 			start.setLongitude(lon);
@@ -103,7 +103,7 @@ public abstract class QueryResponseConverter {
 			Double lon = destination.optDouble(LONGITUDE_NODE);
 			
 			end = new LocatableItem();
-			end.setName("End");
+			end.setName("Drop-off");
 			end.setDetails(String.format(Locale.getDefault(),  "%.3f, %.3f", lat, lon));
 			end.setLatitude(lat);
 			end.setLongitude(lon);

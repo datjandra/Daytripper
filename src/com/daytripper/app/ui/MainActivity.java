@@ -14,7 +14,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.location.LocationListener;
@@ -32,6 +31,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,7 +45,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.daytripper.app.Daytripper;
 import com.daytripper.app.R;
 import com.daytripper.app.service.ResponderService;
 import com.daytripper.app.service.UberRequestConstants;
@@ -58,7 +57,6 @@ import com.daytripper.app.util.QueryResponseConverter;
 import com.daytripper.app.util.ResourceUtils;
 import com.daytripper.app.vocifery.model.Locatable;
 import com.daytripper.app.vocifery.model.QueryResponse;
-import com.mapquest.android.maps.GeoPoint;
 
 public class MainActivity extends AppCompatActivity implements LocationListener,
 		Refreshable, TextToSpeech.OnInitListener, UberRequestListener, UberRequestConstants {
@@ -68,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	
 	private static final String TAG = "MainActivity";
 	private static final String CACHED_QUERY_STATE = "CachedQuery";
-	private static final String UBER_MESSAGE_HACK = "Estimated time of arrival is %d minutes.";
+	private static final String UBER_MESSAGE_HACK = "Your ride is %d minutes away.";
 	
 	private static final long MEASURE_TIME = 1000 * 60;
 	private static final long POLLING_FREQ = 1000 * 20;
@@ -264,6 +262,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				}
 			}
 			
+			if (queryResponse.getRoute() == null || queryResponse.getRoute().isEmpty()) {
+				queryResponse.getResultList();
+			}
+			
 			updateList(queryResponse, reload);
 			updateMap(queryResponse, reload);
 		} finally {
@@ -425,12 +427,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		serviceIntent.putExtra(ResponderService.KEY_PAGE, page);
 		serviceIntent.putExtra(ResponderService.KEY_COUNT, count);
 		
+		/*
 		Daytripper daytripper = (Daytripper) getApplicationContext();
 		GeoPoint selectedPoint = daytripper.getSelectedPoint();
 		if (selectedPoint != null) {
-			String destination = String.format("%10.6f, %10.6f", selectedPoint.getLatitude(), selectedPoint.getLongitude());
+			String destination = String.format(Locale.getDefault(),
+					"%10.6f, %10.6f", selectedPoint.getLatitude(), selectedPoint.getLongitude());
 			serviceIntent.putExtra(ResponderService.KEY_DESTINATION, destination);
+		} else {
+			String destination = QueryParser.extractDestinationFromQuery(query, resultList);
+			if (!TextUtils.isEmpty(destination)) {
+				serviceIntent.putExtra(ResponderService.KEY_DESTINATION, destination);
+			}
 		}
+		daytripper.setSelectedPoint(null);
+		*/
 		startService(serviceIntent);
 	}
 	
@@ -557,12 +568,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			status = json.getString(FIELD_STATUS);
 		}
 		
-		String driverName = "-";
+		String driverName = "";
 		if (json.has(FIELD_DRIVER_NAME) && !json.isNull(FIELD_DRIVER_NAME)) {
 			driverName = json.getString(FIELD_DRIVER_NAME);
 		}
 		
-		String driverPhoneNumber = "-";
+		String driverPhoneNumber = "";
 		if (json.has(FIELD_DRIVER_PHONE_NUMBER) && !json.isNull(FIELD_DRIVER_PHONE_NUMBER)) {
 			driverPhoneNumber = json.getString(FIELD_DRIVER_PHONE_NUMBER);
 		}
@@ -577,17 +588,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			eta = json.getInt(FIELD_ETA);
 		}
 		
-		String vehicleMake = "-";
+		String vehicleMake = "";
 		if (json.has(FIELD_VEHICLE_MAKE) && !json.isNull(FIELD_VEHICLE_MAKE)) {
 			vehicleMake = json.getString(FIELD_VEHICLE_MAKE);
 		}
 		
-		String vehicleModel = "-";
+		String vehicleModel = "";
 		if (json.has(FIELD_VEHICLE_MODEL) && !json.isNull(FIELD_VEHICLE_MODEL)) {
 			vehicleModel = json.getString(FIELD_VEHICLE_MODEL);
 		}
 		
-		String vehicleLicensePlate = "-";
+		String vehicleLicensePlate = "";
 		if (json.has(FIELD_VEHICLE_LICENSE_PLATE) && !json.isNull(FIELD_VEHICLE_LICENSE_PLATE)) {
 			vehicleLicensePlate = json.getString(FIELD_VEHICLE_LICENSE_PLATE);
 		}
@@ -595,44 +606,44 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		String etaMessage = String.format(Locale.getDefault(), UBER_MESSAGE_HACK, eta);
 		say(etaMessage);
 		
-		String messageTemplate = ResourceUtils.readTextFromResource(this, R.raw.detail_template);
-		String message = String.format(Locale.getDefault(), 
-				messageTemplate, 
-				driverName,
-				driverPhoneNumber,
-				vehicleMake,
-				vehicleModel,
-				vehicleLicensePlate,
-				eta);
-		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-		builder.setMessage(message);
+		LayoutInflater inflater = getLayoutInflater();
+		View titleView = inflater.inflate(R.layout.uber_view_title, null);
+		builder.setCustomTitle(titleView);				    
+		
+		View contentView = inflater.inflate(R.layout.uber_view_content, null);
+		TextView driverNameView = (TextView) contentView.findViewById(R.id.driverName);
+		driverNameView.setText(driverName);
+		
+		TextView driverPhoneView = (TextView) contentView.findViewById(R.id.driverPhone);
+		driverPhoneView.setText(driverPhoneNumber);
+		
+		TextView vehicleModelView = (TextView) contentView.findViewById(R.id.vehicleModel);
+		vehicleModelView.setText(String.format(Locale.getDefault(), "%s %s", vehicleMake, vehicleModel));
+		
+		TextView licensePlateView = (TextView) contentView.findViewById(R.id.licensePlate);
+		licensePlateView.setText(vehicleLicensePlate);
+		
+		TextView vehicleStatusView = (TextView) contentView.findViewById(R.id.vehicleStatus);
+		vehicleStatusView.setText(etaMessage);
+		
+		builder.setView(contentView);
 		builder.setPositiveButton("OK", null);					
 		builder.show();
 	}
 	
 	private void showUberCancel() throws JSONException {
 		String cancelMessage = getMessage(R.string.uber_request_cancel);
-		SharedPreferences prefs = getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
-		String requestId = prefs.getString(FIELD_REQUEST_ID, null);
-	
-	    StringBuilder messageBuilder = new StringBuilder();
-	    messageBuilder.append(cancelMessage);
-	    messageBuilder.append(System.getProperty("line.separator"));
-	    messageBuilder.append(String.format("Request ID: %s", requestId));
-	    
-	    AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-		builder.setMessage(messageBuilder.toString());
-		builder.setPositiveButton("OK", null);					
-		builder.show();
 		say(cancelMessage);
-	    
+		showToast(cancelMessage, Toast.LENGTH_SHORT);
 	}
 	
 	private void processMessage(Intent intent) throws JSONException {
 		try {
 			if (intent == null) {
-				say(getMessage(R.string.error_message));
+				String errorMessage = getMessage(R.string.error_message);
+				say(errorMessage);
+				showToast(errorMessage, Toast.LENGTH_SHORT);
 				return;
 			}
 			
@@ -642,10 +653,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				showUberStatus(intent.getStringExtra(ResponderService.UBER_STATUS_MESSAGE));
 			} else if (intent.hasExtra(ResponderService.UBER_CANCEL_MESSAGE)) {
 				showUberCancel();
+			} else if (intent.hasExtra(ResponderService.MAP_ZOOM_MESSAGE)) {
+				showZoom(intent.getStringExtra(ResponderService.MAP_ZOOM_MESSAGE));
 			}
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage());
-			say(getMessage(R.string.system_error_message));
+			String errorMessage = getMessage(R.string.system_error_message);
+			say(errorMessage);
+			showToast(errorMessage, Toast.LENGTH_SHORT);
 		} finally {
 			stopProgress();
 		}
@@ -691,7 +706,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				ShowMapFragment showMapFragment = (ShowMapFragment) fragment;
 				List<Locatable> route = queryResponse.getRoute();
 				if (route != null) {
-					showMapFragment.updateMap(route, reload);
+					showMapFragment.updateMapWithRoute(route, reload);
 				} else {
 					showMapFragment.updateMap(queryResponse.getResultList(), reload);
 				}
@@ -718,6 +733,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		Location updatedLocation = bestLastKnownLocation(MIN_LAST_READ_ACCURACY, TEN_MIN);
 		if (updatedLocation != null) {
 			location = updatedLocation;
+		}
+	}
+	
+	private void showZoom(String level) {
+		String supportMapFragmentTag = getFragmentTag(R.id.viewpager,
+				SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
+		if (supportMapFragmentTag != null) {
+			Fragment fragment = getFragmentByTag(supportMapFragmentTag);
+			if (fragment != null) {
+				ShowMapFragment mapFragment = (ShowMapFragment) fragment;
+				try {
+					mapFragment.zoom(Integer.parseInt(level));
+				} catch (Exception e) {
+					Log.w(TAG, "Bad zoom level " + level);
+				}
+			}
 		}
 	}
 	

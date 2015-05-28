@@ -12,13 +12,13 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_weight="1"
-        android:dividerHeight="1sp" />
+        android:dividerHeight="1sp"
+        android:background="@android:color/background_light" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@android:color/background_light" >
+        android:orientation="horizontal" >
 
         <ImageView
             android:id="@+id/attribution_logo"

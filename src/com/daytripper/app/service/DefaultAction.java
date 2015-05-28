@@ -103,7 +103,7 @@ public class DefaultAction implements Actionable {
 			Log.d(TAG,
 					String.format("Response length=%d", jsonResponse.length()));
 		} catch (Exception e) {
-			Log.e(TAG, String.format("Error in doInBackground() - %s", e.getMessage()));
+			Log.e(TAG, String.format("Error in doActionWithIntent() - %s", e.getMessage()));
 		}
 		return jsonResponse;
 	}
