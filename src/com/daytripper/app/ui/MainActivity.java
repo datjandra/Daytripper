@@ -2,6 +2,7 @@ package com.daytripper.app.ui;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +45,9 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
 
+import com.daytripper.app.Daytripper;
 import com.daytripper.app.R;
 import com.daytripper.app.service.ResponderService;
 import com.daytripper.app.service.UberRequestConstants;
@@ -59,10 +62,11 @@ import com.daytripper.app.vocifery.model.Locatable;
 import com.daytripper.app.vocifery.model.QueryResponse;
 
 public class MainActivity extends AppCompatActivity implements LocationListener,
-		Refreshable, TextToSpeech.OnInitListener, UberRequestListener, UberRequestConstants {
+		Refreshable, TextToSpeech.OnInitListener, UberRequestListener, UberRequestConstants, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	public static final String ACTION_NOTIFY = "com.daytripper.app.NOTIFY";
 	public static final String ACTION_GET_CONVERSATION = "com.daytripper.app.CONVERSATION"; 
+	public static final String VOCIFEROUS_KEY = "com.daytripper.app.VOCIFEROUS";
 	
 	private static final String TAG = "MainActivity";
 	private static final String CACHED_QUERY_STATE = "CachedQuery";
@@ -90,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	private LinearLayout teaserContent;
 	private Dialog helpDialog;
 	private BroadcastReceiver broadcastReceiver;
+	private boolean vociferous = true;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +174,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         };
         startListening();
+        
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+		prefs.registerOnSharedPreferenceChangeListener(this);
 	}
 	
 	@Override
@@ -226,19 +234,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	@Override
 	public void receivedResponse(QueryResponse queryResponse, boolean responseMessage) {
 		try {
-			if (queryResponse == null) {
+			if (queryResponse == null || queryResponse.getTotal() == 0) {
 				showErrorMessage(queryResponse);
 				return;
 			}
 			
+			/*
 			String source = queryResponse.getSource();
 			if (source != null) {
 				String message = queryResponse.getMessage();
 				if (!TextUtils.isEmpty(message)) {
+					message = String.format(Locale.getDefault(), message, queryResponse.getTotal(), queryResponse.getSource());
 					say(message);
 					showToast(message, Toast.LENGTH_SHORT);
 				}
 			}
+			*/
 			
 			Integer total = queryResponse.getTotal();
 			if (total == null) {
@@ -252,10 +263,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				reload = true;
 				String message = queryResponse.getMessage();
 				if (message == null) {
-					String template = getMessage(R.string.success_message);
-					message = String.format(Locale.getDefault(), 
-						template, queryResponse.getTotal(), queryResponse.getSource());
+					message = getRandomSuccessMessage(queryResponse.getTotal(), queryResponse.getSource());
+				} else {
+					message = String.format(Locale.getDefault(), message, queryResponse.getTotal(), queryResponse.getSource());
 				}
+				
 				if (responseMessage) {
 					say(message);
 					showToast(message, Toast.LENGTH_SHORT);
@@ -370,6 +382,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	public void onRequestSent() {
 		stopProgress();
 		say(getMessage(R.string.uber_request_sent));
+	}
+	
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (!TextUtils.isEmpty(key) && key.equals(VOCIFEROUS_KEY)) {
+			vociferous = sharedPreferences.getBoolean(VOCIFEROUS_KEY, true);
+		}
 	}
 	
 	private void createHelpDialog() {
@@ -534,6 +553,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	}
 
 	private void say(final String text) {
+		if (!vociferous) {
+			return;
+		}
+		
 		try {
 			runOnUiThread(new Runnable() {
 				public void run() {
@@ -550,9 +573,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		return getResources().getString(resourceId);
 	}
 	
-	private void showSearchResult(String result) throws JSONException {
+	private void showSearchResult(String result, String customMessage) throws JSONException {
 		QueryResponse queryResponse = 
 				QueryResponseConverter.parseJson(result);
+		if (!TextUtils.isEmpty(customMessage)) {
+			queryResponse.setMessage(customMessage);
+		}
 		receivedResponse(queryResponse, true);
 	}
 	
@@ -648,13 +674,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			}
 			
 			if (intent.hasExtra(ResponderService.EXTRA_MESSAGE)) {
-				showSearchResult(intent.getStringExtra(ResponderService.EXTRA_MESSAGE));
+				String customMessage = intent.getStringExtra(ResponderService.CUSTOM_MESSAGE);
+				showSearchResult(intent.getStringExtra(ResponderService.EXTRA_MESSAGE), customMessage);
 			} else if (intent.hasExtra(ResponderService.UBER_STATUS_MESSAGE)) {
 				showUberStatus(intent.getStringExtra(ResponderService.UBER_STATUS_MESSAGE));
 			} else if (intent.hasExtra(ResponderService.UBER_CANCEL_MESSAGE)) {
 				showUberCancel();
 			} else if (intent.hasExtra(ResponderService.MAP_ZOOM_MESSAGE)) {
 				showZoom(intent.getStringExtra(ResponderService.MAP_ZOOM_MESSAGE));
+			} else if (intent.hasExtra(VOCIFEROUS_KEY)) {
+				updateVociferousFlag(intent.getBooleanExtra(VOCIFEROUS_KEY, true));
 			}
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage());
@@ -737,6 +766,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	}
 	
 	private void showZoom(String level) {
+		String zoomMessage = getString(R.string.system_zoom_message);
+		say(zoomMessage);
+		showToast(zoomMessage, Toast.LENGTH_SHORT);
+		
 		String supportMapFragmentTag = getFragmentTag(R.id.viewpager,
 				SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
 		if (supportMapFragmentTag != null) {
@@ -750,6 +783,39 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				}
 			}
 		}
+	}
+	
+	private String getRandomSuccessMessage(Integer total, String source) {
+		int rand = new Random().nextInt(3);
+		switch (rand) {
+			case 0:
+				return getString(R.string.success_message_one, total, source);
+				
+			case 1:
+				return getString(R.string.success_message_two, total, source);
+			
+			default:
+				return getString(R.string.success_message_three, total, source);
+				
+		}
+	}
+	
+	private void updateVociferousFlag(boolean vociferousFlag) {
+		if (vociferousFlag) {
+			vociferous = true;
+			String message = getString(R.string.vociferous_message);
+			say(message);
+			showToast(message, Toast.LENGTH_SHORT);
+		} else {
+			String message = getString(R.string.shut_up_message);
+			say(message);
+			showToast(message, Toast.LENGTH_SHORT);
+		}
+		
+		SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(VOCIFEROUS_KEY, vociferousFlag);
+		editor.commit();
 	}
 	
 	private static String getFragmentTag(int viewId, int index) {

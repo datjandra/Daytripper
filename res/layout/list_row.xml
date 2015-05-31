@@ -1,136 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/card_bg"
     android:padding="8dp" >
 
-    <LinearLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <LinearLayout
-            android:id="@+id/images"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical" >
-
-            <LinearLayout
-                android:id="@+id/imageContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <ImageView
-                    android:id="@+id/photo_one"
-                    android:layout_width="72dip"
-                    android:layout_height="72dip"
-                    android:layout_gravity="left"
-                    android:contentDescription="photo"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/stub"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:id="@+id/photo_two"
-                    android:layout_width="72dip"
-                    android:layout_height="72dip"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="4dip"
-                    android:contentDescription="photo"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/stub"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ratingsContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:gravity="center_horizontal"
-                android:layout_marginTop="4dip"
-                android:orientation="horizontal"
-                android:visibility="gone" >
-
-                <ImageView
-                    android:id="@+id/rating_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left|center_vertical"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/stub"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/rating_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right|center_vertical"
-                    android:layout_marginLeft="4dip"
-                    android:alpha="0.87"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/address"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.7"
-            android:layout_gravity="center_vertical"
-            android:orientation="vertical"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp" >
-
-            <TextView
-                android:id="@+id/name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="none"
-                android:singleLine="false"
-                android:textColorLink="@color/accent"
-                android:textSize="16sp" />
-
-            <TextView
-        		android:id="@+id/snippet"
-        		android:layout_width="fill_parent"
-        		android:layout_height="wrap_content"
-        		android:alpha="0.54"
-       			android:ellipsize="end"
-       			android:minLines="1"
-        		android:maxLines="3"
-        		android:textSize="14sp"
-        		android:visibility="gone" />
-        </LinearLayout>
-    </LinearLayout>
-
     <RelativeLayout
-        android:id="@+id/item_footer"
-        android:layout_width="match_parent"
+        android:id="@+id/images"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/container"
-        android:orientation="horizontal"
-        android:visibility="gone" >
+        android:layout_alignParentTop="true" >
 
-        <TextView
-            android:id="@+id/price"
+        <LinearLayout
+            android:id="@+id/imageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp" />
+            android:layout_centerHorizontal="true"
+            android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/go_button"
+            <com.daytripper.app.ui.components.AdjustableImageView
+                android:id="@+id/photo_one"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="photo"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+            <com.daytripper.app.ui.components.AdjustableImageView
+                android:id="@+id/photo_two"
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:layout_marginTop="4dp"
+                android:contentDescription="photo"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ratingsContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@android:color/transparent"
-            android:text="Go >>"
-            android:textColor="@color/accent" />
+            android:layout_below="@id/imageContainer"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <com.daytripper.app.ui.components.AdjustableImageView
+                android:id="@+id/rating_img"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@+id/rating_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:alpha="0.87"
+                android:textSize="12sp" />
+        </LinearLayout>
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/address"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/images"
+        android:layout_alignParentTop="true" >
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColorLink="@color/accent"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/snippet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name"
+            android:alpha="0.54"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/item_footer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/go_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:text="Go >>"
+                android:textColor="@color/accent" />
+        </RelativeLayout>
+    </RelativeLayout>
 </RelativeLayout>

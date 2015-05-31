@@ -5,11 +5,18 @@
     <string name="search_hint">Search</string>
     <string name="message_ok">OK</string>
     <string name="message_intro">Find places, events or meetups</string>
-    <string name="search_instructions">Examples: \"restaurants in Las Vegas, NV\", \"sports\", \"business meetup events\"</string>
-	<string name="success_message" formatted="false">I found %d listings from %s</string>
-    <string name="error_message">Sorry, I did not find anything</string>
-    <string name="location_error_message">I cannot get a fix on your location</string>
-    <string name="request_denied_message">I\'m still working on your last request</string>
+    <string name="search_instructions">Examples: \"restaurants in New York, NY\", \"sports\", \"business meetup events\"</string>
+	<string name="success_message_one">Seek and ye shall find %1$d listings from %2$s</string>
+	<string name="success_message_two">Rejoice for I have found %1$d listings from %2$s</string>
+	<string name="success_message_three">Blessed are these %1$d listings from %2$s</string>
+	<string name="success_message_ride">Ask and it shall be given you %1$d products from %2$s</string>
+    <string name="error_message">Ye shall find no results</string>
+    <string name="location_error_message">Thy place is not known where thee are</string>
+    <string name="request_denied_message">I beseech thee to wait for thy last request to complete</string>
+    <string name="system_error_message">Woe is me for I have a system error</string>
+    <string name="system_zoom_message">Let there be sight</string>
+    <string name="shut_up_message">Even fools are thought wise if they keep silent</string>
+   	<string name="vociferous_message">Behold, now I have opened my mouth</string>
     <string name="heading_local">Local Businesses</string>
     <string name="heading_events">Events</string>
     <string name="heading_meetups">Meetups</string>
@@ -19,7 +26,6 @@
     <string name="uber_request_cancel">Cancellation message was sent.</string>
     <string name="uber_status_message">Vehicle %%s %%s (license %%s) has an eta of %%d minutes.</string>
     <string name="uber_dialog_title">Please login and accept request</string>
-    <string name="system_error_message">Sorry, I have issues at the moment</string>
     
     <string-array name="vendor_array">
         <item>Yelp</item>

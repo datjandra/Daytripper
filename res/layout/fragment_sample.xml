@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <android.support.v4.view.ViewPager
+    <com.daytripper.app.ui.components.UnswipeableViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="0px"
@@ -18,6 +18,6 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:textColor="@color/text_secondary" />
-    </android.support.v4.view.ViewPager>
+    </com.daytripper.app.ui.components.UnswipeableViewPager>
 
 </LinearLayout>

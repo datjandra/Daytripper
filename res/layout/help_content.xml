@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:background="@color/primary"
+    android:background="@android:color/background_light"
     android:orientation="vertical" >
 
     <TextView
@@ -11,14 +11,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|right"
         android:clickable="true"
-        android:padding="8dp"
+        android:layout_margin="8dp"
         android:text="Close"
-        android:background="@android:color/white"
+        android:background="@android:color/transparent"
         android:textColor="@color/accent" />
 
     <WebView
             android:id="@+id/html_help"
-            android:background="@android:color/white"            
+            android:background="@android:color/background_light"            
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

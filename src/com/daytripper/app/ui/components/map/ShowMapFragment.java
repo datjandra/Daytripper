@@ -14,11 +14,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v7.widget.CardView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -47,6 +50,9 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 	private TextView bubbleSnippet; 
 	private ArrayList<Locatable> allItems;
 	private Geocoder geocoder;
+	private CardView routeInfo;
+	private TextView startAddress;
+	private TextView endAddress;
 	
 	public static final String ITEM_STATE = "ItemState";
 	public static final String RESULT_LIST = ShowMapFragment.class.getName() + "." + Result.class.getName();
@@ -90,6 +96,10 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 				.findViewById(R.id.bubble_title);
 		bubbleSnippet = (TextView) innerView
 				.findViewById(R.id.bubble_snippet);
+		
+		routeInfo = (CardView) rootView.findViewById(R.id.route_info);
+		startAddress = (TextView) routeInfo.findViewById(R.id.start_address);
+		endAddress = (TextView) routeInfo.findViewById(R.id.end_address);
 		return rootView;
 	}
 
@@ -128,6 +138,7 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 	}
 	
 	public void updateMap(List<? extends Locatable> resultList, boolean reload) {
+		routeInfo.setVisibility(View.GONE);
 		if (resultList == null || resultList.isEmpty()) {
 			return;
 		}
@@ -147,6 +158,7 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 	}
 	
 	public void updateMapWithRoute(List<? extends Locatable> route, boolean reload) {
+		routeInfo.setVisibility(View.GONE);
 		if (route == null || route.isEmpty()) {
 			return;
 		}
@@ -211,9 +223,11 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 			    0 - dirStart.getIntrinsicWidth() / 2, 0 - dirStart.getIntrinsicHeight(), 
 			    dirStart.getIntrinsicWidth() / 2, 0);
 		
-		OverlayItem overlayItem = new OverlayItem(geoPoint, "Pick-up", null);
+		String snippet = String.format(Locale.getDefault(),
+				"%10.6f, %10.6f", latitude, longitude);
+		OverlayItem overlayItem = new OverlayItem(geoPoint, "Pick-up", snippet);
 		overlayItem.setMarker(dirStart);
-		new ReverseGeocodeTask(overlayItem).execute(geoPoint);
+		new ReverseGeocodeTask(startAddress).execute(geoPoint);
 		itemizedOverlays.addItem(overlayItem);
 		
 		int lat = geoPoint.getLatitudeE6();
@@ -236,9 +250,11 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 			    0 - dirEnd.getIntrinsicWidth() / 2, 0 - dirEnd.getIntrinsicHeight(), 
 			    dirEnd.getIntrinsicWidth() / 2, 0);
 		
-		overlayItem = new OverlayItem(geoPoint, "Drop-off", null);
+		snippet = String.format(Locale.getDefault(),
+				"%10.6f, %10.6f", latitude, longitude);
+		overlayItem = new OverlayItem(geoPoint, "Drop-off", snippet);
 		overlayItem.setMarker(dirEnd);
-		new ReverseGeocodeTask(overlayItem).execute(geoPoint);
+		new ReverseGeocodeTask(endAddress).execute(geoPoint);
 		itemizedOverlays.addItem(overlayItem);
 
 		maxLat = Math.max(lat, maxLat);
@@ -262,13 +278,14 @@ public class ShowMapFragment extends Fragment implements StringConstants {
         mapView.getOverlays().add(itemizedOverlays);
 		mapView.invalidate();
 		mapView.setBuiltInZoomControls(true);
-
+		
 		double fitFactor = 1.5;
 		MapController mapController = mapView.getController();
 		mapController.zoomToSpan((int) (Math.abs(maxLat - minLat) * fitFactor),
 				(int) (Math.abs(maxLon - minLon) * fitFactor));
 		mapController.animateTo(new GeoPoint((maxLat + minLat) / 2,
 				(maxLon + minLon) / 2));
+		routeInfo.setVisibility(View.VISIBLE);
 	}
 	
 	private void addPointsToMap(List<? extends Locatable> resultList) {
@@ -342,11 +359,11 @@ public class ShowMapFragment extends Fragment implements StringConstants {
 	
 	private class ReverseGeocodeTask extends AsyncTask<GeoPoint, Void, List<Address>> {
 		
-		private OverlayItem overlayItem;
+		private TextView addressField;
 		private String defaultSnippet;
 		
-		private ReverseGeocodeTask(OverlayItem overlayItem) {
-			this.overlayItem = overlayItem;
+		private ReverseGeocodeTask(TextView addressField) {
+			this.addressField = addressField;
 		}
 		
         protected List<Address> doInBackground(GeoPoint... geoPoint) {
@@ -363,13 +380,22 @@ public class ShowMapFragment extends Fragment implements StringConstants {
         protected void onPostExecute(List<Address> result) {
             if (result != null && !result.isEmpty()) {
                 Address address = result.get(0);
+                if (address == null) {
+                	addressField.setText(defaultSnippet);
+                	return;
+                }
+                
                 StringBuilder addressText = new StringBuilder();
                 for (int i=0; i < address.getMaxAddressLineIndex(); i++) {
-                    addressText.append(address.getAddressLine(i) + NEWLINE);
+                	if (i < address.getMaxAddressLineIndex() - 1) {
+                		addressText.append(address.getAddressLine(i) + ", ");
+                	} else {
+                		addressText.append(address.getAddressLine(i));
+                	}
                 }
-                overlayItem.setSnippet(addressText.toString().trim());
-            } else if (defaultSnippet != null) {
-            	overlayItem.setSnippet(defaultSnippet);
+                addressField.setText(addressText.toString().trim());
+            } else if (!TextUtils.isEmpty(defaultSnippet)) {
+            	addressField.setText(defaultSnippet);
             }
         }
     }

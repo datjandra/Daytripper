@@ -567,13 +567,9 @@ public class ShowListFragment extends Fragment implements
 			String ratingImageUrl = result.getRatingImgUrl();
 			Integer reviewCount = result.getReviewCount();
 			if (TextUtils.isEmpty(ratingImageUrl) || ratingImageUrl.equals("null") || reviewCount == null || reviewCount.intValue() == 0) {
-				holder.reviews.setVisibility(View.GONE);
-				holder.ratingImage.setVisibility(View.GONE);
 				holder.ratingsContainer.setVisibility(View.GONE);
 			} else {
 				imageLoader.loadImage(ratingImageUrl, holder.ratingImage);
-				holder.ratingImage.setVisibility(View.VISIBLE);
-				holder.reviews.setVisibility(View.VISIBLE);
 				holder.ratingsContainer.setVisibility(View.VISIBLE);
 				holder.reviews.setText("(" + result.getReviewCount().toString() + ")");
 			}

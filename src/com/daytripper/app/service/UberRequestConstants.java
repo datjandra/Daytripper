@@ -29,7 +29,6 @@ public interface UberRequestConstants {
 	public final static String FIELD_VEHICLE_MODEL = "vehicleModel";
 	public final static String FIELD_VEHICLE_LICENSE_PLATE = "vehicleLicensePlate";
 			
-	
 	public final static String VERB_CALL = "call";
 	public final static String VERB_LOOKUP = "lookup";
 	public final static String VERB_CANCEL = "cancel";

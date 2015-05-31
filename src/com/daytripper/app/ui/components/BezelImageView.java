@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.ui.widget;
+package com.daytripper.app.ui.components;
 
 import android.content.Context;
 import android.content.res.TypedArray;

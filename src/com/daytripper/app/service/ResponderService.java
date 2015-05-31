@@ -6,13 +6,13 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.daytripper.app.Daytripper;
 import com.daytripper.app.R;
+import com.daytripper.app.ui.MainActivity;
 import com.daytripper.app.util.TrieNode;
 
 public class ResponderService extends IntentService implements UberRequestConstants {
@@ -38,6 +38,8 @@ public class ResponderService extends IntentService implements UberRequestConsta
 	public static final Actionable CANCEL_UBER_ACTION = new CancelUberAction();
 	public static final Actionable LOOKUP_UBER_ACTION = new LookupUberAction();
 	public static final Actionable MAP_ZOOM_ACTION = new MapZoomAction();
+	public static final Actionable SHUT_UP_ACTION = new ShutUpAction();
+	public static final Actionable SAY_SOMETHING_ACTION = new SaySomethingAction();
 
 	private static final String TAG = "ResponderService";
 	private static final TrieNode<String,Actionable> ACTIONS = new TrieNode<String,Actionable>();
@@ -45,9 +47,17 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		
 	static {
 		ACTIONS.addPattern(new String[] {"pick", "up"}, PICKUP_ACTION);
+		ACTIONS.addPattern(new String[] {"drive", "me"}, PICKUP_ACTION);
+		ACTIONS.addPattern(new String[] {"take", "me"}, PICKUP_ACTION);
 		ACTIONS.addPattern(new String[] {"cancel", "uber"}, CANCEL_UBER_ACTION);
 		ACTIONS.addPattern(new String[] {"show", "uber"}, LOOKUP_UBER_ACTION);
 		ACTIONS.addPattern(new String[] {"zoom", "to"}, MAP_ZOOM_ACTION);
+		ACTIONS.addPattern(new String[] {"shut", "up"}, SHUT_UP_ACTION);
+		ACTIONS.addPattern(new String[] {"be", "quiet"}, SHUT_UP_ACTION);
+		ACTIONS.addPattern(new String[] {"stop", "talking"}, SHUT_UP_ACTION);
+		ACTIONS.addPattern(new String[] {"say", "something"}, SAY_SOMETHING_ACTION);
+		ACTIONS.addPattern(new String[] {"talk", "to", "me"}, SAY_SOMETHING_ACTION);
+		ACTIONS.addPattern(new String[] {"speak", "to", "me"}, SAY_SOMETHING_ACTION);
 	}
 	
 	public ResponderService() {
@@ -87,6 +97,11 @@ public class ResponderService extends IntentService implements UberRequestConsta
 			intent.putExtra(FIELD_REQUEST_ID, prefs.getString(FIELD_REQUEST_ID, null));
 			
 			String response = actionable.doActionWithIntent(intent);
+			String customMessage = actionable.getCustomMessage();
+			if (!TextUtils.isEmpty(customMessage)) {
+				broadcastIntent.putExtra(CUSTOM_MESSAGE, customMessage);
+			}
+			
 			if (!TextUtils.isEmpty(response)) {
 		        if (actionable.equals(LOOKUP_UBER_ACTION)) {
 		        	broadcastIntent.putExtra(UBER_STATUS_MESSAGE, response);
@@ -96,6 +111,9 @@ public class ResponderService extends IntentService implements UberRequestConsta
 					broadcastIntent.putExtra(MAP_ZOOM_MESSAGE, response);
 				} else if (actionable.equals(PICKUP_ACTION)) {
 					broadcastIntent.putExtra(EXTRA_MESSAGE, response);
+				} else if (actionable.equals(SHUT_UP_ACTION) || actionable.equals(SAY_SOMETHING_ACTION)) {
+					broadcastIntent.putExtra(MainActivity.VOCIFEROUS_KEY, 
+							intent.getBooleanExtra(MainActivity.VOCIFEROUS_KEY, true));
 				}
 			} else {
 				String uberErrorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));

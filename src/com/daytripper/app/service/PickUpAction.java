@@ -21,12 +21,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.daytripper.app.Daytripper;
+import com.daytripper.app.R;
 import com.daytripper.app.util.QueryParser;
 import com.mapquest.android.maps.GeoPoint;
 
 public class PickUpAction implements Actionable {
 
-	private final static String PICKUP_QUERY = "pick up";
 	private final static String TAG = "PickUpAction";
 		
 	@Override
@@ -51,6 +51,7 @@ public class PickUpAction implements Actionable {
 		
 		final Daytripper daytripper = (Daytripper) Daytripper.getAppContext();
 		String endLocation = QueryParser.extractDestinationFromQuery(query, daytripper.getAllItems());
+		
 		if (TextUtils.isEmpty(endLocation)) {
 			GeoPoint selectedPoint = daytripper.getSelectedPoint();
 			if (selectedPoint != null) {
@@ -59,15 +60,17 @@ public class PickUpAction implements Actionable {
 			}
 			daytripper.setSelectedPoint(null);
 		}
-		return doVehicleSearch(startLocation, endLocation);
+		
+		Log.d(TAG, query);
+		return doVehicleSearch(startLocation, endLocation, query);
 	}
 
 	@Override
 	public String getCustomMessage() {
-		return null;
+		return Daytripper.getAppContext().getString(R.string.success_message_ride);
 	}
 	
-	private String doVehicleSearch(String startLocation, String endLocation) {
+	private String doVehicleSearch(String startLocation, String endLocation, String query) {
 		HttpParams httpParameters = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParameters,
 				CONNECTION_TIMEOUT);
@@ -79,7 +82,7 @@ public class PickUpAction implements Actionable {
 		
 		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-			nameValuePairs.add(new BasicNameValuePair("query", PICKUP_QUERY));
+			nameValuePairs.add(new BasicNameValuePair("query", query));
 			
 			if (!TextUtils.isEmpty(startLocation)) {
 				nameValuePairs.add(new BasicNameValuePair("ll", startLocation));
