@@ -213,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 					Log.e(TAG, "Language is not available.");
 				}
 			}
+			tts.setSpeechRate(0.9f);
 		} else {
 			Log.e(TAG, "Could not initialize TextToSpeech.");
 		}

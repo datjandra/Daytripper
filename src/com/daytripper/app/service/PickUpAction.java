@@ -27,6 +27,8 @@ import com.mapquest.android.maps.GeoPoint;
 
 public class PickUpAction implements Actionable {
 
+	private final static String KEYWORD_FROM = "from";
+	private final static String KEYWORD_TO = "to";
 	private final static String TAG = "PickUpAction";
 		
 	@Override
@@ -51,6 +53,16 @@ public class PickUpAction implements Actionable {
 		
 		final Daytripper daytripper = (Daytripper) Daytripper.getAppContext();
 		String endLocation = QueryParser.extractDestinationFromQuery(query, daytripper.getAllItems());
+		
+		String[] words = query.split("\\s+");
+		for (String word : words) {
+			if (word.toLowerCase().contains(KEYWORD_FROM)) {
+				startLocation = null;
+			} else if (word.toLowerCase().contains(KEYWORD_TO)) {
+				endLocation = null;
+				daytripper.setSelectedPoint(null);
+			}
+		}
 		
 		if (TextUtils.isEmpty(endLocation)) {
 			GeoPoint selectedPoint = daytripper.getSelectedPoint();

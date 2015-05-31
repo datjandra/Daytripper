@@ -57,7 +57,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		ACTIONS.addPattern(new String[] {"stop", "talking"}, SHUT_UP_ACTION);
 		ACTIONS.addPattern(new String[] {"say", "something"}, SAY_SOMETHING_ACTION);
 		ACTIONS.addPattern(new String[] {"talk", "to", "me"}, SAY_SOMETHING_ACTION);
-		ACTIONS.addPattern(new String[] {"speak", "to", "me"}, SAY_SOMETHING_ACTION);
+		ACTIONS.addPattern(new String[] {"speak", "up"}, SAY_SOMETHING_ACTION);
 	}
 	
 	public ResponderService() {
