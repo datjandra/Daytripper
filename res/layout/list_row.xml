@@ -18,7 +18,7 @@
             android:layout_centerHorizontal="true"
             android:orientation="vertical" >
 
-            <com.daytripper.app.ui.components.AdjustableImageView
+            <com.vocifery.daytripper.ui.components.AdjustableImageView
                 android:id="@+id/photo_one"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
                 android:scaleType="fitCenter"
                 android:visibility="gone" />
 
-            <com.daytripper.app.ui.components.AdjustableImageView
+            <com.vocifery.daytripper.ui.components.AdjustableImageView
                 android:id="@+id/photo_two"
                 android:layout_width="48dp"
                 android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             android:orientation="horizontal"
             android:visibility="gone" >
 
-            <com.daytripper.app.ui.components.AdjustableImageView
+            <com.vocifery.daytripper.ui.components.AdjustableImageView
                 android:id="@+id/rating_img"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

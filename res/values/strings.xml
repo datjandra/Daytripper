@@ -5,7 +5,7 @@
     <string name="search_hint">Search</string>
     <string name="message_ok">OK</string>
     <string name="message_intro">Find places, events or meetups</string>
-    <string name="search_instructions">Examples: \"restaurants in New York, NY\", \"sports\", \"business meetup events\"</string>
+    <string name="search_instructions">Examples: \"cafes in Paris\", \"sports\", \"technology meetup events\"</string>
 	<string name="success_message_one">Seek, and ye shall find %1$d listings from %2$s</string>
 	<string name="success_message_two">Rejoice, for I have found %1$d listings from %2$s</string>
 	<string name="success_message_three">Blessed are these %1$d listings from %2$s</string>
