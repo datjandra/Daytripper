@@ -10,6 +10,8 @@ import com.vocifery.daytripper.vocifery.model.Searchable;
 
 public class Daytripper extends Application {
 
+	public final static String USERNAME_KEY = "com.vocifery.daytripper.Daytripper.USERNAME";
+	
 	private GeoPoint selectedPoint;
 	private ArrayList<Searchable> allItems;
 	private static Context context;

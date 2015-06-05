@@ -266,7 +266,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				if (message == null) {
 					message = getRandomSuccessMessage(queryResponse.getTotal(), queryResponse.getSource());
 				} else {
-					message = String.format(Locale.getDefault(), message, queryResponse.getTotal(), queryResponse.getSource());
+					SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+					String username = prefs.getString(Daytripper.USERNAME_KEY, null);
+					if (TextUtils.isEmpty(username)) {
+						username = getString(R.string.default_name);
+					}
+					
+					message = String.format(Locale.getDefault(), message, queryResponse.getTotal(), queryResponse.getSource(), username);
 				}
 				
 				if (responseMessage) {
@@ -685,6 +691,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				showZoom(intent.getStringExtra(ResponderService.MAP_ZOOM_MESSAGE));
 			} else if (intent.hasExtra(VOCIFEROUS_KEY)) {
 				updateVociferousFlag(intent.getBooleanExtra(VOCIFEROUS_KEY, true));
+			} else if (intent.hasExtra(ResponderService.NAME_MESSAGE)) {
+				greet(intent.getStringExtra(ResponderService.NAME_MESSAGE));
+			} else {
+				String noOpMessage = intent.getStringExtra(ResponderService.NO_OP_MESSAGE);
+				if (!TextUtils.isEmpty(noOpMessage)) {
+					say(noOpMessage);
+					showToast(noOpMessage, Toast.LENGTH_SHORT);
+				}
 			}
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage());
@@ -767,7 +781,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	}
 	
 	private void showZoom(String level) {
-		String zoomMessage = getString(R.string.system_zoom_message);
+		SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+		String username = prefs.getString(Daytripper.USERNAME_KEY, null);
+		if (TextUtils.isEmpty(username)) {
+			username = getString(R.string.default_name);
+		}
+		
+		String zoomMessage = getString(R.string.system_zoom_message, level, username);
 		say(zoomMessage);
 		showToast(zoomMessage, Toast.LENGTH_SHORT);
 		
@@ -787,16 +807,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	}
 	
 	private String getRandomSuccessMessage(Integer total, String source) {
+		SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+		String username = prefs.getString(Daytripper.USERNAME_KEY, null);
+		if (TextUtils.isEmpty(username)) {
+			username = getString(R.string.default_name);
+		}
+		
 		int rand = new Random().nextInt(3);
 		switch (rand) {
 			case 0:
-				return getString(R.string.success_message_one, total, source);
+				return getString(R.string.success_message_one, total, source, username);
 				
 			case 1:
-				return getString(R.string.success_message_two, total, source);
+				return getString(R.string.success_message_two, total, source, username);
 			
 			default:
-				return getString(R.string.success_message_three, total, source);
+				return getString(R.string.success_message_three, total, source, username);
 				
 		}
 	}
@@ -804,7 +830,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	private void updateVociferousFlag(boolean vociferousFlag) {
 		if (vociferousFlag) {
 			vociferous = true;
-			String message = getString(R.string.vociferous_message);
+			String message = getString(R.string.speak_up_message);
 			say(message);
 			showToast(message, Toast.LENGTH_SHORT);
 		} else {
@@ -817,6 +843,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(VOCIFEROUS_KEY, vociferousFlag);
 		editor.commit();
+	}
+	
+	private void greet(String name) {
+		String greeting = getString(R.string.greeting_message, name);
+		say(greeting);
+		showToast(greeting, Toast.LENGTH_SHORT);
 	}
 	
 	private static String getFragmentTag(int viewId, int index) {

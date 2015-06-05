@@ -3,15 +3,18 @@ package com.vocifery.daytripper.util;
 import java.util.List;
 import java.util.Locale;
 
-import com.vocifery.daytripper.vocifery.model.Result;
 import com.vocifery.daytripper.vocifery.model.Searchable;
 
 public final class QueryParser {
 
+	private final static String ZOOM_FIRST_CUE = "zoom";
+	private final static String ZOOM_SECOND_CUE = "level";
+	private final static String NAME_FIRST_CUE = "is";
+	
 	private static enum ParseState {
 		BEGIN,
 		CONTINUE,
-		SEEK_INDEX,
+		SEEK_FOCUS,
 		END
 	}
 	
@@ -35,11 +38,11 @@ public final class QueryParser {
 					
 				case CONTINUE:
 					if (term.equalsIgnoreCase("up")) {
-						parseState = ParseState.SEEK_INDEX;
+						parseState = ParseState.SEEK_FOCUS;
 					}
 					break;
 					
-				case SEEK_INDEX:
+				case SEEK_FOCUS:
 					try {
 						itemIndex = Integer.parseInt(term);
 						parseState = ParseState.END;
@@ -71,18 +74,18 @@ public final class QueryParser {
 		for (String term : terms) {
 			switch (parseState) {
 				case BEGIN:
-					if (term.equalsIgnoreCase("zoom")) {
+					if (term.equalsIgnoreCase(ZOOM_FIRST_CUE)) {
 						parseState = ParseState.CONTINUE;
 					}
 					break;
 					
 				case CONTINUE:
-					if (term.equalsIgnoreCase("to")) {
-						parseState = ParseState.SEEK_INDEX;
+					if (term.equalsIgnoreCase(ZOOM_SECOND_CUE)) {
+						parseState = ParseState.SEEK_FOCUS;
 					}
 					break;
 					
-				case SEEK_INDEX:
+				case SEEK_FOCUS:
 					try {
 						zoom = Integer.parseInt(term);
 						parseState = ParseState.END;
@@ -94,5 +97,29 @@ public final class QueryParser {
 			}
 		}
 		return zoom;
+	}
+	
+	public final static String extractNameFromQuery(String query) {
+		StringBuilder nameBuilder = new StringBuilder();
+		ParseState parseState = ParseState.BEGIN;
+		String[] terms = query.split("\\s+");
+		for (String term : terms) {
+			switch (parseState) {
+				case BEGIN:
+					if (term.equalsIgnoreCase(NAME_FIRST_CUE)) {
+						parseState = ParseState.SEEK_FOCUS;
+					}
+					break;
+					
+				case SEEK_FOCUS:
+					nameBuilder.append(term);
+					nameBuilder.append(" ");
+					break;
+					
+				default:
+					break;
+			}
+		}
+		return nameBuilder.toString().trim();
 	}
 }
