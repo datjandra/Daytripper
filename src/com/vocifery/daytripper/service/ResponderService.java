@@ -50,6 +50,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 	public static final Actionable SAY_SOMETHING_ACTION = new SaySomethingAction();
 	public static final Actionable NAME_ACTION = new NameAction();
 	public static final Actionable NO_REPLY_ACTION = new NoReplyAction();
+	public static final Actionable TELEPORT_ACTION = new TeleportAction();
 	
 	private static final String TAG = "ResponderService";
 	private static final TrieNode<String,Actionable> ACTIONS = new TrieNode<String,Actionable>();
@@ -73,10 +74,12 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		ACTIONS.addPattern(new String[] {"my", "name", "is"}, NAME_ACTION);
 		ACTIONS.addPattern(new String[] {"yes"}, NO_REPLY_ACTION);
 		ACTIONS.addPattern(new String[] {"no"}, NO_REPLY_ACTION);
+		ACTIONS.addPattern(new String[] {"near", "here"}, TELEPORT_ACTION);
 		
 		DoubleMetaphone encoder = new DoubleMetaphone();
 		KEYWORD_HASHES.put(encoder.encode("meetup events"), "meetup events");
 		KEYWORD_HASHES.put(encoder.encode("meetup groups"), "meetup groups");
+		KEYWORD_HASHES.put(encoder.encode("near here"), "near here");
 	}
 	
 	public ResponderService() {
@@ -138,7 +141,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 					broadcastIntent.putExtra(UBER_CANCEL_MESSAGE, response);
 				} else if (actionable.equals(MAP_ZOOM_ACTION)) {
 					broadcastIntent.putExtra(MAP_ZOOM_MESSAGE, response);
-				} else if (actionable.equals(PICKUP_ACTION)) {
+				} else if (actionable.equals(PICKUP_ACTION) || actionable.equals(TELEPORT_ACTION)) {
 					broadcastIntent.putExtra(EXTRA_MESSAGE, response);
 				} else if (actionable.equals(SHUT_UP_ACTION) || actionable.equals(SAY_SOMETHING_ACTION)) {
 					broadcastIntent.putExtra(MainActivity.VOCIFEROUS_KEY, 

@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.vocifery.daytripper.vocifery.model.Locatable;
@@ -43,6 +44,7 @@ public abstract class QueryResponseConverter {
 	public final static String CENTER_NODE = "center";
 	public final static String DESTINATION_NODE = "destination";
 	public final static String INTENT_NODE = "intent";
+	public final static String CATEGORIES_NODE = "categories";
 	
 	public final static String EXTRA_PRODUCT_ID = "product_id";
 	public final static String EXTRA_START_LATITUDE = "start_latitude";
@@ -185,6 +187,17 @@ public abstract class QueryResponseConverter {
 						result.setImageOneUrl(images.optString(j));
 					} else {
 						result.setImageTwoUrl(images.optString(j));
+					}
+				}
+			}
+			
+			if (!entity.isNull(CATEGORIES_NODE) && entity.has(CATEGORIES_NODE)) {
+				JSONArray categories = entity.getJSONArray(CATEGORIES_NODE);
+				int numberCategories = categories.length();
+				for (int j=0; j<numberCategories; j++) {
+					String category = categories.optString(j);
+					if (!TextUtils.isEmpty(category)) {
+						response.addCategory(category);
 					}
 				}
 			}

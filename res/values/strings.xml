@@ -6,17 +6,30 @@
     <string name="message_ok">OK</string>
     <string name="message_intro">Find places, events or meetups</string>
     <string name="search_instructions">Examples: \"cafes in Paris\", \"sports\", \"technology meetup events\"</string>
-	<string name="success_message_one">Jolly good, %3$s, I\'ve got %1$d listings from %2$s fer you</string>
-	<string name="success_message_two">These %1$d listings from %2$s are smashing aren\'t they %3$s?</string>
-	<string name="success_message_three">Dear %3$s, you\'ll be mighty chuffed to hear that %1$d listings from %2$s came up</string>
-	<string name="success_message_ride">Ride triumphantly, %3$s, in one of these %1$d products from %2$s</string>
+	<string name="success_message_1">Jolly good, %3$s, I\'ve got %1$d listings from %2$s fer you</string>
+	<string name="success_message_2">Any of these %1$d listings from %2$s strike yer fancy, %3$s?</string>
+	<string name="success_message_3">Dear %3$s, you\'ll be chuffed to see these %1$d listings from %2$s</string>
+	<string name="success_message_ride">Sit back and relax, %3$s, in one of these %1$d cars from %2$s</string>
     <string name="error_message">We need to know to answer these kinds of questions, but sometimes our humble hearts can help us more than our proud minds</string>
-    <string name="location_error_message">Go back a bit so I can get yer location</string>
+    <string name="location_error_message">Move back a bit so I can get yer location</string>
     <string name="request_denied_message">Please wait, you made the same request again</string>
     <string name="system_error_message">Here’s a piece of bad business I’ve seen on this earth, an error that can be blamed on whoever is in charge</string>
     <string name="system_zoom_message">Does zoom level %1$s work better for you, %2$s?</string>
     <string name="shut_up_message">Even dunces who keep quiet are thought to be wise</string>
-   	<string name="speak_up_message">Please hear me out</string>
+   	<string name="speak_up_message">It\'s always a pleasure speaking with you</string>
+   	
+   	<string name="category_message_yelp_1">Jolly good, %3$s, if you fancy a %4$s place I suggest one of these %1$d listings from %2$s</string>
+	<string name="category_message_yelp_2">Look at these %1$d places from %2$s, %3$s, some have great reviews for a %4$s setting</string>
+	<string name="category_message_yelp_3">I\'m not in the mood for %4$s, %3$s, but you should still try one of these %1$d places from %2$s</string>
+   	
+   	<string name="category_message_seatgeek_1">If you fancy a %4$s event, %3$s, better check these %1$d listings from %2$s the prices change fast</string>
+	<string name="category_message_seatgeek_2">You\'ll have fun at a %4$s event, %3$s. These %1$d listings from %2$s have great ticket prices</string>
+	<string name="category_message_seatgeek_3">I find %4$s functions a bit of a bore, %3$s, but do try one of these %1$d events from %2$s</string>
+	
+	<string name="category_message_meetup_1">You\'ll meet great people, %3$s, and learn about %4$s in one of these %1$d groups from %2$s?</string>
+	<string name="category_message_meetup_2">You\'ll hear some great talks about %4$s in one of these %1$d groups from %2$s, %3$s</string>
+	<string name="category_message_meetup_3">Admittedly %4$s is not my favorite subject, %3$s, but do visit some of these %1$d groups from %2$s</string>
+   	
    	<string name="greeting_message">Well met, %1$s</string>
    	<string name="no_op_message">Right ho, %1$s</string>
    	<string name="default_name">friend</string>

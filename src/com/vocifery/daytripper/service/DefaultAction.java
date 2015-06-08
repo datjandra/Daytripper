@@ -65,7 +65,6 @@ public class DefaultAction implements Actionable {
 	public String doActionWithIntent(Intent intent) {
 		String jsonResponse = null;
 		String query = intent.getStringExtra(ResponderService.KEY_QUERY);
-		String locationString = intent.getStringExtra(ResponderService.KEY_lOCATION);
 		String destinationString = intent.getStringExtra(ResponderService.KEY_DESTINATION);
 		Integer page = intent.getIntExtra(ResponderService.KEY_PAGE, 0);
 		Integer count = intent.getIntExtra(ResponderService.KEY_COUNT, 20);
@@ -80,6 +79,8 @@ public class DefaultAction implements Actionable {
 		try {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 			nameValuePairs.add(new BasicNameValuePair("query", query));
+			
+			String locationString = getLocationString(intent);
 			if (!TextUtils.isEmpty(locationString)) {
 				nameValuePairs.add(new BasicNameValuePair("ll", locationString));
 			}
@@ -106,5 +107,9 @@ public class DefaultAction implements Actionable {
 			Log.e(TAG, String.format("Error in doActionWithIntent() - %s", e.getMessage()));
 		}
 		return jsonResponse;
+	}
+	
+	protected String getLocationString(Intent intent) {
+		return intent.getStringExtra(ResponderService.KEY_lOCATION);
 	}
 }

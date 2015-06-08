@@ -24,4 +24,8 @@ public abstract class StringUtils {
 		}
 		return ngrams;
 	}
+	
+	public static String cleanup(String str) {
+		return str.replaceAll("_", " ");
+	}
 }

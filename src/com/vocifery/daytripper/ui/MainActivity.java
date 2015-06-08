@@ -2,6 +2,7 @@ package com.vocifery.daytripper.ui;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +59,7 @@ import com.vocifery.daytripper.ui.components.ViewPagerFragment;
 import com.vocifery.daytripper.ui.components.map.ShowMapFragment;
 import com.vocifery.daytripper.util.QueryResponseConverter;
 import com.vocifery.daytripper.util.ResourceUtils;
+import com.vocifery.daytripper.util.StringUtils;
 import com.vocifery.daytripper.vocifery.model.Locatable;
 import com.vocifery.daytripper.vocifery.model.QueryResponse;
 
@@ -264,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				reload = true;
 				String message = queryResponse.getMessage();
 				if (message == null) {
-					message = getRandomSuccessMessage(queryResponse.getTotal(), queryResponse.getSource());
+					message = getRandomSuccessMessage(queryResponse.getTotal(), queryResponse.getSource(), queryResponse.getSortedCategories());
 				} else {
 					SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
 					String username = prefs.getString(Daytripper.USERNAME_KEY, null);
@@ -806,24 +808,27 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		}
 	}
 	
-	private String getRandomSuccessMessage(Integer total, String source) {
+	private String getRandomSuccessMessage(Integer total, String source, List<Map.Entry<String, Integer>> sortedCategories) {
+		String topCategory = null;
+		if (sortedCategories != null && !sortedCategories.isEmpty()) {
+			topCategory = sortedCategories.get(0).getKey().toLowerCase(Locale.getDefault());
+		}
+		
 		SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
 		String username = prefs.getString(Daytripper.USERNAME_KEY, null);
 		if (TextUtils.isEmpty(username)) {
 			username = getString(R.string.default_name);
 		}
 		
-		int rand = new Random().nextInt(3);
-		switch (rand) {
-			case 0:
-				return getString(R.string.success_message_one, total, source, username);
-				
-			case 1:
-				return getString(R.string.success_message_two, total, source, username);
-			
-			default:
-				return getString(R.string.success_message_three, total, source, username);
-				
+		if (!TextUtils.isEmpty(topCategory)) {
+			int rand = new Random().nextInt(3);
+			int resourceId = getResourceId(String.format(Locale.getDefault(), "category_message_%s_%d", 
+					source.toLowerCase(Locale.getDefault()), rand + 1));
+			return getString(resourceId, total, source, username, StringUtils.cleanup(topCategory));
+		} else {
+			int rand = new Random().nextInt(3);
+			int resourceId = getResourceId(String.format(Locale.getDefault(), "success_message_%d", rand + 1));
+			return getString(resourceId, total, source, username);
 		}
 	}
 	
@@ -849,6 +854,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		String greeting = getString(R.string.greeting_message, name);
 		say(greeting);
 		showToast(greeting, Toast.LENGTH_SHORT);
+	}
+	
+	private int getResourceId(String key) {
+		String packageName = getPackageName();
+		return getResources().getIdentifier(key, "string", packageName);
 	}
 	
 	private static String getFragmentTag(int viewId, int index) {
