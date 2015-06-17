@@ -17,16 +17,24 @@ public class ImageLoader {
 	public BitmapCache imageCache;
 	final private int imgWidth;
 	final private int imgHeight;
+	private static ImageLoader INSTANCE = null;
 	
 	private static final int MESSAGE_CLEAR = 0;
     private static final int MESSAGE_INIT_DISK_CACHE = 1;
     private static final int MESSAGE_FLUSH = 2;
     private static final int MESSAGE_CLOSE = 3;
 	
-	public ImageLoader(Context context) {
+	private ImageLoader(Context context) {
 		this.context = context;
 		this.imgWidth = (int) Math.floor(context.getResources().getDimension(R.dimen.image_thumbnail_size));
 		this.imgHeight = (int) Math.floor(context.getResources().getDimension(R.dimen.image_thumbnail_size));
+	}
+	
+	public final static ImageLoader getInstance(Context context) {
+		if (INSTANCE == null) {
+			INSTANCE = new ImageLoader(context);
+		}
+		return INSTANCE;
 	}
 	
 	public void loadImage(String url, ImageView imageView) {
@@ -61,6 +69,18 @@ public class ImageLoader {
 	
 	public void clearCache() {
 		imageCache.clearCache();
+	}
+	
+	public Bitmap getBitmapFromCache(String url) {
+		Bitmap bitmap = imageCache.getBitmapFromMemCache(url);
+		if (bitmap != null) {
+			return bitmap;
+		}
+		return imageCache.getBitmapFromDiskCache(url);
+	}
+	
+	public Bitmap fetchBitmap(String url) {
+		return BitmapWorkerTask.fetchBitmap(url);
 	}
 	
 	private static boolean cancelPotentialWork(Object data, ImageView imageView) {

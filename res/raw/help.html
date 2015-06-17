@@ -27,13 +27,13 @@
    	  	</div>
    	  	</li>
    	  	<li>
-   	  	<b>Real world effects.</b>
+   	  	<b>Transactional effects.</b>
    	  	<div>
    	  	Daytripper is more than a search app.
-   	  	With mere words, you can perform tasks of varying complexities.
+   	  	Words can perform tasks of varying complexities.
    	  	At the simplest level, you can enter phrases to enable or disable the app's voice response.
-   	  	Slightly more advanced task is zooming in or out on a map with simple phrases like "zoom to 20".
-   	  	As previously mentioned, you can even call a taxi by entering a phrase and making a few screen taps.
+   	  	More advanced tasks include zooming in or out on a map, and displaying an augmented reality view.
+   	  	As previously mentioned, you can even call a taxi by entering a phrase with a few screen taps.
    	  	</div>
    	  	</li>
    	  </ol>
@@ -155,6 +155,16 @@
          If no results are found, then try another query using the full country name. 
          A list of country codes could be found at this link <a href="http://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">http://en.wikipedia.org/wiki/ISO_3166-1#Current_codes</a>.
       </div>
+      <div>
+      	Another way to filter by location is selecting a map point and entering a query with the phrase "near here" instead of a location.
+      	The query executes as before, but is centered on the selected map point's geographic coordinates.
+      	Some the following examples of "near here" queries.
+      	<ul>
+      		<li>"churches near here"</li>
+      		<li>"concerts near here"</li>
+      		<li>"technology meetup events near here"</li>	
+      	</ul>  
+      </div>
       <h4>Similarity Search (Seatgeek Only)</h4>
       <div>
          A Seatgeek search can find singers similar to a particular singer. 
@@ -205,10 +215,10 @@
       <h4>Changing Zoom Levels</h4>
       <div>
       Words may be used to alter zoom levels of the map.
-      Simply enter "zoom to  &lt;number&gt;" where &lt;number&gt; typically range from 1-20.
+      Simply enter "zoom level &lt;number&gt;" where &lt;number&gt; typically range from 1-20.
       <ul>
-      	<li>"zoom to 20" (zoom in to finest details)</li>
-      	<li>"zoom to 1" (zoom out to lowest level)</li>
+      	<li>"zoom level 20" (zoom in to finest details)</li>
+      	<li>"zoom level 1" (zoom out to lowest level)</li>
       </ul> 
       This method is a more convenient way to change zoom levels without clicking zoom controls repeatedly.
       </div>
@@ -226,6 +236,15 @@
       	<li>"speak up"</li>
       	<li>"talk to me"</li>		
       </ul>
+      <h4>Augmented Reality</h4>
+      The phrase "heads up" brings up an augmented reality view of the world, where locations are shown as floating cards on the camera.
+      Cards correspond to real world locations, so that if a location is to your north, then you must point the camera north to see that location.
+      Each card shows a location's name, picture (if any), and distance from the user.
+      Locations may not be visible if they are out of range.
+      A radar view at the top left corner shows locations within range.
+      Users can adjust the range using the "Distance" seekbar, by sliding the thumb to the left or right.
+      Similarly, "Pull closer" and "Push away" seekbars move locations closer to, or further away from, the user.
+      Finally, the "Zoom" seekbar magnifies or reduces the size of visible location cards.
    </body>
 </html>
 

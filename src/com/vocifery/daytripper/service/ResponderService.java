@@ -34,6 +34,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 	public static final String MAP_ZOOM_MESSAGE = "com.vocifery.daytripper.extra.MAP_ZOOM_MESSAGE";
 	public static final String NAME_MESSAGE = "com.vocifery.daytripper.extra.NAME_MESSAGE";
 	public static final String NO_OP_MESSAGE = "com.vocifery.daytripper.extra.NO_OP_MESSAGE";
+	public static final String HEADSUP_MESSAGE = "com.vocifery.daytripper.extra.HEADSUP_MESSAGE";
 	
 	public static final String KEY_QUERY = "com.vocifery.daytripper.QUERY";
 	public static final String KEY_lOCATION = "com.vocifery.daytripper.LOCATION";
@@ -51,6 +52,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 	public static final Actionable NAME_ACTION = new NameAction();
 	public static final Actionable NO_REPLY_ACTION = new NoReplyAction();
 	public static final Actionable TELEPORT_ACTION = new TeleportAction();
+	public static final Actionable HEADSUP_ACTION = new HeadsupAction();
 	
 	private static final String TAG = "ResponderService";
 	private static final TrieNode<String,Actionable> ACTIONS = new TrieNode<String,Actionable>();
@@ -75,6 +77,7 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		ACTIONS.addPattern(new String[] {"yes"}, NO_REPLY_ACTION);
 		ACTIONS.addPattern(new String[] {"no"}, NO_REPLY_ACTION);
 		ACTIONS.addPattern(new String[] {"near", "here"}, TELEPORT_ACTION);
+		ACTIONS.addPattern(new String[] {"heads", "up"}, HEADSUP_ACTION);
 		
 		DoubleMetaphone encoder = new DoubleMetaphone();
 		KEYWORD_HASHES.put(encoder.encode("meetup events"), "meetup events");
@@ -148,6 +151,8 @@ public class ResponderService extends IntentService implements UberRequestConsta
 							intent.getBooleanExtra(MainActivity.VOCIFEROUS_KEY, true));
 				} else if (actionable.equals(NAME_ACTION)) {
 					broadcastIntent.putExtra(NAME_MESSAGE, response);
+				} else if (actionable.equals(HEADSUP_ACTION)) {
+					broadcastIntent.putExtra(HEADSUP_MESSAGE, response);
 				} else {
 					broadcastIntent.putExtra(NO_OP_MESSAGE, response);
 				}

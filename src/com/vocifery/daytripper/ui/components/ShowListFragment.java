@@ -97,7 +97,7 @@ public class ShowListFragment extends Fragment implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		imageLoader = new ImageLoader(getActivity());
+		imageLoader = ImageLoader.getInstance(Daytripper.getAppContext());
 		imageLoader.addImageCache(getFragmentManager());
 		
 		sourceLogos = new HashMap<String, String>();
@@ -297,6 +297,10 @@ public class ShowListFragment extends Fragment implements
 		
 		final Daytripper daytripper = ((Daytripper) getActivity().getApplicationContext());
 		daytripper.setAllItems(allItems);
+	}
+	
+	public ArrayList<Searchable> getAllItems() {
+		return allItems;
 	}
 	
 	private Map<String,String> readPrefs() {

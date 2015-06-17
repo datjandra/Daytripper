@@ -54,6 +54,21 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 		return data;
 	}
 	
+	public final static Bitmap fetchBitmap(String url) {
+		Bitmap bitmap = null;
+		try {
+			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+			connection.connect();
+			InputStream input = connection.getInputStream();
+			bitmap = BitmapFactory.decodeStream(input);
+		} catch (MalformedURLException e) {
+			Log.e(TAG, "fetchBitmap - " + e);
+		} catch (IOException e) {
+			Log.e(TAG, "fetchBitmap - " + e);
+		}
+		return bitmap;
+	}
+	
 	@Override
 	protected Bitmap doInBackground(String... params) {
 		Bitmap bitmap = null;
@@ -96,21 +111,6 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 				}
 			}
 		}
-	}
-	
-	private final static Bitmap fetchBitmap(String url) {
-		Bitmap bitmap = null;
-		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-			connection.connect();
-			InputStream input = connection.getInputStream();
-			bitmap = BitmapFactory.decodeStream(input);
-		} catch (MalformedURLException e) {
-			Log.e(TAG, "fetchBitmap - " + e);
-		} catch (IOException e) {
-			Log.e(TAG, "fetchBitmap - " + e);
-		}
-		return bitmap;
 	}
 	
 	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {

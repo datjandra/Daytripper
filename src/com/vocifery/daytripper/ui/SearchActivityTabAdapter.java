@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 
+import com.beyondar.android.fragment.BeyondarFragmentSupport;
 import com.vocifery.daytripper.ui.components.ShowListFragment;
 import com.vocifery.daytripper.ui.components.map.ShowMapFragment;
 
@@ -30,7 +31,7 @@ public class SearchActivityTabAdapter extends FragmentPagerAdapter {
 			case MAP_FRAGMENT_INDEX:
 				ShowMapFragment showMapFragment = new ShowMapFragment();
 				sparseArray.put(MAP_FRAGMENT_INDEX, showMapFragment.getTag());
-				return showMapFragment;	
+				return showMapFragment;
 		}
 		return null;
 	}

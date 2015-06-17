@@ -1,5 +1,6 @@
 package com.vocifery.daytripper.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,6 +63,7 @@ import com.vocifery.daytripper.util.ResourceUtils;
 import com.vocifery.daytripper.util.StringUtils;
 import com.vocifery.daytripper.vocifery.model.Locatable;
 import com.vocifery.daytripper.vocifery.model.QueryResponse;
+import com.vocifery.daytripper.vocifery.model.Searchable;
 
 public class MainActivity extends AppCompatActivity implements LocationListener,
 		Refreshable, TextToSpeech.OnInitListener, UberRequestListener, UberRequestConstants, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 					Log.e(TAG, "Language is not available.");
 				}
 			}
-			tts.setSpeechRate(0.9f);
+			tts.setSpeechRate(1.0f);
 		} else {
 			Log.e(TAG, "Could not initialize TextToSpeech.");
 		}
@@ -695,6 +697,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				updateVociferousFlag(intent.getBooleanExtra(VOCIFEROUS_KEY, true));
 			} else if (intent.hasExtra(ResponderService.NAME_MESSAGE)) {
 				greet(intent.getStringExtra(ResponderService.NAME_MESSAGE));
+			} else if (intent.hasExtra(ResponderService.HEADSUP_MESSAGE)) {
+				showHeadsup();
 			} else {
 				String noOpMessage = intent.getStringExtra(ResponderService.NO_OP_MESSAGE);
 				if (!TextUtils.isEmpty(noOpMessage)) {
@@ -859,6 +863,35 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	private int getResourceId(String key) {
 		String packageName = getPackageName();
 		return getResources().getIdentifier(key, "string", packageName);
+	}
+	
+	private ShowListFragment getListFragment() {
+		String showListFragmentTag = getFragmentTag(R.id.viewpager,
+				SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
+		if (showListFragmentTag != null) {
+			Fragment fragment = getFragmentByTag(showListFragmentTag);
+			return (ShowListFragment) fragment;
+		}
+		return null;
+	}
+	
+	private void showHeadsup() {
+		Intent intent = new Intent(this, HeadsUpActivity.class);
+		updateLocation();
+		if (location != null) {
+			intent.putExtra(HeadsUpActivity.WORLD_LAT, location.getLatitude());
+			intent.putExtra(HeadsUpActivity.WORLD_LON, location.getLongitude());
+		}
+		
+		ShowListFragment listFragment = getListFragment();
+		if (listFragment != null) {
+			intent.putParcelableArrayListExtra(HeadsUpActivity.WORLD_POINTS, listFragment.getAllItems());
+			startActivity(intent);
+			
+			String message = getString(R.string.heads_up_message);
+			say(message);
+			showToast(message, Toast.LENGTH_SHORT);
+		}
 	}
 	
 	private static String getFragmentTag(int viewId, int index) {

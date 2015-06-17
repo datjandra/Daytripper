@@ -17,6 +17,7 @@
     <string name="system_zoom_message">Does zoom level %1$s work better for you, %2$s?</string>
     <string name="shut_up_message">Even dunces who keep quiet are thought to be wise</string>
    	<string name="speak_up_message">It\'s always a pleasure speaking with you</string>
+   	<string name="heads_up_message">Please wait while I initialize your world</string>
    	
    	<string name="category_message_yelp_1">Jolly good, %3$s, if you fancy a %4$s place I suggest one of these %1$d listings from %2$s</string>
 	<string name="category_message_yelp_2">Look at these %1$d places from %2$s, %3$s, some have great reviews for a %4$s setting</string>
