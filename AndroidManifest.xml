@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.vocifery.daytripper"
-    android:versionCode="4"
+    android:versionCode="5"
     android:versionName="1.2 Alpha" >
 
     <uses-sdk
