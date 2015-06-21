@@ -1,6 +1,5 @@
 package com.vocifery.daytripper.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,9 +24,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -56,14 +54,12 @@ import com.vocifery.daytripper.service.UberRequestConstants;
 import com.vocifery.daytripper.service.UberRequestListener;
 import com.vocifery.daytripper.ui.components.Refreshable;
 import com.vocifery.daytripper.ui.components.ShowListFragment;
-import com.vocifery.daytripper.ui.components.ViewPagerFragment;
 import com.vocifery.daytripper.ui.components.map.ShowMapFragment;
 import com.vocifery.daytripper.util.QueryResponseConverter;
 import com.vocifery.daytripper.util.ResourceUtils;
 import com.vocifery.daytripper.util.StringUtils;
 import com.vocifery.daytripper.vocifery.model.Locatable;
 import com.vocifery.daytripper.vocifery.model.QueryResponse;
-import com.vocifery.daytripper.vocifery.model.Searchable;
 
 public class MainActivity extends AppCompatActivity implements LocationListener,
 		Refreshable, TextToSpeech.OnInitListener, UberRequestListener, UberRequestConstants, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -89,7 +85,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	private LocationManager locationManager;
 	private Location location;
 	
-	private String lastQuery;
 	private TextToSpeech tts;
 	private ProgressBar mainProgressBar;
 	private SearchView searchView;
@@ -147,21 +142,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				.getSearchableInfo(getComponentName()));
 
 		initLocationManager();
-		//requestLocationUpdates(this);
 		location = bestLastKnownLocation(MIN_LAST_READ_ACCURACY, TEN_MIN);
 		
-		if (savedInstanceState == null) {
-			FragmentManager fm = getSupportFragmentManager();
-			FragmentTransaction transaction = fm.beginTransaction();
-			ViewPagerFragment fragment = new ViewPagerFragment();
-			transaction.replace(R.id.content_fragment, fragment);
-			transaction.commit();
-		} else {
-			String value = savedInstanceState.getString(CACHED_QUERY_STATE);
-			if (value != null && !value.isEmpty()) {
-				lastQuery = value;
-			}
-			if (lastQuery != null && !lastQuery.isEmpty() && !mainContent.isShown()) {
+		ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(new SearchActivityTabAdapter(getSupportFragmentManager()));
+        viewPager.requestTransparentRegion(viewPager);
+		
+		if (savedInstanceState != null) {
+			String lastQuery = getLastQuery();
+			if (!TextUtils.isEmpty(lastQuery) && !mainContent.isShown()) {
 				teaserContent.setVisibility(View.GONE);
 				mainContent.setVisibility(View.VISIBLE);
 			}
@@ -231,6 +220,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 			locationString = location.getLatitude() + ", "
 					+ location.getLongitude();
 		}
+		
+		String lastQuery = getLastQuery();
 		Log.i(TAG, "refresh - sending query " + lastQuery + " with location "
 				+ locationString);
 		startWork(lastQuery, locationString, page, count);
@@ -243,18 +234,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				showErrorMessage(queryResponse);
 				return;
 			}
-			
-			/*
-			String source = queryResponse.getSource();
-			if (source != null) {
-				String message = queryResponse.getMessage();
-				if (!TextUtils.isEmpty(message)) {
-					message = String.format(Locale.getDefault(), message, queryResponse.getTotal(), queryResponse.getSource());
-					say(message);
-					showToast(message, Toast.LENGTH_SHORT);
-				}
-			}
-			*/
 			
 			Integer total = queryResponse.getTotal();
 			if (total == null) {
@@ -305,16 +284,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	@Override
 	public void onSaveInstanceState(Bundle savedState) {
 	    super.onSaveInstanceState(savedState);
-	    if (lastQuery != null) {
-	    	savedState.putString(CACHED_QUERY_STATE, lastQuery);
-	    }
 	}
 	
 	@Override
 	protected void onResume() {
 		Log.i(TAG, "onResume()");
 		super.onResume();
-		if (lastQuery != null && !lastQuery.isEmpty() && !mainContent.isShown()) {
+		String lastQuery = getLastQuery();
+		if (!TextUtils.isEmpty(lastQuery) && !mainContent.isShown()) {
 			teaserContent.setVisibility(View.GONE);
 			mainContent.setVisibility(View.VISIBLE);
 		}
@@ -456,22 +433,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 		serviceIntent.putExtra(ResponderService.KEY_lOCATION, locationString);
 		serviceIntent.putExtra(ResponderService.KEY_PAGE, page);
 		serviceIntent.putExtra(ResponderService.KEY_COUNT, count);
-		
-		/*
-		Daytripper daytripper = (Daytripper) getApplicationContext();
-		GeoPoint selectedPoint = daytripper.getSelectedPoint();
-		if (selectedPoint != null) {
-			String destination = String.format(Locale.getDefault(),
-					"%10.6f, %10.6f", selectedPoint.getLatitude(), selectedPoint.getLongitude());
-			serviceIntent.putExtra(ResponderService.KEY_DESTINATION, destination);
-		} else {
-			String destination = QueryParser.extractDestinationFromQuery(query, resultList);
-			if (!TextUtils.isEmpty(destination)) {
-				serviceIntent.putExtra(ResponderService.KEY_DESTINATION, destination);
-			}
-		}
-		daytripper.setSelectedPoint(null);
-		*/
 		startService(serviceIntent);
 	}
 	
@@ -533,8 +494,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				if (searchView.getQuery() == null || searchView.getQuery().length() == 0) {
 					searchView.setQuery(query, false);
 				}
-				lastQuery = query;
-
+				
 				String locationString = null;
 				if (location != null) {
 					locationString = location.getLatitude() + ", "
@@ -736,31 +696,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	}
 	
 	private void updateList(QueryResponse queryResponse, boolean reload) {
-		String showListFragmentTag = getFragmentTag(R.id.viewpager,
-				SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
-		if (showListFragmentTag != null) {
-			Fragment fragment = getFragmentByTag(showListFragmentTag);
-			if (fragment != null) {
-				((ShowListFragment) fragment).refreshList(queryResponse,
-						reload);
-			}
-		}
+		ShowListFragment showListFragment = getListFragment();
+		showListFragment.refreshList(queryResponse, reload);
 	}
 	
 	private void updateMap(QueryResponse queryResponse, boolean reload) {
 		String supportMapFragmentTag = getFragmentTag(R.id.viewpager,
 				SearchActivityTabAdapter.MAP_FRAGMENT_INDEX);
-		if (supportMapFragmentTag != null) {
-			Fragment fragment = getFragmentByTag(supportMapFragmentTag);
-			if (fragment != null) {
-				ShowMapFragment showMapFragment = (ShowMapFragment) fragment;
-				List<Locatable> route = queryResponse.getRoute();
-				if (route != null) {
-					showMapFragment.updateMapWithRoute(route, reload);
-				} else {
-					showMapFragment.updateMap(queryResponse.getResultList(), reload);
-				}
-			}
+		Fragment fragment = getFragmentByTag(supportMapFragmentTag);
+		ShowMapFragment showMapFragment = (ShowMapFragment) fragment;
+		List<Locatable> route = queryResponse.getRoute();
+		if (route != null) {
+			showMapFragment.updateMapWithRoute(route, reload);
+		} else {
+			showMapFragment.updateMap(queryResponse.getResultList(), reload);
 		}
 	}
 	
@@ -870,25 +819,33 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 				SearchActivityTabAdapter.LIST_FRAGMENT_INDEX);
 		if (showListFragmentTag != null) {
 			Fragment fragment = getFragmentByTag(showListFragmentTag);
-			return (ShowListFragment) fragment;
+			if (fragment != null) {
+				return (ShowListFragment) fragment;
+			} 
 		}
 		return null;
 	}
 	
 	private void showHeadsup() {
-		Intent intent = new Intent(this, HeadsUpActivity.class);
-		updateLocation();
-		if (location != null) {
-			intent.putExtra(HeadsUpActivity.WORLD_LAT, location.getLatitude());
-			intent.putExtra(HeadsUpActivity.WORLD_LON, location.getLongitude());
-		}
-		
-		ShowListFragment listFragment = getListFragment();
-		if (listFragment != null) {
-			intent.putParcelableArrayListExtra(HeadsUpActivity.WORLD_POINTS, listFragment.getAllItems());
-			startActivity(intent);
+		try {
+			Intent intent = new Intent(MainActivity.this, HeadsUpActivity.class);
+			updateLocation();
+			if (location != null) {
+				intent.putExtra(HeadsUpActivity.WORLD_LAT, location.getLatitude());
+				intent.putExtra(HeadsUpActivity.WORLD_LON, location.getLongitude());
+			}
 			
-			String message = getString(R.string.heads_up_message);
+			ShowListFragment listFragment = getListFragment();
+			if (listFragment != null) {
+				String message = getString(R.string.heads_up_message);
+				say(message);
+				showToast(message, Toast.LENGTH_SHORT);
+				
+				intent.putParcelableArrayListExtra(HeadsUpActivity.WORLD_POINTS, listFragment.getAllItems());
+				MainActivity.this.startActivity(intent);
+			}
+		} catch (Exception e) {
+			String message = getString(R.string.heads_up_error);
 			say(message);
 			showToast(message, Toast.LENGTH_SHORT);
 		}
@@ -896,5 +853,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 	
 	private static String getFragmentTag(int viewId, int index) {
 		return "android:switcher:" + viewId + ":" + index;
+	}
+	
+	private static String getLastQuery() {
+		final Daytripper daytripper = (Daytripper) Daytripper.getAppContext();
+		return daytripper.getLastQuery();
 	}
 }

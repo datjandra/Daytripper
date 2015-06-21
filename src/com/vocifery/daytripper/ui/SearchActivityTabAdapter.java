@@ -5,7 +5,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 
-import com.beyondar.android.fragment.BeyondarFragmentSupport;
 import com.vocifery.daytripper.ui.components.ShowListFragment;
 import com.vocifery.daytripper.ui.components.map.ShowMapFragment;
 

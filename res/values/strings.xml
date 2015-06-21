@@ -18,6 +18,7 @@
     <string name="shut_up_message">Even dunces who keep quiet are thought to be wise</string>
    	<string name="speak_up_message">It\'s always a pleasure speaking with you</string>
    	<string name="heads_up_message">Please wait while I initialize your world</string>
+   	<string name="heads_up_error">Oh dear, perhaps the camera and sensors are offline?</string>
    	
    	<string name="category_message_yelp_1">Jolly good, %3$s, if you fancy a %4$s place I suggest one of these %1$d listings from %2$s</string>
 	<string name="category_message_yelp_2">Look at these %1$d places from %2$s, %3$s, some have great reviews for a %4$s setting</string>
@@ -43,6 +44,11 @@
     <string name="uber_request_cancel">Cancellation message was sent.</string>
     <string name="uber_status_message">Vehicle %%s %%s (license %%s) has an eta of %%d minutes.</string>
     <string name="uber_dialog_title">Please login and accept request</string>
+    
+    <string name="ar_label_factor">Factor</string>
+    <string name="ar_label_distance">Range</string>
+    <string name="ar_label_pull">Pull</string>
+    <string name="ar_label_push">Push</string>
     
     <string-array name="vendor_array">
         <item>Yelp</item>

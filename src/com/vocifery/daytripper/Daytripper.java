@@ -12,6 +12,7 @@ public class Daytripper extends Application {
 
 	public final static String USERNAME_KEY = "com.vocifery.daytripper.Daytripper.USERNAME";
 	
+	private String lastQuery;
 	private GeoPoint selectedPoint;
 	private ArrayList<Searchable> allItems;
 	private static Context context;
@@ -37,6 +38,14 @@ public class Daytripper extends Application {
 		allItems = searchableList;
 	}
 
+	public String getLastQuery() {
+		return lastQuery;
+	}
+
+	public void setLastQuery(String lastQuery) {
+		this.lastQuery = lastQuery;
+	}
+	
 	public final static Context getAppContext() {
         return Daytripper.context;
     }

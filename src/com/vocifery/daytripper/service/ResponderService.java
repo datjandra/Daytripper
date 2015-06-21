@@ -117,17 +117,19 @@ public class ResponderService extends IntentService implements UberRequestConsta
 		Intent broadcastIntent = new Intent();
 		broadcastIntent.setAction(ACTION_RESPONSE);
         broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-		
+        final Daytripper daytripper = (Daytripper) getApplicationContext(); 
+        
 		if (actionable == null) {
 			String response = DEFAULT_ACTION.doActionWithIntent(intent);
 			if (!TextUtils.isEmpty(response)) {
 		        broadcastIntent.putExtra(EXTRA_MESSAGE, response);
+		        daytripper.setLastQuery(query);
 			} else {
 				String errorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));
 				broadcastIntent.putExtra(EXTRA_MESSAGE, errorMessage);	
 			}
 		} else {
-			SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
+			SharedPreferences prefs = daytripper.getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
 			intent.putExtra(FIELD_ACCESS_TOKEN, prefs.getString(FIELD_ACCESS_TOKEN, null));
 			intent.putExtra(FIELD_REQUEST_ID, prefs.getString(FIELD_REQUEST_ID, null));
 			
