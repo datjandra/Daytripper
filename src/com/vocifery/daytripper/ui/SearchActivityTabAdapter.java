@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.SparseArray;
 
 import com.vocifery.daytripper.ui.components.ShowListFragment;
-import com.vocifery.daytripper.ui.components.map.ShowMapFragment;
+import com.vocifery.daytripper.ui.components.ShowMapFragment;
 
 public class SearchActivityTabAdapter extends FragmentPagerAdapter {
 

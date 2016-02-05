@@ -3,7 +3,9 @@ package com.vocifery.daytripper.util;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class StringUtils {
+public class StringUtils {
+	
+	private StringUtils() {}
 	
 	public static Set<String> extractNgrams(String query, int n) {
 		Set<String> ngrams = new HashSet<String>();

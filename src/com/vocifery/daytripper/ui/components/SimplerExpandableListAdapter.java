@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.vocifery.daytripper.R;
 
-
 public class SimplerExpandableListAdapter extends BaseExpandableListAdapter {
 	private Context mContext;
 	private String[][] mContents;

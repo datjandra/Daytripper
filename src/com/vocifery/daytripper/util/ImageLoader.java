@@ -19,11 +19,6 @@ public class ImageLoader {
 	final private int imgHeight;
 	private static ImageLoader INSTANCE = null;
 	
-	private static final int MESSAGE_CLEAR = 0;
-    private static final int MESSAGE_INIT_DISK_CACHE = 1;
-    private static final int MESSAGE_FLUSH = 2;
-    private static final int MESSAGE_CLOSE = 3;
-	
 	private ImageLoader(Context context) {
 		this.context = context;
 		this.imgWidth = (int) Math.floor(context.getResources().getDimension(R.dimen.image_thumbnail_size));

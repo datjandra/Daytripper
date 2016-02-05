@@ -25,6 +25,7 @@ public class QueryResponse implements Parcelable {
 	
 	public QueryResponse() {}
 	
+	@SuppressWarnings({ "unchecked", "unused" })
 	private QueryResponse(Parcel parcel) {
 		source = parcel.readString();
 		intent = parcel.readString();

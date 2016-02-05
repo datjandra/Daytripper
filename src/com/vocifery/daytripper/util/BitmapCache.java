@@ -4,7 +4,6 @@ import java.io.File;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,12 +18,7 @@ public class BitmapCache {
 	private boolean cacheStarting = true;
 	private final Context context;
 	
-	private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
 	private static final String DISK_CACHE_SUBDIR = "thumbs";
-	private static final int DISK_CACHE_INDEX = 0;
-	private static final int compressQuality = 70;
-	private static final CompressFormat compressFormat = CompressFormat.PNG;
-
 	public final static String TAG = "BitmapCache";
 	
 	private BitmapCache(Context context) {

@@ -1,9 +1,5 @@
 package com.vocifery.daytripper.vocifery.model;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 

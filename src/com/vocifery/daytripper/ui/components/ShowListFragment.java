@@ -29,9 +29,9 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.vocifery.daytripper.Daytripper;
 import com.vocifery.daytripper.R;
-import com.vocifery.daytripper.service.UberRequestConstants;
+import com.vocifery.daytripper.service.RequestConstants;
+import com.vocifery.daytripper.ui.Daytripper;
 import com.vocifery.daytripper.util.ImageLoader;
 import com.vocifery.daytripper.util.StringConstants;
 import com.vocifery.daytripper.vocifery.model.Locatable;
@@ -40,7 +40,7 @@ import com.vocifery.daytripper.vocifery.model.Result;
 import com.vocifery.daytripper.vocifery.model.Searchable;
 
 public class ShowListFragment extends Fragment implements
-		AbsListView.OnScrollListener, UberRequestConstants, StringConstants {
+		AbsListView.OnScrollListener, RequestConstants, StringConstants {
 
 	private ListView listView;
 	private ImageView attributionLogo;
