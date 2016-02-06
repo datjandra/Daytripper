@@ -2,7 +2,7 @@
 
 Intelligent personal assistant for finding places, events and meetings.
 
-The app caters to the business (or personal) traveler, or to someone looking to explore the surrounding area.
+Daytripper app caters to the business (or personal) traveler, or to someone looking to explore the surrounding area.
 Within a single app, users can access business listings, ticketed events, meetups, and even call an Uber taxi.
 The interface is simple - just type or speak a query like "sports", "pizza" or "tech meetup events".
 Results will be tailored to your current location, or to locations in the query like "restaurants in New York". 
@@ -25,7 +25,7 @@ You can search for an Uber taxi by clicking on a map point and then say or type 
 
 ## Technical Implementation
 
-Source code in this repository contains a number of advanced Android techniques.
+Source code in this repository contains a number of advanced Android programming techniques.
 
 1.  Speech-to-text 
 2.  Text-to-speech
