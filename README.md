@@ -16,10 +16,10 @@ You can search for an Uber taxi by clicking on a map point and then say or type 
 ## Getting the App
 
 <a href="https://play.google.com/store/apps/details?id=com.vocifery.daytripper&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
-<img alt="Get it on Google Play" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Get_it_on_Google_play.svg/170px-Get_it_on_Google_play.svg.png" width="170"/></a>
+<img alt="Google Play" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Get_it_on_Google_play.svg/170px-Get_it_on_Google_play.svg.png" width="170"/></a>
 
 <a href="http://www.amazon.com/Vocifery-Technology-Daytripper-v2/dp/B01BHMJ2OY/">
-<img width="170" src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-underground-app-us-black.png" />
+<img alt="Amazon Appstore" width="170" src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-underground-app-us-black.png" />
 </a>
 
 
@@ -27,9 +27,9 @@ You can search for an Uber taxi by clicking on a map point and then say or type 
 
 Source code in this repository contains a number of advanced Android programming techniques.
 
-1.  Speech-to-text 
-2.  Text-to-speech
-3.  Spoken dialog management
+1.  Speech-to-text and text-to-speech
+2.  Spoken dialog management
+3.  Infinite scrolling
 4.  MapQuest integration
 5.  Handling screen rotation
 6.  Image caching
