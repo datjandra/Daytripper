@@ -28,7 +28,7 @@ You can search for an Uber taxi by clicking on a map point and then say or type 
 1.  Change response language. In MainActivity.java file, change code `tts.setLanguage(Locale.UK)` and put whatever language you like.
 	However, the app understands only English input at this time.
 	
-2.  To change response messages, Update entries in \res\values\strings.xml file.
+2.  To change response messages, update entries in \res\values\strings.xml file.
 
 3.	Actions are triggered by keywords. To add new actions, implement Actionable interface and register keywords in ResponderService.java here.
 	
