@@ -46,6 +46,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.vocifery.daytripper.R;
+import com.vocifery.daytripper.model.Locatable;
+import com.vocifery.daytripper.model.QueryResponse;
 import com.vocifery.daytripper.service.RequestConstants;
 import com.vocifery.daytripper.service.ResponderService;
 import com.vocifery.daytripper.ui.components.Refreshable;
@@ -54,8 +56,6 @@ import com.vocifery.daytripper.ui.components.ShowMapFragment;
 import com.vocifery.daytripper.util.QueryResponseConverter;
 import com.vocifery.daytripper.util.ResourceUtils;
 import com.vocifery.daytripper.util.StringUtils;
-import com.vocifery.daytripper.vocifery.model.Locatable;
-import com.vocifery.daytripper.vocifery.model.QueryResponse;
 
 @SuppressLint("InflateParams")
 public class MainActivity extends AppCompatActivity implements LocationListener,

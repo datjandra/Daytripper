@@ -6,7 +6,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.mapquest.android.maps.GeoPoint;
-import com.vocifery.daytripper.vocifery.model.Searchable;
+import com.vocifery.daytripper.model.Searchable;
 
 public class Daytripper extends Application {
 

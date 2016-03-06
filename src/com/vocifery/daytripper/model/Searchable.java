@@ -1,4 +1,4 @@
-package com.vocifery.daytripper.vocifery.model;
+package com.vocifery.daytripper.model;
 
 public interface Searchable extends Locatable {
 

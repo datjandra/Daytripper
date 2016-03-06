@@ -1,6 +1,6 @@
 package com.vocifery.daytripper.ui.components;
 
-import com.vocifery.daytripper.vocifery.model.QueryResponse;
+import com.vocifery.daytripper.model.QueryResponse;
 
 public interface Refreshable {
 	public void receivedResponse(QueryResponse response, boolean responseMessage);

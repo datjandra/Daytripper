@@ -3,7 +3,7 @@ package com.vocifery.daytripper.util;
 import java.util.List;
 import java.util.Locale;
 
-import com.vocifery.daytripper.vocifery.model.Searchable;
+import com.vocifery.daytripper.model.Searchable;
 
 public final class QueryParser {
 

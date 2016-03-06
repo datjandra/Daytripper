@@ -14,10 +14,10 @@ import org.json.JSONObject;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.vocifery.daytripper.vocifery.model.Locatable;
-import com.vocifery.daytripper.vocifery.model.LocatableItem;
-import com.vocifery.daytripper.vocifery.model.QueryResponse;
-import com.vocifery.daytripper.vocifery.model.Result;
+import com.vocifery.daytripper.model.Locatable;
+import com.vocifery.daytripper.model.LocatableItem;
+import com.vocifery.daytripper.model.QueryResponse;
+import com.vocifery.daytripper.model.Result;
 
 public abstract class QueryResponseConverter {
 

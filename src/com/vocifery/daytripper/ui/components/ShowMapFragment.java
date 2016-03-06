@@ -34,10 +34,10 @@ import com.mapquest.android.maps.MapController;
 import com.mapquest.android.maps.MapView;
 import com.mapquest.android.maps.OverlayItem;
 import com.vocifery.daytripper.R;
+import com.vocifery.daytripper.model.Locatable;
+import com.vocifery.daytripper.model.Result;
 import com.vocifery.daytripper.ui.Daytripper;
 import com.vocifery.daytripper.util.StringConstants;
-import com.vocifery.daytripper.vocifery.model.Locatable;
-import com.vocifery.daytripper.vocifery.model.Result;
 
 public class ShowMapFragment extends Fragment implements StringConstants {
 

@@ -1,4 +1,4 @@
-package com.vocifery.daytripper.vocifery.model;
+package com.vocifery.daytripper.model;
 
 import android.os.Parcel;
 

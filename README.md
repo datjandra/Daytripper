@@ -23,6 +23,44 @@ You can search for an Uber taxi by clicking on a map point and then say or type 
 </a>
 
 
+## How To's
+
+1.  Change response language. In MainActivity.java file, change code `tts.setLanguage(Locale.UK)` and put whatever language you like.
+	However, the app understands only English input at this time.
+	
+2.  To change response messages, Update entries in \res\values\strings.xml file.
+
+3.	Actions are triggered by keywords. To add new actions, implement Actionable interface and register keywords in ResponderService.java here.
+	
+	```java
+	KEYWORDS.addPattern(new String[] {"pick", "up"}, PICKUP_ACTION);
+	KEYWORDS.addPattern(new String[] {"drive", "me"}, PICKUP_ACTION);
+	KEYWORDS.addPattern(new String[] {"take", "me"}, PICKUP_ACTION);
+	KEYWORDS.addPattern(new String[] {"zoom", "level"}, MAP_ZOOM_ACTION);
+	KEYWORDS.addPattern(new String[] {"shut", "up"}, SHUT_UP_ACTION);
+	KEYWORDS.addPattern(new String[] {"be", "quiet"}, SHUT_UP_ACTION);
+	KEYWORDS.addPattern(new String[] {"stop", "talking"}, SHUT_UP_ACTION);
+	KEYWORDS.addPattern(new String[] {"say", "something"}, SAY_SOMETHING_ACTION);
+	KEYWORDS.addPattern(new String[] {"talk", "to", "me"}, SAY_SOMETHING_ACTION);
+	KEYWORDS.addPattern(new String[] {"speak", "up"}, SAY_SOMETHING_ACTION);
+	KEYWORDS.addPattern(new String[] {"my", "name", "is"}, NAME_ACTION);
+	KEYWORDS.addPattern(new String[] {"yes"}, NO_REPLY_ACTION);
+	KEYWORDS.addPattern(new String[] {"no"}, NO_REPLY_ACTION);
+	KEYWORDS.addPattern(new String[] {"near", "here"}, TELEPORT_ACTION);
+	``` 
+	
+	Some words are often erroneously transcribed by the speech-to-text engine. 
+	Algorithms such as soundex or double metaphone may be used to correct sound recognition errors.
+	Encoded words are used to lookup the actual words, as shown here.
+	
+	```java
+	DoubleMetaphone encoder = new DoubleMetaphone();
+	KEYWORD_HASHES.put(encoder.encode("meetup events"), "meetup events");
+	KEYWORD_HASHES.put(encoder.encode("meetup groups"), "meetup groups");
+	KEYWORD_HASHES.put(encoder.encode("near here"), "near here");
+	```
+	
+	
 ## Technical Implementation
 
 Source code in this repository contains a number of advanced Android programming techniques.

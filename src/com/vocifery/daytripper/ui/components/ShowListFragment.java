@@ -30,14 +30,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.vocifery.daytripper.R;
+import com.vocifery.daytripper.model.Locatable;
+import com.vocifery.daytripper.model.QueryResponse;
+import com.vocifery.daytripper.model.Result;
+import com.vocifery.daytripper.model.Searchable;
 import com.vocifery.daytripper.service.RequestConstants;
 import com.vocifery.daytripper.ui.Daytripper;
 import com.vocifery.daytripper.util.ImageLoader;
 import com.vocifery.daytripper.util.StringConstants;
-import com.vocifery.daytripper.vocifery.model.Locatable;
-import com.vocifery.daytripper.vocifery.model.QueryResponse;
-import com.vocifery.daytripper.vocifery.model.Result;
-import com.vocifery.daytripper.vocifery.model.Searchable;
 
 public class ShowListFragment extends Fragment implements
 		AbsListView.OnScrollListener, RequestConstants, StringConstants {
