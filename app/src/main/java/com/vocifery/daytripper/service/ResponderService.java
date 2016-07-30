@@ -1,94 +1,65 @@
 package com.vocifery.daytripper.service;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.codec.language.DoubleMetaphone;
-
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.vocifery.daytripper.R;
-import com.vocifery.daytripper.actions.Actionable;
-import com.vocifery.daytripper.actions.DefaultAction;
-import com.vocifery.daytripper.actions.MapZoomAction;
-import com.vocifery.daytripper.actions.NameAction;
-import com.vocifery.daytripper.actions.NoReplyAction;
-import com.vocifery.daytripper.actions.PickUpAction;
-import com.vocifery.daytripper.actions.SaySomethingAction;
-import com.vocifery.daytripper.actions.ShutUpAction;
-import com.vocifery.daytripper.actions.TeleportAction;
 import com.vocifery.daytripper.ui.Daytripper;
-import com.vocifery.daytripper.ui.MainActivity;
 import com.vocifery.daytripper.util.StringUtils;
-import com.vocifery.daytripper.util.TrieNode;
 
-public class ResponderService extends IntentService implements RequestConstants {
+import org.alicebot.ab.AIMLProcessor;
+import org.alicebot.ab.AIMLProcessorExtension;
+import org.alicebot.ab.Chat;
+import org.alicebot.ab.ParseState;
+import org.apache.commons.codec.language.DoubleMetaphone;
+import org.w3c.dom.Node;
 
-	public static final String ACTION_REQUEST = "com.vocifery.daytripper.REQUEST";
-	public static final String ACTION_RESPONSE = "com.vocifery.daytripper.RESPONSE";
-	public static final String ACTION_SOURCE = "com.vocifery.daytripper.SOURCE";
-	
-	public static final String EXTRA_MESSAGE = "com.vocifery.daytripper.extra.MESSAGE";
-	public static final String EXTRA_CUSTOM_MESSAGE = "com.vocifery.daytripper.extra.CUSTOM_MESSAGE";
-	public static final String EXTRA_MAP_ZOOM_MESSAGE = "com.vocifery.daytripper.extra.MAP_ZOOM_MESSAGE";
-	public static final String EXTRA_NAME_MESSAGE = "com.vocifery.daytripper.extra.NAME_MESSAGE";
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+public class ResponderService extends IntentService implements RequestConstants, AIMLProcessorExtension {
+
+	public static final String RESPONSE_ACTION = "com.vocifery.daytripper.RESPONSE_ACTION";
+	public static final String USER_ACTION = "com.vocifery.daytripper.USER_ACTION";
+	public static final String ROBOT_ACTION = "com.vocifery.daytripper.ROBOT_ACTION";
+
 	public static final String EXTRA_NO_OP_MESSAGE = "com.vocifery.daytripper.extra.NO_OP_MESSAGE";
+	public static final String EXTRA_URL_MESSAGE = "com.vocifery.daytripper.extra.URL_MESSAGE";
 	
 	public static final String KEY_QUERY = "com.vocifery.daytripper.QUERY";
 	public static final String KEY_lOCATION = "com.vocifery.daytripper.LOCATION";
-	public static final String KEY_DESTINATION = "com.vocifery.daytripper.DESTINATION";
-	public static final String KEY_PAGE = "com.vocifery.daytripper.PAGE";
-	public static final String KEY_COUNT = "com.vocifery.daytripper.COUNT";
-	
-	public static final Actionable DEFAULT_ACTION = new DefaultAction();
-	public static final Actionable PICKUP_ACTION = new PickUpAction();
-	public static final Actionable MAP_ZOOM_ACTION = new MapZoomAction();
-	public static final Actionable SHUT_UP_ACTION = new ShutUpAction();
-	public static final Actionable SAY_SOMETHING_ACTION = new SaySomethingAction();
-	public static final Actionable NAME_ACTION = new NameAction();
-	public static final Actionable NO_REPLY_ACTION = new NoReplyAction();
-	public static final Actionable TELEPORT_ACTION = new TeleportAction();
-	
+
+	public static final String VOICE_FLAG = "voice";
+	public static final String NEURA_USER_ARRIVED_HOME = "userArrivedHome";
+	public static final String NEURA_USER_LEFT_HOME = "userLeftHome";
+	public static final String NEURA_USER_ARRIVED_TO_WORK = "userArrivedToWork";
+	public static final String NEURA_USER_LEFT_WORK = "userLeftWork";
+
 	private static final String TAG = "ResponderService";
-	private static final TrieNode<String,Actionable> KEYWORDS = new TrieNode<String,Actionable>();
 	private static final Map<String,String> KEYWORD_HASHES = new HashMap<String,String>();
-	private static final String JSON_MESSAGE = "{ \"message\" : \"%s\" }";
 	private static final int NGRAM_SIZE = 3;
 		
 	static {
-		KEYWORDS.addPattern(new String[] {"pick", "up"}, PICKUP_ACTION);
-		KEYWORDS.addPattern(new String[] {"drive", "me"}, PICKUP_ACTION);
-		KEYWORDS.addPattern(new String[] {"take", "me"}, PICKUP_ACTION);
-		KEYWORDS.addPattern(new String[] {"zoom", "level"}, MAP_ZOOM_ACTION);
-		KEYWORDS.addPattern(new String[] {"shut", "up"}, SHUT_UP_ACTION);
-		KEYWORDS.addPattern(new String[] {"be", "quiet"}, SHUT_UP_ACTION);
-		KEYWORDS.addPattern(new String[] {"stop", "talking"}, SHUT_UP_ACTION);
-		KEYWORDS.addPattern(new String[] {"say", "something"}, SAY_SOMETHING_ACTION);
-		KEYWORDS.addPattern(new String[] {"talk", "to", "me"}, SAY_SOMETHING_ACTION);
-		KEYWORDS.addPattern(new String[] {"speak", "up"}, SAY_SOMETHING_ACTION);
-		KEYWORDS.addPattern(new String[] {"my", "name", "is"}, NAME_ACTION);
-		KEYWORDS.addPattern(new String[] {"yes"}, NO_REPLY_ACTION);
-		KEYWORDS.addPattern(new String[] {"no"}, NO_REPLY_ACTION);
-		KEYWORDS.addPattern(new String[] {"near", "here"}, TELEPORT_ACTION);
-		
 		DoubleMetaphone encoder = new DoubleMetaphone();
 		KEYWORD_HASHES.put(encoder.encode("meetup events"), "meetup events");
 		KEYWORD_HASHES.put(encoder.encode("meetup groups"), "meetup groups");
 		KEYWORD_HASHES.put(encoder.encode("near here"), "near here");
 	}
-	
+
 	public ResponderService() {
 		super("ResponderService");
+		AIMLProcessor.extension = this;
+		Log.i(TAG, "constructed");
 	}
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -110,53 +81,108 @@ public class ResponderService extends IntentService implements RequestConstants 
 				break;
 			}
 		}
-		
-		String[] pattern = query.split("\\s+");
-		Actionable actionable = KEYWORDS.lookup(pattern);
-		
+
+		final Daytripper daytripper = (Daytripper) getApplicationContext();
+		final Chat chatSession = daytripper.getChatSession();
+		String response = chatSession.multisentenceRespond(query);
+
 		Intent broadcastIntent = new Intent();
-		broadcastIntent.setAction(ACTION_RESPONSE);
-        broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
-        final Daytripper daytripper = (Daytripper) getApplicationContext(); 
-        
-		if (actionable == null) {
-			String response = DEFAULT_ACTION.doActionWithIntent(intent);
-			if (!TextUtils.isEmpty(response)) {
-		        broadcastIntent.putExtra(EXTRA_MESSAGE, response);
-		        daytripper.setLastQuery(query);
-			} else {
-				String errorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));
-				broadcastIntent.putExtra(EXTRA_MESSAGE, errorMessage);	
-			}
-		} else {
-			SharedPreferences prefs = daytripper.getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
-			intent.putExtra(FIELD_ACCESS_TOKEN, prefs.getString(FIELD_ACCESS_TOKEN, null));
-			intent.putExtra(FIELD_REQUEST_ID, prefs.getString(FIELD_REQUEST_ID, null));
-			
-			String response = actionable.doActionWithIntent(intent);
-			String customMessage = actionable.getCustomMessage();
-			if (!TextUtils.isEmpty(customMessage)) {
-				broadcastIntent.putExtra(EXTRA_CUSTOM_MESSAGE, customMessage);
-			}
-			
-			if (!TextUtils.isEmpty(response)) {
-				if (actionable.equals(MAP_ZOOM_ACTION)) {
-					broadcastIntent.putExtra(EXTRA_MAP_ZOOM_MESSAGE, response);
-				} else if (actionable.equals(PICKUP_ACTION) || actionable.equals(TELEPORT_ACTION)) {
-					broadcastIntent.putExtra(EXTRA_MESSAGE, response);
-				} else if (actionable.equals(SHUT_UP_ACTION) || actionable.equals(SAY_SOMETHING_ACTION)) {
-					broadcastIntent.putExtra(MainActivity.VOCIFEROUS_KEY, 
-							intent.getBooleanExtra(MainActivity.VOCIFEROUS_KEY, true));
-				} else if (actionable.equals(NAME_ACTION)) {
-					broadcastIntent.putExtra(EXTRA_NAME_MESSAGE, response);
-				} else {
-					broadcastIntent.putExtra(EXTRA_NO_OP_MESSAGE, response);
-				}
-			} else {
-				String errorMessage = String.format(Locale.getDefault(), JSON_MESSAGE, getResources().getString(R.string.system_error_message));
-				broadcastIntent.putExtra(EXTRA_MESSAGE, errorMessage);
-			}
-		}	
+		broadcastIntent.setAction(RESPONSE_ACTION);
+		broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
+
+		String url = chatSession.predicates.get("url");
+		if (!TextUtils.isEmpty(url) && !url.equalsIgnoreCase("unknown")) {
+			chatSession.predicates.remove("url");
+			broadcastIntent.putExtra(EXTRA_URL_MESSAGE, url);
+		}
+
+		String voice = chatSession.predicates.get(VOICE_FLAG);
+		if (!TextUtils.isEmpty(voice) && !voice.equalsIgnoreCase("unknown")) {
+			chatSession.predicates.remove(VOICE_FLAG);
+			broadcastIntent.putExtra(VOICE_FLAG, voice);
+		}
+
+		String userArrivedHome = chatSession.predicates.get(NEURA_USER_ARRIVED_HOME);
+		if (!TextUtils.isEmpty(userArrivedHome) && !userArrivedHome.equalsIgnoreCase("unknown")) {
+			chatSession.predicates.remove(NEURA_USER_ARRIVED_HOME);
+			broadcastIntent.putExtra(NEURA_USER_ARRIVED_HOME, userArrivedHome);
+		}
+
+		String userLeftHome = chatSession.predicates.get(NEURA_USER_LEFT_HOME);
+		if (!TextUtils.isEmpty(userLeftHome) && !userLeftHome.equalsIgnoreCase("unknown")) {
+			chatSession.predicates.remove(NEURA_USER_LEFT_HOME);
+			broadcastIntent.putExtra(NEURA_USER_LEFT_HOME, userLeftHome);
+		}
+
+		String userArrivedToWork = chatSession.predicates.get(NEURA_USER_ARRIVED_TO_WORK);
+		if (!TextUtils.isEmpty(userArrivedToWork) && !userArrivedToWork.equalsIgnoreCase("unknown")) {
+			chatSession.predicates.remove(NEURA_USER_ARRIVED_TO_WORK);
+			broadcastIntent.putExtra(NEURA_USER_ARRIVED_TO_WORK, userArrivedToWork);
+		}
+
+		String userLeftWork = chatSession.predicates.get(NEURA_USER_LEFT_WORK);
+		if (!TextUtils.isEmpty(userLeftWork) && !userLeftWork.equalsIgnoreCase("unknown")) {
+			chatSession.predicates.remove(NEURA_USER_LEFT_WORK);
+			broadcastIntent.putExtra(NEURA_USER_LEFT_WORK, userLeftWork);
+		}
+
+		broadcastIntent.putExtra(EXTRA_NO_OP_MESSAGE, response);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+	}
+
+	public Set<String> extensionTagSet() {
+		return new HashSet<String>(Arrays.asList(new String[] {
+				"search",
+				"location",
+				"url",
+				VOICE_FLAG,
+				NEURA_USER_ARRIVED_HOME,
+				NEURA_USER_LEFT_HOME,
+				NEURA_USER_ARRIVED_TO_WORK,
+				NEURA_USER_LEFT_WORK
+		}));
+	}
+
+	public String recursEval(Node node, ParseState ps) {
+		String tagContent = AIMLProcessor.evalTagContent(node, ps, null);
+		String nodeName = node.getNodeName();
+		Log.i(TAG, String.format("%s - %s", nodeName, tagContent));
+		switch (nodeName) {
+			case "url": {
+					String url = tagContent;
+					ps.chatSession.predicates.put("url", url);
+				}
+				break;
+
+			case "search":
+				try {
+					String url = String.format("http://www.google.com/#q=%s", URLEncoder.encode(tagContent, "utf-8"));
+					ps.chatSession.predicates.put("url", url);
+				} catch (UnsupportedEncodingException e) {
+					Log.e(TAG, e.getMessage(), e);
+				}
+				break;
+
+			case "location":
+				try {
+					String url = String.format("http://maps.google.com/?q=%s", URLEncoder.encode(tagContent, "utf-8"));
+					ps.chatSession.predicates.put("url", url);
+				} catch (UnsupportedEncodingException e) {
+					Log.e(TAG, e.getMessage(), e);
+				}
+				break;
+
+			case VOICE_FLAG:
+			case NEURA_USER_ARRIVED_HOME:
+			case NEURA_USER_LEFT_HOME:
+			case NEURA_USER_ARRIVED_TO_WORK:
+			case NEURA_USER_LEFT_WORK:
+				ps.chatSession.predicates.put(nodeName, tagContent);
+				break;
+
+			default:
+				break;
+		}
+		return tagContent;
 	}
 }

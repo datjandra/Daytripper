@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -38,117 +39,12 @@
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/teaser_content"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/header"
-        android:clickable="false"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:visibility="visible" >
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:background="@color/primary_dark" >
-
-            <ImageView
-                android:id="@+id/img_restaurants"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_restaurants" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center"
-                android:text="@string/heading_local"
-                android:textAppearance="@android:style/TextAppearance.Large"
-                android:textColor="@android:color/white" />
-        </RelativeLayout>
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="8dp" />
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:background="@color/primary_dark" >
-
-            <ImageView
-                android:id="@+id/img_concerts"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_concerts" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center"
-                android:text="@string/heading_events"
-                android:textAppearance="@android:style/TextAppearance.Large"
-                android:textColor="@android:color/white" />
-        </RelativeLayout>
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="8dp" />
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.3"
-            android:background="@color/primary_dark" >
-
-            <ImageView
-                android:id="@+id/img_meetups"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_meetups" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center"
-                android:text="@string/heading_meetups"
-                android:textAppearance="@android:style/TextAppearance.Large"
-                android:textColor="@android:color/white" />
-        </RelativeLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/main_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/header"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp" >
-
-        <com.vocifery.daytripper.ui.components.UnswipeableViewPager
-            android:id="@+id/viewpager"
-            android:layout_width="match_parent"
-            android:layout_height="0px"
-            android:layout_weight="2" >
-
-            <android.support.v4.view.PagerTabStrip
-                android:id="@+id/pager_title_strip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:textColor="@color/text_secondary" />
-        </com.vocifery.daytripper.ui.components.UnswipeableViewPager>
-    </LinearLayout>
+        android:padding="8dp">
+    </FrameLayout>
 
 </RelativeLayout>
