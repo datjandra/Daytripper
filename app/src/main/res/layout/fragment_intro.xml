@@ -18,13 +18,14 @@
             android:layout_height="fill_parent"
             android:gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_restaurants" />
+            android:src="@drawable/intro_maps"
+            android:alpha=".75"/>
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center"
-            android:text="@string/heading_local"
+            android:text="@string/heading_maps"
             android:textAppearance="@android:style/TextAppearance.Large"
             android:textColor="@android:color/white" />
     </RelativeLayout>
@@ -45,13 +46,14 @@
             android:layout_height="fill_parent"
             android:gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_concerts" />
+            android:src="@drawable/intro_websearch"
+            android:alpha=".75"/>
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center"
-            android:text="@string/heading_events"
+            android:text="@string/heading_websearch"
             android:textAppearance="@android:style/TextAppearance.Large"
             android:textColor="@android:color/white" />
     </RelativeLayout>
@@ -72,13 +74,14 @@
             android:layout_height="fill_parent"
             android:gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_meetups" />
+            android:src="@drawable/intro_chat"
+            android:alpha=".75"/>
 
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center"
-            android:text="@string/heading_meetups"
+            android:text="@string/heading_chat"
             android:textAppearance="@android:style/TextAppearance.Large"
             android:textColor="@android:color/white" />
     </RelativeLayout>

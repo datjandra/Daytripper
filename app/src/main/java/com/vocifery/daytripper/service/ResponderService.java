@@ -14,6 +14,7 @@ import org.alicebot.ab.AIMLProcessorExtension;
 import org.alicebot.ab.Chat;
 import org.alicebot.ab.ParseState;
 import org.apache.commons.codec.language.DoubleMetaphone;
+import org.jsoup.Jsoup;
 import org.w3c.dom.Node;
 
 import java.io.UnsupportedEncodingException;
@@ -31,8 +32,9 @@ public class ResponderService extends IntentService implements RequestConstants,
 	public static final String USER_ACTION = "com.vocifery.daytripper.USER_ACTION";
 	public static final String ROBOT_ACTION = "com.vocifery.daytripper.ROBOT_ACTION";
 
-	public static final String EXTRA_NO_OP_MESSAGE = "com.vocifery.daytripper.extra.NO_OP_MESSAGE";
+	public static final String EXTRA_TEXT_MESSAGE = "com.vocifery.daytripper.extra.TEXT_MESSAGE";
 	public static final String EXTRA_URL_MESSAGE = "com.vocifery.daytripper.extra.URL_MESSAGE";
+	public final static String EXTRA_CONTENT_MESSAGE = "com.vocifery.daytripper.extra.CONTENT_MESSAGE";
 	
 	public static final String KEY_QUERY = "com.vocifery.daytripper.QUERY";
 	public static final String KEY_lOCATION = "com.vocifery.daytripper.LOCATION";
@@ -94,6 +96,8 @@ public class ResponderService extends IntentService implements RequestConstants,
 		if (!TextUtils.isEmpty(url) && !url.equalsIgnoreCase("unknown")) {
 			chatSession.predicates.remove("url");
 			broadcastIntent.putExtra(EXTRA_URL_MESSAGE, url);
+		} else {
+			broadcastIntent.putExtra(EXTRA_CONTENT_MESSAGE, response);
 		}
 
 		String voice = chatSession.predicates.get(VOICE_FLAG);
@@ -126,7 +130,7 @@ public class ResponderService extends IntentService implements RequestConstants,
 			broadcastIntent.putExtra(NEURA_USER_LEFT_WORK, userLeftWork);
 		}
 
-		broadcastIntent.putExtra(EXTRA_NO_OP_MESSAGE, response);
+		broadcastIntent.putExtra(EXTRA_TEXT_MESSAGE, Jsoup.parse(response).text());
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
 

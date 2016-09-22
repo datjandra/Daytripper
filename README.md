@@ -1,80 +1,67 @@
-# Daytripper 
+<html>
+<body>
+<p>
+    Daytripper is an intelligent personal assistant for map search, web search and general chat.
+    The app utilizes artificial intelligence and natural language processing based on a chatbot called <a href="http://alicebot.org">Alicebot</a>.
+    Both typed and spoken inputs are supported.
+    Please see below for examples.
+</p>
 
-Intelligent personal assistant for finding places, events and meetings.
+<h3>Map Search</h3>
+<p>
+    Daytripper recognizes certain foods such as "pizza" or "taco" and then displays a map of nearby food places.
+    Map search is also triggered by asking "where is X' or "where are the X".
+</p>
+<pre>
+    Pizza<br/>
+    Where is India?<br/>
+    Where are the best sushi?<br/>
+</pre>
 
-Daytripper app caters to the business (or personal) traveler, or to someone looking to explore the surrounding area.
-Within a single app, users can access business listings, ticketed events, meetups, and even call an Uber taxi.
-The interface is simple - just type or speak a query like "sports", "pizza" or "tech meetup events".
-Results will be tailored to your current location, or to locations in the query like "restaurants in New York". 
-You can search for an Uber taxi by clicking on a map point and then say or type "pick up". Click on the image below to see a Youtube demo.
+<h3>Web Browse and Search</h3>
+<p>
+    Daytripper recognizes popular sites such as "espn" and automatically displays them on the browser.
+    Also, user can input phrases such as "who is X" or "google Y" to trigger web search.
+</p>
+<pre>
+    jobs nurse<br/>
+    Who is David Cameron?<br/>
+    google french fries<br/>
+    tell me a joke<br/>
+    play u2<br/>
+</pre>
 
-<a href="https://youtu.be/ake2w-jhBjQ" target="_blank">
-<img src="http://ecx.images-amazon.com/images/I/81bvCgfhzxL.png" alt="Video" width="240" border="0" />
-</a>
+<h3>General Chat</h3>
+<p>
+    Daytripper has full capabilities of the Alicebot chatbot.
+    Example chat messages are shown below.
+    See Alicebot link above for more information.
+</p>
+<pre>
+    What is your favorite song?<br/>
+    My uncle is Bob<br/>
+    knock knock<br/>
+</pre>
 
+<h3>Neura Integration (in progress)</h3>
+<p>
+    <a href="http://theneura.com">Neura</a> is a software module that uses smartphone sensors to detect and predict user context (user left home, user arrived at work, and many others).
+    User subscribes to events by inputting messages such as "when I arrive home X" or "when I leave work Y".
+    The app receives Neura events and sends chatbot commands in the background.
+    Example chat messages below shows inputs for subscribing to Neura events.
+</p>
+<pre>
+    when I arrive home play u2<br/>
+    when I leave home google traffic<br/>
+    when I leave work call mom<br/>
+    when I arrive work tweet meeting at 2pm<br/>
+</pre>
 
-## Getting the App
+<footer>
+    Apache License
+    Version 2.0, January 2004
+    <small>Developed by <a href="http://vocifery.com">Vocifery Technology</a></small>
+</footer>
+</body>
+</html>
 
-<a href="https://play.google.com/store/apps/details?id=com.vocifery.daytripper&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1">
-<img alt="Google Play" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Get_it_on_Google_play.svg/170px-Get_it_on_Google_play.svg.png" width="170"/></a>
-
-<a href="http://www.amazon.com/Vocifery-Technology-Daytripper-v2/dp/B01BHMJ2OY/">
-<img alt="Amazon Appstore" width="170" src="https://images-na.ssl-images-amazon.com/images/G/01/mobile-apps/devportal2/res/images/amazon-underground-app-us-black.png" />
-</a>
-
-
-## How To's
-
-1.  Change response language. In MainActivity.java file, change code `tts.setLanguage(Locale.UK)` and put whatever language you like.
-	However, the app understands only English input at this time.
-	
-2.  To change response messages, update entries in \res\values\strings.xml file.
-
-3.	Actions are triggered by keywords. To add new actions, implement Actionable interface and register keywords in ResponderService.java here.
-	
-	```java
-	KEYWORDS.addPattern(new String[] {"pick", "up"}, PICKUP_ACTION);
-	KEYWORDS.addPattern(new String[] {"drive", "me"}, PICKUP_ACTION);
-	KEYWORDS.addPattern(new String[] {"take", "me"}, PICKUP_ACTION);
-	KEYWORDS.addPattern(new String[] {"zoom", "level"}, MAP_ZOOM_ACTION);
-	KEYWORDS.addPattern(new String[] {"shut", "up"}, SHUT_UP_ACTION);
-	KEYWORDS.addPattern(new String[] {"be", "quiet"}, SHUT_UP_ACTION);
-	KEYWORDS.addPattern(new String[] {"stop", "talking"}, SHUT_UP_ACTION);
-	KEYWORDS.addPattern(new String[] {"say", "something"}, SAY_SOMETHING_ACTION);
-	KEYWORDS.addPattern(new String[] {"talk", "to", "me"}, SAY_SOMETHING_ACTION);
-	KEYWORDS.addPattern(new String[] {"speak", "up"}, SAY_SOMETHING_ACTION);
-	KEYWORDS.addPattern(new String[] {"my", "name", "is"}, NAME_ACTION);
-	KEYWORDS.addPattern(new String[] {"yes"}, NO_REPLY_ACTION);
-	KEYWORDS.addPattern(new String[] {"no"}, NO_REPLY_ACTION);
-	KEYWORDS.addPattern(new String[] {"near", "here"}, TELEPORT_ACTION);
-	``` 
-	
-	Some words are often erroneously transcribed by the speech-to-text engine. 
-	Algorithms such as soundex or double metaphone may be used to correct sound recognition errors.
-	Encoded words are used to lookup the actual words, as shown here.
-	
-	```java
-	DoubleMetaphone encoder = new DoubleMetaphone();
-	KEYWORD_HASHES.put(encoder.encode("meetup events"), "meetup events");
-	KEYWORD_HASHES.put(encoder.encode("meetup groups"), "meetup groups");
-	KEYWORD_HASHES.put(encoder.encode("near here"), "near here");
-	```
-	
-	
-## Technical Implementation
-
-Source code in this repository contains a number of advanced Android programming techniques.
-
-1.  Speech-to-text and text-to-speech
-2.  Spoken dialog management
-3.  Infinite scrolling
-4.  MapQuest integration
-5.  Handling screen rotation
-6.  Image caching
-7.  Location awareness    
-
-
-## License
-
-Apache License
-Version 2.0, January 2004

@@ -36,6 +36,9 @@
     <string name="heading_local">Local Businesses</string>
     <string name="heading_events">Events</string>
     <string name="heading_meetups">Meetups</string>
+    <string name="heading_chat">Chat</string>
+    <string name="heading_maps">Maps</string>
+    <string name="heading_websearch">Web Search</string>
     <string name="uber_no_response">Sorry, Uber request could not be made at this time.</string>
     <string name="uber_request_sent">Uber request was sent.</string>
     <string name="uber_request_lookup">Here is the status of your Uber request.</string>
@@ -181,8 +184,12 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <string name="app_uid_production">YOUR APP UID</string>
-    <string name="app_secret_production">YOUR APP SECRET</string>
+    <!--
+    These app keys are used for a hackathon and will likely change later.
+    You should register your own app on https://dev.theneura.com and create keys for that app.
+    -->
+    <string name="app_uid_production">9282b8e09eb0a2a1ecf356bdd3f11de7deda3ab8b6d9b455829898efb456cd04</string>
+    <string name="app_secret_production">e776eeea4763bef2c45355aea95c975aab3437f420f12b42658d8ff69f6b05ea</string>
     <string name="neura_permissions">userLeftHome,userLeftWork,userArrivedToWork,userArrivedHome</string>
     <string name="notification_title">Daytripper Event</string>
 

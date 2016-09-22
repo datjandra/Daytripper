@@ -143,14 +143,14 @@ What is your <lowercase><get name="familiarpredicate"/></lowercase>'s name?</tem
 </condition>
 <srai>GENDERCOMMENT</srai>
 <think><set><name><get name="familiarpredicate"/></name><get name="contactname"/></set></think>
-<learn>
+<learnf>
 <category><pattern>WHO IS <eval><get name="contactname"/></eval></pattern>
 <template><eval><get name="contactname"/></eval> is your <eval><get name="familiarpredicate"/></eval>. </template>
 </category>
 <category><pattern><eval><get name="contactname"/></eval></pattern>
 <template>Your <eval><get name="familiarpredicate"/></eval>.</template>
 </category>
-</learn></li>
+</learnf></li>
 </condition></template>
 </category>
 <category><pattern>GENDERCOMMENT</pattern>

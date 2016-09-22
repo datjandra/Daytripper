@@ -32,21 +32,10 @@ public class Daytripper extends Application {
 		super.onCreate();
 	}
 
-	public ArrayList<Searchable> getAllItems() {
-		return allItems;
-	}
-
-	public void setAllItems(ArrayList<Searchable> searchableList) {
-		allItems = searchableList;
-	}
-
 	public String getLastQuery() {
 		return lastQuery;
 	}
 
-	public void setLastQuery(String lastQuery) {
-		this.lastQuery = lastQuery;
-	}
 	
 	public final static Context getAppContext() {
         return Daytripper.context;
@@ -65,21 +54,5 @@ public class Daytripper extends Application {
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage(), e);
 		}
-	}
-
-	public String getNeuraEventName() {
-		return neuraEventName;
-	}
-
-	public void setNeuraEventName(String neuraEventName) {
-		this.neuraEventName = neuraEventName;
-	}
-
-	public String getNeuraEventDetails() {
-		return neuraEventDetails;
-	}
-
-	public void setNeuraEventDetails(String neuraEventDetails) {
-		this.neuraEventDetails = neuraEventDetails;
 	}
 }
