@@ -179,9 +179,14 @@ public class MainActivity extends AppCompatActivity implements
         SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
         prefs.registerOnSharedPreferenceChangeListener(this);
 
+        String appId = getString(R.string.app_uid_production);
+        String appSecret = getString(R.string.app_secret_production);
+
         Builder builder = new Builder(this);
         builder.addConnectionCallbacks(neuraServiceConnectionCallbacks);
         neuraClient = builder.build();
+        neuraClient.setAppUid(appId);
+        neuraClient.setAppSecret(appSecret);
     }
 
     @Override
