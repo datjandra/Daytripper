@@ -704,10 +704,6 @@ public class MainActivity extends AppCompatActivity implements
                         String text = String.format("Failed subscribing to event %s due to error %s",
                                 eventName, NeuraUtil.errorCodeToString(errorCode));
                         Log.e(TAG, text);
-                        Toast.makeText(
-                                MainActivity.this,
-                                text,
-                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
