@@ -26,7 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public class ResponderService extends IntentService implements RequestConstants, AIMLProcessorExtension {
+public class ResponderService extends IntentService implements AIMLProcessorExtension {
 
 	public static final String RESPONSE_ACTION = "com.vocifery.daytripper.RESPONSE_ACTION";
 	public static final String USER_ACTION = "com.vocifery.daytripper.USER_ACTION";

@@ -4,21 +4,18 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.vocifery.daytripper.model.Searchable;
 import com.vocifery.daytripper.util.AssetUtils;
 
 import org.alicebot.ab.Bot;
 import org.alicebot.ab.Chat;
 
 import java.io.File;
-import java.util.ArrayList;
 
 public class Daytripper extends Application {
 
 	public final static String USERNAME_KEY = "com.vocifery.daytripper.Daytripper.USERNAME";
 	
 	private String lastQuery;
-	private ArrayList<Searchable> allItems;
 	private String neuraEventName;
 	private String neuraEventDetails;
 	private static Context context;

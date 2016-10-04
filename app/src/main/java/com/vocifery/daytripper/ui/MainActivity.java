@@ -23,14 +23,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
-import android.view.Surface;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
@@ -48,10 +44,8 @@ import com.neura.sdk.util.Builder;
 import com.neura.sdk.util.NeuraAuthUtil;
 import com.neura.sdk.util.NeuraUtil;
 import com.vocifery.daytripper.R;
-import com.vocifery.daytripper.service.RequestConstants;
 import com.vocifery.daytripper.service.ResponderService;
 import com.vocifery.daytripper.ui.components.IntroFragment;
-import com.vocifery.daytripper.ui.components.Refreshable;
 import com.vocifery.daytripper.ui.components.ResultFragment;
 import com.vocifery.daytripper.util.NeuraUtils;
 import com.vocifery.daytripper.util.ResourceUtils;
@@ -67,9 +61,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressLint("InflateParams")
 public class MainActivity extends AppCompatActivity implements
         LocationListener,
-        Refreshable,
         TextToSpeech.OnInitListener,
-        RequestConstants,
         SharedPreferences.OnSharedPreferenceChangeListener,
         Handler.Callback {
 
@@ -231,39 +223,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void refresh(int page, int count) {
-        updateLocation();
-        String locationString = null;
-        if (location != null) {
-            locationString = location.getLatitude() + ", "
-                    + location.getLongitude();
-        }
-
-        String lastQuery = getLastQuery();
-        Log.i(TAG, "refresh - sending query " + lastQuery + " with location "
-                + locationString);
-        startWork(lastQuery, locationString);
-    }
-
-    @Override
-    public void receivedResponse(String response, boolean vocalize) {
-        try {
-            if (vocalize) {
-                say(response);
-            }
-        } finally {
-            lockOrientation(false);
-        }
-    }
-
-    @Override
-    public void requestDenied(String reason) {
-        say(reason);
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle savedState) {
         super.onSaveInstanceState(savedState);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (!TextUtils.isEmpty(key) && key.equals(ResponderService.VOICE_FLAG)) {
+            vociferous = sharedPreferences.getBoolean(ResponderService.VOICE_FLAG, true);
+        }
+    }
+
+    @Override
+    public boolean handleMessage(Message message) {
+        return true;
     }
 
     @Override
@@ -319,34 +292,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void startProgress() {
-        lockOrientation(true);
-        mainProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void stopProgress() {
-        mainProgressBar.setVisibility(View.INVISIBLE);
-    }
-
-    @Override
-    public void cancel() {
-        lockOrientation(false);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (!TextUtils.isEmpty(key) && key.equals(ResponderService.VOICE_FLAG)) {
-            vociferous = sharedPreferences.getBoolean(ResponderService.VOICE_FLAG, true);
-        }
-    }
-
-    @Override
-    public boolean handleMessage(Message message) {
-        return true;
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == NEURA_AUTHENTICATION_REQUEST_CODE) {
@@ -361,6 +306,26 @@ public class MainActivity extends AppCompatActivity implements
                 Log.e(TAG, String.format("Authentication failed due to %s", NeuraUtil.errorCodeToString(errorCode)));
             }
         }
+    }
+
+    private void receivedResponse(String response, boolean vocalize) {
+        try {
+            if (vocalize) {
+                say(response);
+            }
+        } finally {
+            lockOrientation(false);
+        }
+    }
+
+
+    private void startProgress() {
+        lockOrientation(true);
+        mainProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void stopProgress() {
+        mainProgressBar.setVisibility(View.INVISIBLE);
     }
 
     private void createHelpDialog() {
