@@ -2,6 +2,8 @@ package com.vocifery.daytripper.service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,9 +37,15 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 	public static final String EXTRA_TEXT_MESSAGE = "com.vocifery.daytripper.extra.TEXT_MESSAGE";
 	public static final String EXTRA_URL_MESSAGE = "com.vocifery.daytripper.extra.URL_MESSAGE";
 	public final static String EXTRA_CONTENT_MESSAGE = "com.vocifery.daytripper.extra.CONTENT_MESSAGE";
-	
+
+	public static final String KEY_PREFIX = "com.vocifery.daytripper.service";
 	public static final String KEY_QUERY = "com.vocifery.daytripper.QUERY";
 	public static final String KEY_lOCATION = "com.vocifery.daytripper.LOCATION";
+
+	public static final String CHATBOT_KEY_SUBJECT = "subject";
+	public static final String CHATBOT_KEY_OBJECT = "object";
+	public static final String CHATBOT_VAR_ASSOCIATE = "associate";
+	public static final String CHATBOT_VALUE_LOCATION = "location";
 
 	public static final String VOICE_FLAG = "voice";
 	public static final String NEURA_USER_ARRIVED_HOME = "userArrivedHome";
@@ -139,6 +147,8 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 				"search",
 				"location",
 				"url",
+				"associate",
+				"lookup",
 				VOICE_FLAG,
 				NEURA_USER_ARRIVED_HOME,
 				NEURA_USER_LEFT_HOME,
@@ -148,15 +158,20 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 	}
 
 	public String recursEval(Node node, ParseState ps) {
+		return evaluateNode(node, ps);
+	}
+
+	private String evaluateNode(Node node, ParseState ps) {
 		String tagContent = AIMLProcessor.evalTagContent(node, ps, null);
+		String output = tagContent;
 		String nodeName = node.getNodeName();
 		Log.i(TAG, String.format("%s - %s", nodeName, tagContent));
 		switch (nodeName) {
 			case "url": {
-					String url = tagContent;
-					ps.chatSession.predicates.put("url", url);
-				}
-				break;
+				String url = tagContent;
+				ps.chatSession.predicates.put("url", url);
+			}
+			break;
 
 			case "search":
 				try {
@@ -176,6 +191,27 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 				}
 				break;
 
+			case "associate":
+				String subject = ps.chatSession.predicates.get(CHATBOT_KEY_SUBJECT);
+				String object = ps.chatSession.predicates.get(CHATBOT_KEY_OBJECT);
+				if (!TextUtils.isEmpty(object) && object.equalsIgnoreCase(CHATBOT_VALUE_LOCATION)) {
+					String prefsKey = String.format("%s.%s", KEY_PREFIX, subject.replaceAll("\\s+", "_").toUpperCase());
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+					prefs.edit().putString(prefsKey, object).commit();
+					Log.d(TAG, String.format("associated %s with %s", prefsKey, object));
+				}
+				break;
+
+			case "lookup":
+				String prefsKey = String.format("%s.%s", KEY_PREFIX, tagContent.replaceAll("\\s+", "_").toUpperCase().trim());
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+				String prefsValue = prefs.getString(prefsKey, null);
+				if (!TextUtils.isEmpty(prefsValue) && prefsValue.equalsIgnoreCase(CHATBOT_VALUE_LOCATION)) {
+					output = CHATBOT_VALUE_LOCATION;
+					Log.d(TAG, String.format("Process %s as %s", tagContent, output));
+				}
+				break;
+
 			case VOICE_FLAG:
 			case NEURA_USER_ARRIVED_HOME:
 			case NEURA_USER_LEFT_HOME:
@@ -187,6 +223,6 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 			default:
 				break;
 		}
-		return tagContent;
+		return output;
 	}
 }

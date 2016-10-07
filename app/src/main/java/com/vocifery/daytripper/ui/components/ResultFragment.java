@@ -24,7 +24,6 @@ public class ResultFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.fragment_result,
 				container, false);
 		webView = (WebView) rootView.findViewById(R.id.webview);
-		webView.setBackgroundColor(Color.TRANSPARENT);
 
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);

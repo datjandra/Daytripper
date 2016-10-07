@@ -18,10 +18,16 @@
 <!--  -->
 <category><pattern>*</pattern>
 <template><think>
-<set var="formula"><srai>MATHFORMULA <star/></srai></set>
+    <set var="formula"><srai>MATHFORMULA <star/></srai></set>
+    <set var="associate"><lookup><star/></lookup></set>
 </think>
 <condition var="formula">
-<li value="NOT A MATH FORMULA"><srai>UDC</srai></li>
+<li value="NOT A MATH FORMULA">
+    <condition var="associate">
+        <li value="location">I'm looking on the location. <oob><location><star/></location></oob></li>
+        <li><srai>UDC</srai></li>
+    </condition>
+</li>
 <li><condition name="jsenabled">
     <li value="true"><javascript><get var="formula"/></javascript></li>
     <li><sraix service="pannous">WHAT IS <star/></sraix></li>
