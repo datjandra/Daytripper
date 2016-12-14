@@ -1,68 +1,93 @@
 <html>
 <body>
 <p>
-    Daytripper is an intelligent personal assistant for map search, web search and general chat.
-    The app utilizes artificial intelligence and natural language processing based on a chatbot called <a href="http://alicebot.org">Alicebot</a>.
-    Both typed and spoken inputs are supported.
-    Please see below for examples.
+    Daytripper is a chatbot that can learn new knowledge in addition to providing search services
+    such as map, video, and Web searches.
+    The app utilizes artificial intelligence and natural language processing based on <a
+        href="http://alicebot.org">Alicebot</a> chatbot.
+    In addition to general chatbot and utility features, you can teach the app new knowledge as
+    explained below.
 </p>
 
-<h3>Map Search</h3>
-<p>
-    Daytripper recognizes certain foods such as "pizza" or "taco" and then displays a map of nearby food places.
-    Map search is also triggered by asking "where is X' or "where are the X".
-</p>
-<pre>
+<div>
+    <h1>Map Search</h1>
+    <p>
+        Daytripper recognizes certain food items such as "pizza" or "taco".
+        The app can then display a map of nearby food places.
+        Map search is also triggered by questions like "where is X?" or "where are the X?".
+    </p>
+    <div>
+        <h3>Examples</h3>
+    <pre>
     Pizza<br/>
     Where is India?<br/>
     Where are the best sushi?<br/>
-</pre>
+    </pre>
+    </div>
+</div>
 
-<h3>Web Browse and Search</h3>
-<p>
-    Daytripper recognizes popular sites such as "espn" and automatically displays them on the browser.
-    Also, user can input phrases such as "who is X" or "google Y" to trigger web search.
-</p>
-<pre>
+<div>
+    <h1>Web Browsing and Search</h1>
+    <p>
+        Daytripper recognizes popular sites such as "espn" and automatically displays them on the
+        browser.
+        You can also input phrases such as "who is X?" or "google Y" to trigger web search, lookup
+        information from Wikipedia, play a video, and access other information from the Internet.
+    </p>
+    <div>
+        <h3>Examples</h3>
+    <pre>
     jobs nurse<br/>
     who is David Cameron?<br/>
     google french fries<br/>
     tell me a joke<br/>
     play u2<br/>
-</pre>
+    </pre>
+    </div>
+</div>
 
-<h3>General Chat</h3>
-<p>
-    Daytripper has full capabilities of the Alicebot chatbot.
-    Example chat messages are shown below.
-    See Alicebot link above for more information.
-</p>
-<pre>
-    favorite movie<br/>
-    my uncle is Bob<br/>
-    knock knock<br/>
-    define artificial intelligence<br/>
-    days until Christmas<br/>
-    if giraffe is taller than monkey who is shorter<br/>
-    count up to 7<br/>
-</pre>
-
-<h3>Neura Integration (in progress)</h3>
-<p>
-    <a href="http://theneura.com">Neura</a> is a software module that uses smartphone sensors to detect and predict user context (user left home, user arrived at work, and many others).
-    User subscribes to events by inputting messages such as "when I arrive home X" or "when I leave work Y".
-    The app receives Neura events and sends chatbot commands in the background.
-    Example chat messages below shows inputs for subscribing to Neura events.
-</p>
-<pre>
-    when I arrive home play canon<br/>
-    when I leave home tweet on my way to work<br/>
-    when I leave work traffic san francisco<br/>
-    when I arrive work espn<br/>
-</pre>
+<div>
+    <h1>Learning abilities</h1>
+    <p>
+        Daytripper can learn new knowledge using a simple learning algorithm.
+        You tell it facts and then ask queries based on those facts.
+    </p>
+    <div>
+        <h3>Relations</h3>
+        <ol>
+            <li>Enter a phrase "my uncle is X" such as "my uncle is Bob".</li>
+            <li>Now ask "who is my uncle?". Daytripper responds with "Bob."</li>
+        </ol>
+    </div>
+    <div>
+        <h3>Lists</h3>
+        <ol>
+            <li>Create a list - "make a food list".</li>
+            <li>Add one item to the list - "add apple to my food list".</li>
+            <li>Add another item to the the list - "add orange to my food list".</li>
+            <li>Add one more item to the list - "add bread to my food list".</li>
+            <li>Now ask for contents of the list - "read my food list".</li>
+        </ol>
+    </div>
+    <div>
+        <h3>Association</h3>
+        <ol>
+            <li>Input a location that is not in Daytripper's database like "Santorini". The app
+                responds with a random
+                message.
+            </li>
+            <li>Tell Daytripper the input in step #1 is a location - "Santorini is a location". The
+                location gets added to its database.
+            </li>
+            <li>Input "Santorini" (the location in step #1) again. This time Daytripper shows a map
+                of that location.
+            </li>
+        </ol>
+    </div>
+</div>
 
 <footer>
-    <small>Developed by <a href="http://vocifery.com">Vocifery Technology</a></small>
+    <small>Developed by <a href="http://vocifery.com">Vocifery</a></small>
 </footer>
 </body>
 </html>

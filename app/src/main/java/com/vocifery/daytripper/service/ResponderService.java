@@ -46,12 +46,7 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 	public static final String CHATBOT_KEY_OBJECT = "object";
 	public static final String CHATBOT_VAR_ASSOCIATE = "associate";
 	public static final String CHATBOT_VALUE_LOCATION = "location";
-
 	public static final String VOICE_FLAG = "voice";
-	public static final String NEURA_USER_ARRIVED_HOME = "userArrivedHome";
-	public static final String NEURA_USER_LEFT_HOME = "userLeftHome";
-	public static final String NEURA_USER_ARRIVED_TO_WORK = "userArrivedToWork";
-	public static final String NEURA_USER_LEFT_WORK = "userLeftWork";
 
 	private static final String TAG = "ResponderService";
 	private static final Map<String,String> KEYWORD_HASHES = new HashMap<String,String>();
@@ -114,30 +109,6 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 			broadcastIntent.putExtra(VOICE_FLAG, voice);
 		}
 
-		String userArrivedHome = chatSession.predicates.get(NEURA_USER_ARRIVED_HOME);
-		if (!TextUtils.isEmpty(userArrivedHome) && !userArrivedHome.equalsIgnoreCase("unknown")) {
-			chatSession.predicates.remove(NEURA_USER_ARRIVED_HOME);
-			broadcastIntent.putExtra(NEURA_USER_ARRIVED_HOME, userArrivedHome);
-		}
-
-		String userLeftHome = chatSession.predicates.get(NEURA_USER_LEFT_HOME);
-		if (!TextUtils.isEmpty(userLeftHome) && !userLeftHome.equalsIgnoreCase("unknown")) {
-			chatSession.predicates.remove(NEURA_USER_LEFT_HOME);
-			broadcastIntent.putExtra(NEURA_USER_LEFT_HOME, userLeftHome);
-		}
-
-		String userArrivedToWork = chatSession.predicates.get(NEURA_USER_ARRIVED_TO_WORK);
-		if (!TextUtils.isEmpty(userArrivedToWork) && !userArrivedToWork.equalsIgnoreCase("unknown")) {
-			chatSession.predicates.remove(NEURA_USER_ARRIVED_TO_WORK);
-			broadcastIntent.putExtra(NEURA_USER_ARRIVED_TO_WORK, userArrivedToWork);
-		}
-
-		String userLeftWork = chatSession.predicates.get(NEURA_USER_LEFT_WORK);
-		if (!TextUtils.isEmpty(userLeftWork) && !userLeftWork.equalsIgnoreCase("unknown")) {
-			chatSession.predicates.remove(NEURA_USER_LEFT_WORK);
-			broadcastIntent.putExtra(NEURA_USER_LEFT_WORK, userLeftWork);
-		}
-
 		broadcastIntent.putExtra(EXTRA_TEXT_MESSAGE, Jsoup.parse(response).text());
 		LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
 	}
@@ -149,11 +120,7 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 				"url",
 				"associate",
 				"lookup",
-				VOICE_FLAG,
-				NEURA_USER_ARRIVED_HOME,
-				NEURA_USER_LEFT_HOME,
-				NEURA_USER_ARRIVED_TO_WORK,
-				NEURA_USER_LEFT_WORK
+				VOICE_FLAG
 		}));
 	}
 
@@ -213,10 +180,6 @@ public class ResponderService extends IntentService implements AIMLProcessorExte
 				break;
 
 			case VOICE_FLAG:
-			case NEURA_USER_ARRIVED_HOME:
-			case NEURA_USER_LEFT_HOME:
-			case NEURA_USER_ARRIVED_TO_WORK:
-			case NEURA_USER_LEFT_WORK:
 				ps.chatSession.predicates.put(nodeName, tagContent);
 				break;
 

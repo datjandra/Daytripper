@@ -41,11 +41,6 @@
         </activity>
 
         <service android:enabled="true" android:name=".service.ResponderService" />
-        <receiver android:name=".service.NeuraReceiver" >
-            <intent-filter>
-                <action android:name="com.neura.android.ACTION_NEURA_EVENT" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

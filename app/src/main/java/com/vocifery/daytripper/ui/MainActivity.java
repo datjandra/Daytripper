@@ -1,7 +1,6 @@
 package com.vocifery.daytripper.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -31,29 +30,15 @@ import android.webkit.WebView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.neura.sdk.config.NeuraConsts;
-import com.neura.sdk.object.AuthenticationRequest;
-import com.neura.sdk.object.Permission;
-import com.neura.sdk.object.SubscriptionRequest;
-import com.neura.sdk.service.NeuraApiClient;
-import com.neura.sdk.service.NeuraServices;
-import com.neura.sdk.service.SubscriptionRequestCallbacks;
-import com.neura.sdk.util.Builder;
-import com.neura.sdk.util.NeuraAuthUtil;
-import com.neura.sdk.util.NeuraUtil;
 import com.vocifery.daytripper.R;
 import com.vocifery.daytripper.service.ResponderService;
 import com.vocifery.daytripper.ui.components.IntroFragment;
 import com.vocifery.daytripper.ui.components.ResultFragment;
-import com.vocifery.daytripper.util.NeuraUtils;
 import com.vocifery.daytripper.util.ResourceUtils;
 
 import org.alicebot.ab.Chat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -91,22 +76,7 @@ public class MainActivity extends AppCompatActivity implements
     private BroadcastReceiver broadcastReceiver;
     private IntroFragment introFragment;
     private ResultFragment resultFragment;
-    private NeuraApiClient neuraClient;
     private boolean vociferous = true;
-
-    private NeuraApiClient.ConnectionCallbacks neuraServiceConnectionCallbacks = new NeuraApiClient.ConnectionCallbacks() {
-        @Override
-        public void onConnected() {
-            String accessToken = NeuraUtils.getAccessToken(MainActivity.this);
-            String eventName = NeuraUtils.getEventName(MainActivity.this);
-            registerNeuraEvent(accessToken, MainActivity.this, eventName);
-        }
-
-        @Override
-        public void onFailedToConnect(int errorCode) {
-            receivedResponse("Error: Failed to connect to Neura's service. Error code: " + NeuraUtil.errorCodeToString(errorCode), true);
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,15 +140,6 @@ public class MainActivity extends AppCompatActivity implements
 
         SharedPreferences prefs = getApplicationContext().getSharedPreferences(Daytripper.class.getName(), Context.MODE_PRIVATE);
         prefs.registerOnSharedPreferenceChangeListener(this);
-
-        String appId = getString(R.string.app_uid_production);
-        String appSecret = getString(R.string.app_secret_production);
-
-        Builder builder = new Builder(this);
-        builder.addConnectionCallbacks(neuraServiceConnectionCallbacks);
-        neuraClient = builder.build();
-        neuraClient.setAppUid(appId);
-        neuraClient.setAppSecret(appSecret);
     }
 
     @Override
@@ -243,12 +204,10 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
         Log.i(TAG, "onStart()");
         super.onStart();
-        neuraClient.connect();
     }
 
     @Override
     protected void onStop() {
-        neuraClient.disconnect();
         super.onStop();
     }
 
@@ -291,23 +250,6 @@ public class MainActivity extends AppCompatActivity implements
         handleIntent(intent);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == NEURA_AUTHENTICATION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                String accessToken = NeuraAuthUtil.extractToken(data);
-                NeuraUtils.saveAccessTokenPersistent(MainActivity.this, accessToken);
-                Toast.makeText(MainActivity.this, "Authenticate Success!", Toast.LENGTH_SHORT)
-                        .show();
-                Log.i(TAG, String.format("Successfully logged in with accessToken %s", accessToken));
-            } else {
-                int errorCode = data.getIntExtra(NeuraConsts.EXTRA_ERROR_CODE, -1);
-                Log.e(TAG, String.format("Authentication failed due to %s", NeuraUtil.errorCodeToString(errorCode)));
-            }
-        }
-    }
-
     private void receivedResponse(String response, boolean vocalize) {
         try {
             if (vocalize) {
@@ -317,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements
             lockOrientation(false);
         }
     }
-
 
     private void startProgress() {
         lockOrientation(true);
@@ -470,18 +411,6 @@ public class MainActivity extends AppCompatActivity implements
             if (intent.hasExtra(ResponderService.VOICE_FLAG)) {
                 toggleVoice(intent.getStringExtra(ResponderService.VOICE_FLAG),
                         intent.getStringExtra(ResponderService.EXTRA_TEXT_MESSAGE));
-            } else if (intent.hasExtra(ResponderService.NEURA_USER_LEFT_WORK)) {
-                String userLeftWork = intent.getStringExtra(ResponderService.NEURA_USER_LEFT_WORK);
-                handleNeuraEvent(ResponderService.NEURA_USER_LEFT_WORK, userLeftWork, intent);
-            } else if (intent.hasExtra(ResponderService.NEURA_USER_ARRIVED_HOME)) {
-                String userArrivedHome = intent.getStringExtra(ResponderService.NEURA_USER_ARRIVED_HOME);
-                handleNeuraEvent(ResponderService.NEURA_USER_ARRIVED_HOME, userArrivedHome, intent);
-            } else if (intent.hasExtra(ResponderService.NEURA_USER_LEFT_HOME)) {
-                String userLeftHome = intent.getStringExtra(ResponderService.NEURA_USER_LEFT_HOME);
-                handleNeuraEvent(ResponderService.NEURA_USER_LEFT_HOME, userLeftHome, intent);
-            } else if (intent.hasExtra(ResponderService.NEURA_USER_ARRIVED_TO_WORK)) {
-                String userArrivedToWork = intent.getStringExtra(ResponderService.NEURA_USER_ARRIVED_TO_WORK);
-                handleNeuraEvent(ResponderService.NEURA_USER_ARRIVED_TO_WORK, userArrivedToWork, intent);
             } else {
                 chatMessage(intent);
             }
@@ -599,77 +528,5 @@ public class MainActivity extends AppCompatActivity implements
             resultFragment = new ResultFragment();
         }
         return resultFragment;
-    }
-
-    private static String getLastQuery() {
-        final Daytripper daytripper = (Daytripper) Daytripper.getAppContext();
-        return daytripper.getLastQuery();
-    }
-
-    private void performNeuraAuthentication() {
-        String appId = getString(R.string.app_uid_production);
-        String appSecret = getString(R.string.app_secret_production);
-
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-        authenticationRequest.setAppId(appId);
-        authenticationRequest.setAppSecret(appSecret);
-
-        String[] permissions = getString(R.string.neura_permissions).split(",");
-        ArrayList<Permission> permissionsList = Permission.list(permissions);
-        authenticationRequest.setPermissions(permissionsList);
-
-        Log.i(TAG, String.format("Neura permissions: %s", Arrays.toString(permissions)));
-        boolean neuraInstalled = new NeuraAuthUtil().authenticate(MainActivity.this,
-                NEURA_AUTHENTICATION_REQUEST_CODE, authenticationRequest);
-
-        if (!neuraInstalled) {
-            NeuraUtil.redirectToGooglePlayNeuraMeDownloadPage(this, APP_REFERRER);
-        }
-    }
-
-    private void handleNeuraEvent(String eventName, String eventDetails, Intent intent) {
-        boolean neuraSupported = NeuraUtil.isNeuraAppSupported(MainActivity.this);
-        if (!neuraSupported) {
-            receivedResponse("This device cannot support the Neura app", true);
-        } else {
-            NeuraUtils.saveEventName(MainActivity.this, eventName);
-            NeuraUtils.saveEventDetails(MainActivity.this, eventName, eventDetails);
-            performNeuraAuthentication();
-            chatMessage(intent);
-        }
-    }
-
-    private void registerNeuraEvent(String accessToken, Context context, String eventName) {
-        if (!neuraClient.isConnected()) {
-            Toast.makeText(
-                    MainActivity.this,
-                    "Error: You attempted to register to receive an event without being connected to Neura's service.",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        Log.i(TAG, String.format("Subscribing to event %s", eventName));
-        SubscriptionRequest subscriptionRequest = new SubscriptionRequest.Builder(context)
-                .setAccessToken(accessToken)
-                .setAction(NeuraConsts.ACTION_SUBSCRIBE)
-                .setEventName(eventName)
-                .build();
-
-        NeuraServices.SubscriptionsAPI.executeSubscriptionRequest(neuraClient,
-                subscriptionRequest, new SubscriptionRequestCallbacks() {
-                    @Override
-                    public void onSuccess(String eventName, Bundle resultData, String identifier) {
-                        Toast.makeText(MainActivity.this,
-                                "Success: You subscribed to the event " + eventName,
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(String eventName, Bundle resultData, int errorCode) {
-                        String text = String.format("Failed subscribing to event %s due to error %s",
-                                eventName, NeuraUtil.errorCodeToString(errorCode));
-                        Log.e(TAG, text);
-                    }
-                });
     }
 }

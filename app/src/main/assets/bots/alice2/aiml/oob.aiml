@@ -179,16 +179,4 @@ To help the developers understand your problem, you can choose to send us a tran
 <category><pattern>VOICE OFF</pattern>
     <template>Even dunces who keep quiet are thought to be wise.<think><oob><voice>off</voice></oob></think></template>
 </category>
-<category><pattern>WHEN I ARRIVE HOME *</pattern>
-    <template>I shall <oob><userArrivedHome><star/></userArrivedHome></oob> when you arrive home.</template>
-</category>
-<category><pattern>WHEN I LEAVE HOME *</pattern>
-    <template>I shall <oob><userLeftHome><star/></userLeftHome></oob> when you leave home.</template>
-</category>
-<category><pattern>WHEN I ARRIVE WORK *</pattern>
-    <template>I shall <oob><userArrivedToWork><star/></userArrivedToWork></oob> when you arrive work.</template>
-</category>
-<category><pattern>WHEN I LEAVE WORK *</pattern>
-    <template>I shall <oob><userLeftWork><star/></userLeftWork></oob> when you leave work.</template>
-</category>
 </aiml>

@@ -50,7 +50,3 @@
 0,I WANT TO KILL MYSELF,*,*,You should call Emergency Services.  <oob><dial>911</dial></oob>,oob.aiml
 0,VOICE ON,*,*,It's always a pleasure speaking with you.<think><oob><voice>on</voice></oob></think>,oob.aiml
 0,VOICE OFF,*,*,Even dunces who keep quiet are thought to be wise.<think><oob><voice>off</voice></oob></think>,oob.aiml
-0,WHEN I ARRIVE HOME *,*,*,I shall <oob><userArrivedHome><star/></userArrivedHome></oob> when you arrive home.,oob.aiml
-0,WHEN I LEAVE HOME *,*,*,I shall <oob><userLeftHome><star/></userLeftHome></oob> when you leave home.,oob.aiml
-0,WHEN I ARRIVE WORK *,*,*,I shall <oob><userArrivedToWork><star/></userArrivedToWork></oob> when you arrive work.,oob.aiml
-0,WHEN I LEAVE WORK *,*,*,I shall <oob><userLeftWork><star/></userLeftWork></oob> when you leave work.,oob.aiml
