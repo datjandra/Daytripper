@@ -87,7 +87,7 @@
 </div>
 
 <footer>
-    <small>Apache License Version 2.0, January 2004</small>
+    <small>Apache License Version 2.0, January 2004</small><br/>
     <small>Developed by <a href="http://vocifery.com">Vocifery</a></small>
 </footer>
 </body>
