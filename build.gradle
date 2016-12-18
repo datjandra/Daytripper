@@ -11,7 +11,9 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven { url 'http://artifactory.cloud.mapquest.com/artifactory/et-android-binaries' }
-        maven { url 'http://nexus.bippo.co.id/nexus/content/repositories/soluvas-public-thirdparty/' }
+        maven {
+            // this is needed for net.reduls.sanmoku:sanmoku-feature-ex:0.0.1
+            url 'http://nexus.bippo.co.id/nexus/content/repositories/soluvas-public-thirdparty/'
+        }
     }
 }

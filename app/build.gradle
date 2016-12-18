@@ -8,7 +8,7 @@ android {
         applicationId "com.vocifery.daytripper"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 8
+        versionCode 9
         versionName "1.4"
     }
 
@@ -43,4 +43,5 @@ dependencies {
     compile 'net.reduls.sanmoku:sanmoku:0.0.5'
     compile 'net.reduls.sanmoku:sanmoku-feature-ex:0.0.1'
     compile 'org.jsoup:jsoup:1.9.2'
+    compile 'commons-codec:commons-codec:1.10'
 }
