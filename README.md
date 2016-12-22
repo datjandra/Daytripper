@@ -1,7 +1,9 @@
 ####Daytripper is a chatbot and personal assistant that learns new knowledge in addition to providing search services such as map, video, and Web searches. The app utilizes artificial intelligence and natural language processing based on [Alicebot](http://alicebot.org) chatbot. In addition to general chat and utility features, you can teach the app new knowledge as explained below.
 
 ##Demo
-[![YouTube demo](http://img.youtube.com/vi/Osjsker6lRg/0.jpg)](http://www.youtube.com/watch?v=Osjsker6lRg)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=Osjsker6lRg" target="_blank">
+<img src="http://img.youtube.com/vi/Osjsker6lRg/0.jpg" alt="YouTube demo"/>
+</a>
 
 ##Get the app
 <a href="http://www.amazon.com/Vocifery-Technology-Daytripper-v2/dp/B01BHMJ2OY/" target="_blank">
@@ -45,6 +47,7 @@ Daytripper can learn new knowledge using a simple learning algorithm. You tell i
 1. Input a location that is not in Daytripper's database like "Santorini". The app responds with a random message.
 2. Tell Daytripper the input in step #1 is a location - "Santorini is a location". The location gets added to its database.
 3. Input "Santorini" (the location in step #1) again. This time Daytripper shows a map of that location.
+
 
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
